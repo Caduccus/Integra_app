@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background_gradiente"
+    tools:context=".MainActivity3">
+
+    <!-- BARRA SUPERIOR (TOOLBAR SIMPLIFICADA) -->
+    <LinearLayout
+        android:id="@+id/layoutHeader"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:background="#1A000000"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/txtNomeChat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Chat do Trabalho"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"/>
+    </LinearLayout>
+
+    <!-- LISTA DE MENSAGENS -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvMensagens"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/layoutInput"
+        android:layout_below="@id/layoutHeader"
+        android:clipToPadding="false"
+        android:padding="16dp"
+        android:scrollbars="vertical" />
+
+    <!-- BARRA INFERIOR DE DIGITAÇÃO -->
+    <LinearLayout
+        android:id="@+id/layoutInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:gravity="center_vertical"
+        android:background="#33000000">
+
+        <!-- CAMPO DE TEXTO -->
+        <EditText
+            android:id="@+id/edtMensagem"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="Digite uma mensagem..."
+            android:textColorHint="#A0FFFFFF"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#FFFFFF"
+            android:inputType="textMultiLine"
+            android:maxLines="4"
+            android:importantForAutofill="no" />
+
+        <!-- BOTÃO ENVIAR -->
+        <Button
+            android:id="@+id/btnEnviar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:backgroundTint="#0D226B"
+            android:text="ENVIAR"
+            android:textColor="#FFFFFF" />
+
+    </LinearLayout>
+
+</RelativeLayout>
