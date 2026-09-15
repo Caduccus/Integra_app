@@ -116,7 +116,7 @@
                 android:layout_height="56dp"
                 android:layout_marginTop="32dp"
                 android:text="ENTRAR"
-                android:textColorLink="#FFFFFF"
+                android:textColor="#FFFFFF"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 app:backgroundTint="#0D226B"
