@@ -2,7 +2,9 @@ package com.example.plataformaremota
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -16,11 +18,12 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var txtBoasVindas: TextView
     private lateinit var btnNovoTrabalho: Button
+    private lateinit var btnLogout: ImageView
     private lateinit var recyclerTrabalhos: RecyclerView
+    private lateinit var layoutEstadoVazio: View
     private lateinit var adapter: TrabalhoAdapter
 
     private var usuarioId: Int = 0
-
     private var nomeUsuario: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,26 +31,16 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_main)
 
-        txtBoasVindas =
-            findViewById(R.id.txtBoasVindas)
+        txtBoasVindas = findViewById(R.id.txtBoasVindas)
+        btnNovoTrabalho = findViewById(R.id.btnNovoTrabalho)
+        btnLogout = findViewById(R.id.btnLogout)
+        recyclerTrabalhos = findViewById(R.id.recyclerTrabalhos)
+        layoutEstadoVazio = findViewById(R.id.layoutEstadoVazio)
 
-        btnNovoTrabalho =
-            findViewById(R.id.btnNovoTrabalho)
+        usuarioId = intent.getIntExtra("usuarioId", 0)
+        nomeUsuario = intent.getStringExtra("nomeUsuario") ?: ""
 
-        recyclerTrabalhos =
-            findViewById(R.id.recyclerTrabalhos)
-
-        usuarioId = intent.getIntExtra(
-            "usuarioId",
-            0
-        )
-
-        nomeUsuario = intent.getStringExtra(
-            "nomeUsuario"
-        ) ?: ""
-
-        txtBoasVindas.text =
-            "Olá, $nomeUsuario!"
+        txtBoasVindas.text = "Olá, $nomeUsuario!"
 
         configurarRecyclerView()
 
@@ -58,12 +51,13 @@ class MainActivity : AppCompatActivity() {
                 TrabalhoActivity::class.java
             )
 
-            intent.putExtra(
-                "usuarioId",
-                usuarioId
-            )
+            intent.putExtra("usuarioId", usuarioId)
 
             startActivity(intent)
+        }
+
+        btnLogout.setOnClickListener {
+            fazerLogout()
         }
 
         carregarTrabalhos()
@@ -71,15 +65,16 @@ class MainActivity : AppCompatActivity() {
 
     private fun configurarRecyclerView() {
 
-        adapter = TrabalhoAdapter(
-            emptyList()
-        )
+        adapter = TrabalhoAdapter(emptyList()) { trabalho ->
+            val intent = Intent(this, MainActivity2::class.java)
+            intent.putExtra("trabalhoId", trabalho.id)
+            startActivity(intent)
+        }
 
         recyclerTrabalhos.layoutManager =
             LinearLayoutManager(this)
 
-        recyclerTrabalhos.adapter =
-            adapter
+        recyclerTrabalhos.adapter = adapter
     }
 
     private fun carregarTrabalhos() {
@@ -95,10 +90,30 @@ class MainActivity : AppCompatActivity() {
                 database.trabalhoDao()
                     .listarTodos()
 
-            adapter.atualizarLista(
-                trabalhos
-            )
+            adapter.atualizarLista(trabalhos)
+
+            if (trabalhos.isEmpty()) {
+                layoutEstadoVazio.visibility = View.VISIBLE
+                recyclerTrabalhos.visibility = View.GONE
+            } else {
+                layoutEstadoVazio.visibility = View.GONE
+                recyclerTrabalhos.visibility = View.VISIBLE
+            }
         }
+    }
+
+    private fun fazerLogout() {
+
+        val intent = Intent(
+            this,
+            LoginActivity::class.java
+        )
+
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                Intent.FLAG_ACTIVITY_CLEAR_TASK
+
+        startActivity(intent)
+        finish()
     }
 
     override fun onResume() {

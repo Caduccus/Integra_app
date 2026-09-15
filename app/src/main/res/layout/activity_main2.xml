@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/background_gradiente">
+    android:background="@drawable/background_gradiente"
+    android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -11,96 +13,209 @@
         android:orientation="vertical"
         android:padding="24dp">
 
-        <TextView
-            android:id="@+id/txtTituloTela"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="25dp"
-            android:text="Detalhes do Trabalho"
-            android:textColor="#000000"
-            android:textSize="28sp"
-            android:textStyle="bold" />
-
-        <!-- TÍTULO -->
-        <TextView
-            android:id="@+id/txtTitulo"
+        <!-- Cabeçalho -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            android:text="Título do Trabalho"
-            android:textColor="#020202"
-            android:textSize="20sp"
-            android:textStyle="bold" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:layout_marginBottom="24dp">
 
-        <!-- DESCRIÇÃO -->
-        <TextView
-            android:id="@+id/txtDescricao"
+            <ImageView
+                android:id="@+id/btnVoltar"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:padding="8dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true"
+                android:contentDescription="Voltar"
+                android:src="@drawable/ic_work_outline"
+                app:tint="@color/white" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:text="Detalhes do Trabalho"
+                android:textColor="@color/white"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Card semi-transparente com os detalhes -->
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="16dp"
-            android:text="Descrição detalhada do trabalho aqui..."
-            android:textColor="#000000"
-            android:textSize="16sp" />
+            app:cardBackgroundColor="#1AFFFFFF"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="#33FFFFFF"
+            android:layout_marginBottom="24dp">
 
-        <!-- CATEGORIA -->
-        <TextView
-            android:id="@+id/txtCategoria"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="Categoria: Design"
-            android:textColor="#050505"
-            android:textSize="14sp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
 
-        <!-- PRAZO -->
-        <TextView
-            android:id="@+id/txtPrazo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:layout_marginBottom="30dp"
-            android:text="Prazo: 15/10/2026"
-            android:textColor="#0D0D0D"
-            android:textSize="14sp" />
+                <!-- Título -->
+                <TextView
+                    android:id="@+id/txtTituloDetalhe"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Título do Trabalho"
+                    android:textColor="@color/white"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="16dp" />
 
-        <!-- CONTAINER DOS BOTÕES (LADO A LADO) -->
+                <!-- Divisor -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="#33FFFFFF"
+                    android:layout_marginBottom="16dp" />
+
+                <!-- Descrição -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Descrição"
+                    android:textColor="#B3FFFFFF"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/txtDescricaoDetalhe"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:text="Descrição do trabalho..."
+                    android:textColor="@color/white"
+                    android:textSize="15sp" />
+
+                <!-- Categoria -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Categoria"
+                    android:textColor="#B3FFFFFF"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/txtCategoriaDetalhe"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:text="Categoria"
+                    android:textColor="@color/white"
+                    android:textSize="15sp" />
+
+                <!-- Tipo de Contrato -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tipo de Contrato"
+                    android:textColor="#B3FFFFFF"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/txtTipoContratoDetalhe"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:text="CLT"
+                    android:textColor="@color/white"
+                    android:textSize="15sp" />
+
+                <!-- Nível -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Nível de Experiência"
+                    android:textColor="#B3FFFFFF"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/txtNivelDetalhe"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:text="Júnior"
+                    android:textColor="@color/white"
+                    android:textSize="15sp" />
+
+                <!-- Prazo -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Prazo"
+                    android:textColor="#B3FFFFFF"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/txtPrazoDetalhe"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Prazo"
+                    android:textColor="@color/white"
+                    android:textSize="15sp" />
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Botões de ação (todos azuis, opacidade variada) -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:weightSum="3">
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnExcluir"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="52dp"
                 android:layout_weight="1"
                 android:layout_marginEnd="4dp"
-                android:backgroundTint="#D32F2F"
+                android:backgroundTint="#B30D226B"
                 android:text="EXCLUIR"
-                android:textSize="12sp"/>
+                android:textColor="#FFFFFF"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                app:cornerRadius="12dp" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnEditar"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="52dp"
                 android:layout_weight="1"
                 android:layout_marginHorizontal="4dp"
-                android:backgroundTint="#F57C00"
+                android:backgroundTint="#CC0D226B"
                 android:text="EDITAR"
-                android:textSize="12sp"/>
+                android:textColor="#FFFFFF"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                app:cornerRadius="12dp" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnChat"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="52dp"
                 android:layout_weight="1"
                 android:layout_marginStart="4dp"
                 android:backgroundTint="#0D226B"
                 android:text="CHAT"
-                android:textSize="12sp"/>
-
+                android:textColor="#FFFFFF"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                app:cornerRadius="12dp" />
         </LinearLayout>
 
     </LinearLayout>

@@ -13,4 +13,7 @@ interface TrabalhoDao {
 
     @Query("SELECT * FROM trabalhos ORDER BY id DESC")
     suspend fun listarTodos(): List<Trabalho>
+
+    @Query("SELECT * FROM trabalhos WHERE id = :id LIMIT 1")
+    suspend fun buscarPorId(id: Int): Trabalho?
 }

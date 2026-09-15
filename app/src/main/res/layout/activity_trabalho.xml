@@ -183,31 +183,6 @@
                         android:textColor="@color/white" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- Campo Valor / Faixa Salarial -->
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    android:hint="Valor / Faixa Salarial"
-                    android:textColorHint="#B3FFFFFF"
-                    app:hintTextColor="@color/white"
-                    app:boxStrokeColor="@color/white"
-                    app:boxStrokeWidth="1.5dp"
-                    app:prefixText="R$ "
-                    app:prefixTextColor="@color/white"
-                    app:startIconDrawable="@android:drawable/ic_menu_call"
-                    app:startIconTint="@color/white"
-                    app:boxBackgroundColor="@android:color/transparent">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/edtValor"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="numberDecimal"
-                        android:textColor="@color/white" />
-                </com.google.android.material.textfield.TextInputLayout>
-
                 <!-- Campo Prazo -->
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
