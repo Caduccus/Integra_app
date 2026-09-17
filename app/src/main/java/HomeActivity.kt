@@ -21,13 +21,11 @@ class HomeActivity : AppCompatActivity() {
 
         bottomNav = findViewById(R.id.bottomNav)
 
-        // Carrega o fragment inicial (Início)
         if (savedInstanceState == null) {
             trocarFragment(HomeFragment())
             bottomNav.selectedItemId = R.id.nav_inicio
         }
 
-        // Listener dos cliques na navbar
         bottomNav.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_inicio -> {
@@ -52,6 +50,13 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun trocarFragment(fragment: Fragment) {
+        // Passa usuarioId e nomeUsuario pro Fragment via arguments
+        val bundle = Bundle().apply {
+            putInt("usuarioId", usuarioId)
+            putString("nomeUsuario", nomeUsuario)
+        }
+        fragment.arguments = bundle
+
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragmentContainer, fragment)
             .commit()

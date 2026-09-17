@@ -3,6 +3,7 @@ package com.example.plataformaremota
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -17,6 +18,7 @@ class CadastroActivity : AppCompatActivity() {
     private lateinit var edtSenha: EditText
     private lateinit var edtProfissao: EditText
     private lateinit var btnSalvar: Button
+    private lateinit var btnVoltarCadastro: ImageView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,9 +29,15 @@ class CadastroActivity : AppCompatActivity() {
         edtEmail = findViewById(R.id.edtEmail)
         edtSenha = findViewById(R.id.edtSenha)
         edtProfissao = findViewById(R.id.edtProfissao)
-
         btnSalvar = findViewById(R.id.btnSalvar)
+        btnVoltarCadastro = findViewById(R.id.btnVoltarCadastro)
 
+        // Botão de voltar
+        btnVoltarCadastro.setOnClickListener {
+            finish()
+        }
+
+        // Botão de cadastrar
         btnSalvar.setOnClickListener {
             cadastrarUsuario()
         }

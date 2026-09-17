@@ -24,8 +24,8 @@
             <!-- Logo -->
             <ImageView
                 android:id="@+id/imageView4"
-                android:layout_width="220dp"
-                android:layout_height="200dp"
+                android:layout_width="140dp"
+                android:layout_height="140dp"
                 android:layout_marginTop="24dp"
                 android:contentDescription="Logo Integra"
                 app:layout_constraintBottom_toTopOf="@+id/textView"
@@ -43,7 +43,7 @@
                 android:layout_marginTop="8dp"
                 android:text="Plataforma Remota"
                 android:textColor="@android:color/white"
-                android:textSize="28sp"
+                android:textSize="26sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toTopOf="@+id/txtSubtitulo"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -67,65 +67,59 @@
             <!-- Campo E-mail -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilEmail"
-                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="32dp"
                 android:hint="E-mail"
                 android:textColorHint="#B3FFFFFF"
-                app:boxBackgroundColor="#26FFFFFF"
-                app:boxCornerRadiusBottomEnd="12dp"
-                app:boxCornerRadiusBottomStart="12dp"
-                app:boxCornerRadiusTopEnd="12dp"
-                app:boxCornerRadiusTopStart="12dp"
-                app:boxStrokeColor="@android:color/white"
-                app:hintTextColor="@android:color/white"
+                app:boxStrokeColor="@color/white"
+                app:boxStrokeWidth="1.5dp"
+                app:boxBackgroundColor="@android:color/transparent"
+                app:hintTextColor="@color/white"
+                app:startIconDrawable="@android:drawable/ic_dialog_email"
+                app:startIconTint="@color/white"
                 app:layout_constraintBottom_toTopOf="@+id/tilSenha"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/txtSubtitulo"
-                app:startIconDrawable="@android:drawable/ic_dialog_email"
-                app:startIconTint="@android:color/white">
+                app:layout_constraintTop_toBottomOf="@+id/txtSubtitulo">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edtEmail"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textEmailAddress"
-                    android:textColor="@android:color/white" />
+                    android:textColor="@color/white" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Campo Senha -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilSenha"
-                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:hint="Senha"
                 android:textColorHint="#B3FFFFFF"
-                app:boxBackgroundColor="#26FFFFFF"
-                app:boxCornerRadiusBottomEnd="12dp"
-                app:boxCornerRadiusBottomStart="12dp"
-                app:boxCornerRadiusTopEnd="12dp"
-                app:boxCornerRadiusTopStart="12dp"
-                app:boxStrokeColor="@android:color/white"
-                app:hintTextColor="@android:color/white"
+                app:boxStrokeColor="@color/white"
+                app:boxStrokeWidth="1.5dp"
+                app:boxBackgroundColor="@android:color/transparent"
+                app:hintTextColor="@color/white"
+                app:endIconMode="password_toggle"
+                app:endIconTint="@color/white"
+                app:startIconDrawable="@android:drawable/ic_lock_idle_lock"
+                app:startIconTint="@color/white"
                 app:layout_constraintBottom_toTopOf="@+id/txtEsqueciSenha"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tilEmail"
-                app:passwordToggleEnabled="true"
-                app:passwordToggleTint="@android:color/white"
-                app:startIconDrawable="@android:drawable/ic_lock_idle_lock"
-                app:startIconTint="@android:color/white">
+                app:layout_constraintTop_toBottomOf="@+id/tilEmail">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edtSenha"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textPassword"
-                    android:textColor="@android:color/white" />
+                    android:textColor="@color/white" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Esqueci a senha -->
