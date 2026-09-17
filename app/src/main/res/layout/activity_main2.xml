@@ -30,7 +30,7 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:contentDescription="Voltar"
-                android:src="@drawable/ic_work_outline"
+                android:src="@drawable/ic_arrow_back"
                 app:tint="@color/white" />
 
             <TextView
@@ -48,12 +48,12 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardBackgroundColor="#1AFFFFFF"
+            android:layout_marginBottom="24dp"
+            app:cardBackgroundColor="#33FFFFFF"
             app:cardCornerRadius="20dp"
-            app:cardElevation="0dp"
-            app:strokeWidth="1dp"
-            app:strokeColor="#33FFFFFF"
-            android:layout_marginBottom="24dp">
+            app:cardElevation="6dp"
+            app:strokeWidth="1.5dp"
+            app:strokeColor="#66FFFFFF">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -66,25 +66,24 @@
                     android:id="@+id/txtTituloDetalhe"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
                     android:text="Título do Trabalho"
                     android:textColor="@color/white"
                     android:textSize="24sp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="16dp" />
+                    android:textStyle="bold" />
 
-                <!-- Divisor -->
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:background="#33FFFFFF"
-                    android:layout_marginBottom="16dp" />
+                    android:layout_marginBottom="16dp"
+                    android:background="#66FFFFFF" />
 
                 <!-- Descrição -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Descrição"
-                    android:textColor="#B3FFFFFF"
+                    android:textColor="#CCFFFFFF"
                     android:textSize="12sp"
                     android:textStyle="bold" />
 
@@ -102,7 +101,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Categoria"
-                    android:textColor="#B3FFFFFF"
+                    android:textColor="#CCFFFFFF"
                     android:textSize="12sp"
                     android:textStyle="bold" />
 
@@ -120,7 +119,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Tipo de Contrato"
-                    android:textColor="#B3FFFFFF"
+                    android:textColor="#CCFFFFFF"
                     android:textSize="12sp"
                     android:textStyle="bold" />
 
@@ -138,7 +137,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Nível de Experiência"
-                    android:textColor="#B3FFFFFF"
+                    android:textColor="#CCFFFFFF"
                     android:textSize="12sp"
                     android:textStyle="bold" />
 
@@ -156,7 +155,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Prazo"
-                    android:textColor="#B3FFFFFF"
+                    android:textColor="#CCFFFFFF"
                     android:textSize="12sp"
                     android:textStyle="bold" />
 
@@ -167,11 +166,10 @@
                     android:text="Prazo"
                     android:textColor="@color/white"
                     android:textSize="15sp" />
-
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Botões de ação (todos azuis, opacidade variada) -->
+        <!-- Botões de ação (cores diferenciadas) -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -184,12 +182,18 @@
                 android:layout_height="52dp"
                 android:layout_weight="1"
                 android:layout_marginEnd="4dp"
-                android:backgroundTint="#B30D226B"
+                android:backgroundTint="#D32F2F"
                 android:text="EXCLUIR"
                 android:textColor="#FFFFFF"
-                android:textSize="13sp"
+                android:textSize="11sp"
                 android:textStyle="bold"
-                app:cornerRadius="12dp" />
+                android:maxLines="1"
+                app:cornerRadius="12dp"
+                app:icon="@drawable/ic_delete"
+                app:iconGravity="textStart"
+                app:iconPadding="4dp"
+                app:iconTint="#FFFFFF"
+                app:iconSize="18dp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnEditar"
@@ -197,12 +201,18 @@
                 android:layout_height="52dp"
                 android:layout_weight="1"
                 android:layout_marginHorizontal="4dp"
-                android:backgroundTint="#CC0D226B"
+                android:backgroundTint="#0D226B"
                 android:text="EDITAR"
                 android:textColor="#FFFFFF"
-                android:textSize="13sp"
+                android:textSize="11sp"
                 android:textStyle="bold"
-                app:cornerRadius="12dp" />
+                android:maxLines="1"
+                app:cornerRadius="12dp"
+                app:icon="@drawable/ic_edit"
+                app:iconGravity="textStart"
+                app:iconPadding="4dp"
+                app:iconTint="#FFFFFF"
+                app:iconSize="18dp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnChat"
@@ -210,12 +220,18 @@
                 android:layout_height="52dp"
                 android:layout_weight="1"
                 android:layout_marginStart="4dp"
-                android:backgroundTint="#0D226B"
+                android:backgroundTint="#43A047"
                 android:text="CHAT"
                 android:textColor="#FFFFFF"
-                android:textSize="13sp"
+                android:textSize="11sp"
                 android:textStyle="bold"
-                app:cornerRadius="12dp" />
+                android:maxLines="1"
+                app:cornerRadius="12dp"
+                app:icon="@drawable/ic_chat"
+                app:iconGravity="textStart"
+                app:iconPadding="4dp"
+                app:iconTint="#FFFFFF"
+                app:iconSize="18dp" />
         </LinearLayout>
 
     </LinearLayout>

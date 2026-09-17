@@ -74,7 +74,7 @@ class LoginActivity : AppCompatActivity() {
 
                     val intent = Intent(
                         this@LoginActivity,
-                        MainActivity::class.java
+                        HomeActivity::class.java
                     )
 
                     intent.putExtra(
