@@ -18,13 +18,14 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import com.example.plataformaremota.data.database.AppDatabase
-import com.example.plataformaremota.data.entity.Usuario
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.switchmaterial.SwitchMaterial
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import java.io.File
 import java.io.FileOutputStream
 
@@ -38,9 +39,13 @@ class ProfileFragment : Fragment() {
     private lateinit var txtStatusNotificacoes: TextView
     private lateinit var btnLogoutPerfil: MaterialButton
 
-    private var usuarioId: Int = 0
+    private var usuarioId: String = ""
     private var nomeUsuario: String = ""
-    private var usuarioAtual: Usuario? = null
+    private var emailUsuario: String = ""
+    private var profissaoUsuario: String = ""
+
+    private val auth = FirebaseAuth.getInstance()
+    private val db = FirebaseFirestore.getInstance()
 
     private val PREFS_NAME = "integra_prefs"
     private val KEY_NOTIFICACOES = "notificacoes_ativas"
@@ -73,7 +78,7 @@ class ProfileFragment : Fragment() {
         txtStatusNotificacoes = view.findViewById(R.id.txtStatusNotificacoes)
         btnLogoutPerfil = view.findViewById(R.id.btnLogoutPerfil)
 
-        usuarioId = arguments?.getInt("usuarioId", 0) ?: 0
+        usuarioId = arguments?.getString("usuarioId") ?: ""
         nomeUsuario = arguments?.getString("nomeUsuario") ?: ""
 
         txtNomePerfil.text = nomeUsuario.ifEmpty { "Carregando..." }
@@ -82,9 +87,7 @@ class ProfileFragment : Fragment() {
         carregarFotoSalva()
         atualizarStatusNotificacoes()
 
-        cardAvatarPerfil.setOnClickListener {
-            abrirBottomSheetFoto()
-        }
+        cardAvatarPerfil.setOnClickListener { abrirBottomSheetFoto() }
 
         view.findViewById<View>(R.id.opcaoEditarPerfil).setOnClickListener {
             abrirDialogEditarPerfil()
@@ -96,34 +99,50 @@ class ProfileFragment : Fragment() {
             abrirDialogSobre()
         }
 
-        btnLogoutPerfil.setOnClickListener {
-            fazerLogout()
-        }
+        btnLogoutPerfil.setOnClickListener { fazerLogout() }
     }
 
+    // ─────────────────────────────────────────────
+    // BUSCAR DADOS DO FIRESTORE
+    // ─────────────────────────────────────────────
     private fun carregarDadosUsuario() {
-        if (usuarioId == 0) {
+        val uid = auth.currentUser?.uid ?: usuarioId
+        if (uid.isEmpty()) {
             txtNomePerfil.text = "Usuário não identificado"
             return
         }
 
-        lifecycleScope.launch {
-            val database = AppDatabase.getDatabase(requireContext())
-            val usuario = database.usuarioDao().buscarPorId(usuarioId)
+        usuarioId = uid
 
-            if (usuario != null) {
-                usuarioAtual = usuario
-                txtNomePerfil.text = usuario.nome
-                txtEmailPerfil.text = usuario.email
-                txtProfissaoPerfil.text = usuario.profissao
-            } else {
+        lifecycleScope.launch {
+            try {
+                val doc = db.collection("usuarios").document(uid).get().await()
+
+                if (doc.exists()) {
+                    nomeUsuario = doc.getString("nome") ?: "Usuário"
+                    emailUsuario = doc.getString("email") ?: ""
+                    profissaoUsuario = doc.getString("profissao") ?: ""
+
+                    txtNomePerfil.text = nomeUsuario
+                    txtEmailPerfil.text = emailUsuario.ifEmpty { "—" }
+                    txtProfissaoPerfil.text = profissaoUsuario.ifEmpty { "—" }
+                } else {
+                    txtNomePerfil.text = "Usuário"
+                    txtEmailPerfil.text = auth.currentUser?.email ?: "—"
+                    txtProfissaoPerfil.text = "—"
+                }
+            } catch (e: Exception) {
                 txtNomePerfil.text = nomeUsuario.ifEmpty { "Usuário" }
-                txtEmailPerfil.text = "—"
+                txtEmailPerfil.text = auth.currentUser?.email ?: "—"
                 txtProfissaoPerfil.text = "—"
+                Toast.makeText(requireContext(), "Erro ao carregar: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
+    // ─────────────────────────────────────────────
+    // FOTO DE PERFIL
+    // ─────────────────────────────────────────────
     private fun abrirBottomSheetFoto() {
         val dialog = BottomSheetDialog(requireContext())
         val sheetView = layoutInflater.inflate(R.layout.bottom_sheet_foto_perfil, null)
@@ -164,7 +183,7 @@ class ProfileFragment : Fragment() {
 
             Toast.makeText(requireContext(), "Foto atualizada!", Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
-            Toast.makeText(requireContext(), "Erro ao salvar foto: ${e.message}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Erro: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -203,12 +222,10 @@ class ProfileFragment : Fragment() {
         Toast.makeText(requireContext(), "Foto removida", Toast.LENGTH_SHORT).show()
     }
 
+    // ─────────────────────────────────────────────
+    // DIALOG: EDITAR PERFIL
+    // ─────────────────────────────────────────────
     private fun abrirDialogEditarPerfil() {
-        if (usuarioAtual == null) {
-            Toast.makeText(requireContext(), "Carregando dados...", Toast.LENGTH_SHORT).show()
-            return
-        }
-
         val dialogView = LayoutInflater.from(requireContext())
             .inflate(R.layout.dialog_editar_perfil, null)
 
@@ -216,9 +233,9 @@ class ProfileFragment : Fragment() {
         val edtEmail = dialogView.findViewById<EditText>(R.id.edtDialogEmail)
         val edtProfissao = dialogView.findViewById<EditText>(R.id.edtDialogProfissao)
 
-        edtNome.setText(usuarioAtual!!.nome)
-        edtEmail.setText(usuarioAtual!!.email)
-        edtProfissao.setText(usuarioAtual!!.profissao)
+        edtNome.setText(nomeUsuario)
+        edtEmail.setText(emailUsuario)
+        edtProfissao.setText(profissaoUsuario)
 
         AlertDialog.Builder(requireContext())
             .setTitle("Editar perfil")
@@ -240,28 +257,36 @@ class ProfileFragment : Fragment() {
             return
         }
 
-        val usuario = usuarioAtual ?: return
-
         lifecycleScope.launch {
-            val database = AppDatabase.getDatabase(requireContext())
+            try {
+                val atualizacao = mapOf(
+                    "nome" to nome,
+                    "email" to email,
+                    "profissao" to profissao
+                )
 
-            val atualizado = usuario.copy(
-                nome = nome,
-                email = email,
-                profissao = profissao
-            )
+                db.collection("usuarios").document(usuarioId)
+                    .update(atualizacao)
+                    .await()
 
-            database.usuarioDao().atualizar(atualizado)
-            usuarioAtual = atualizado
+                nomeUsuario = nome
+                emailUsuario = email
+                profissaoUsuario = profissao
 
-            txtNomePerfil.text = nome
-            txtEmailPerfil.text = email
-            txtProfissaoPerfil.text = profissao
+                txtNomePerfil.text = nome
+                txtEmailPerfil.text = email
+                txtProfissaoPerfil.text = profissao
 
-            Toast.makeText(requireContext(), "Perfil atualizado!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Perfil atualizado!", Toast.LENGTH_SHORT).show()
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "Erro: ${e.message}", Toast.LENGTH_LONG).show()
+            }
         }
     }
 
+    // ─────────────────────────────────────────────
+    // DIALOG: NOTIFICAÇÕES
+    // ─────────────────────────────────────────────
     private fun abrirDialogNotificacoes() {
         val prefs = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val ativoAtual = prefs.getBoolean(KEY_NOTIFICACOES, true)
@@ -294,6 +319,9 @@ class ProfileFragment : Fragment() {
         txtStatusNotificacoes.text = if (ativo) "Ativado" else "Desativado"
     }
 
+    // ─────────────────────────────────────────────
+    // DIALOG: SOBRE
+    // ─────────────────────────────────────────────
     private fun abrirDialogSobre() {
         AlertDialog.Builder(requireContext())
             .setTitle("Sobre o Integra.app")
@@ -307,7 +335,11 @@ class ProfileFragment : Fragment() {
             .show()
     }
 
+    // ─────────────────────────────────────────────
+    // LOGOUT
+    // ─────────────────────────────────────────────
     private fun fazerLogout() {
+        auth.signOut()
         val intent = Intent(requireContext(), LoginActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)

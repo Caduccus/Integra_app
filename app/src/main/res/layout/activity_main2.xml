@@ -61,6 +61,16 @@
                 android:orientation="vertical"
                 android:padding="20dp">
 
+                <!-- Publicado por -->
+                <TextView
+                    android:id="@+id/txtCriador"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:text="Publicado por: ..."
+                    android:textColor="#CCFFFFFF"
+                    android:textSize="13sp" />
+
                 <!-- Título -->
                 <TextView
                     android:id="@+id/txtTituloDetalhe"
@@ -169,12 +179,14 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Botões de ação (cores diferenciadas) -->
+        <!-- ═══ BOTÕES DO CRIADOR (só quem publicou vê) ═══ -->
         <LinearLayout
+            android:id="@+id/layoutBotoesCriador"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:weightSum="3">
+            android:weightSum="3"
+            android:visibility="gone">
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnExcluir"
@@ -233,6 +245,24 @@
                 app:iconTint="#FFFFFF"
                 app:iconSize="18dp" />
         </LinearLayout>
+
+        <!-- ═══ BOTÃO DO CANDIDATO (só quem NÃO publicou vê) ═══ -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCandidatar"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:backgroundTint="#43A047"
+            android:text="CADASTRAR-SE NO TRABALHO"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            app:cornerRadius="28dp"
+            app:elevation="4dp"
+            app:icon="@drawable/ic_add"
+            app:iconGravity="textStart"
+            app:iconPadding="8dp"
+            app:iconTint="#FFFFFF" />
 
     </LinearLayout>
 </ScrollView>
