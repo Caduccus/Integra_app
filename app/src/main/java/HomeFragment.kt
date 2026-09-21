@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.plataformaremota.adapter.TrabalhoAdapter
 import com.example.plataformaremota.data.repository.TrabalhoRepository
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
 class HomeFragment : Fragment() {
@@ -21,6 +22,7 @@ class HomeFragment : Fragment() {
     private lateinit var btnLogout: ImageView
     private lateinit var recyclerTrabalhos: RecyclerView
     private lateinit var layoutEstadoVazio: View
+    private lateinit var layoutLoading: View
     private lateinit var adapter: TrabalhoAdapter
 
     private lateinit var repository: TrabalhoRepository
@@ -43,6 +45,7 @@ class HomeFragment : Fragment() {
         btnLogout = view.findViewById(R.id.btnLogout)
         recyclerTrabalhos = view.findViewById(R.id.recyclerTrabalhos)
         layoutEstadoVazio = view.findViewById(R.id.layoutEstadoVazio)
+        layoutLoading = view.findViewById(R.id.layoutLoading)
 
         repository = TrabalhoRepository(requireContext())
 
@@ -72,22 +75,43 @@ class HomeFragment : Fragment() {
     }
 
     private fun carregarTrabalhos() {
+        mostrarLoading()
+
         lifecycleScope.launch {
             val trabalhos = repository.listarTodos()
             adapter.atualizarLista(trabalhos)
 
             if (trabalhos.isEmpty()) {
-                layoutEstadoVazio.visibility = View.VISIBLE
-                recyclerTrabalhos.visibility = View.GONE
+                mostrarEstadoVazio()
             } else {
-                layoutEstadoVazio.visibility = View.GONE
-                recyclerTrabalhos.visibility = View.VISIBLE
+                mostrarLista()
             }
         }
     }
 
+    // ─────────────────────────────────────────────
+    // CONTROLE DE VISIBILIDADE
+    // ─────────────────────────────────────────────
+    private fun mostrarLoading() {
+        layoutLoading.visibility = View.VISIBLE
+        recyclerTrabalhos.visibility = View.GONE
+        layoutEstadoVazio.visibility = View.GONE
+    }
+
+    private fun mostrarLista() {
+        layoutLoading.visibility = View.GONE
+        recyclerTrabalhos.visibility = View.VISIBLE
+        layoutEstadoVazio.visibility = View.GONE
+    }
+
+    private fun mostrarEstadoVazio() {
+        layoutLoading.visibility = View.GONE
+        recyclerTrabalhos.visibility = View.GONE
+        layoutEstadoVazio.visibility = View.VISIBLE
+    }
+
     private fun fazerLogout() {
-        com.google.firebase.auth.FirebaseAuth.getInstance().signOut()
+        FirebaseAuth.getInstance().signOut()
         val intent = Intent(requireContext(), LoginActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)

@@ -46,7 +46,7 @@
             app:tint="@color/white" />
     </LinearLayout>
 
-    <!-- Título da Seção com Ícone -->
+    <!-- Título da Seção -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -86,12 +86,15 @@
             android:layout_height="match_parent"
             android:padding="8dp">
 
+            <!-- Lista -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerTrabalhos"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:visibility="gone"
                 tools:listitem="@layout/item_trabalho" />
 
+            <!-- Estado Vazio -->
             <LinearLayout
                 android:id="@+id/layoutEstadoVazio"
                 android:layout_width="match_parent"
@@ -99,8 +102,7 @@
                 android:gravity="center"
                 android:orientation="vertical"
                 android:padding="24dp"
-                android:visibility="gone"
-                tools:visibility="visible">
+                android:visibility="gone">
 
                 <ImageView
                     android:layout_width="64dp"
@@ -117,6 +119,30 @@
                     android:textColor="#80FFFFFF"
                     android:textSize="16sp" />
             </LinearLayout>
+
+            <!-- ⭐ LOADING -->
+            <LinearLayout
+                android:id="@+id/layoutLoading"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:visibility="visible">
+
+                <ProgressBar
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:indeterminateTint="@color/white" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="Carregando trabalhos..."
+                    android:textColor="#B3FFFFFF"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
         </FrameLayout>
     </com.google.android.material.card.MaterialCardView>
 

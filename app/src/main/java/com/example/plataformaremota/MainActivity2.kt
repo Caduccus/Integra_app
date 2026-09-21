@@ -3,6 +3,7 @@ package com.example.plataformaremota
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -75,9 +76,6 @@ class MainActivity2 : AppCompatActivity() {
         carregarTrabalho()
     }
 
-    // ─────────────────────────────────────────────
-    // CARREGAR TRABALHO + VERIFICAR PERMISSÃO
-    // ─────────────────────────────────────────────
     private fun carregarTrabalho() {
         if (trabalhoId.isEmpty()) {
             Toast.makeText(this, "Trabalho não encontrado", Toast.LENGTH_SHORT).show()
@@ -94,7 +92,6 @@ class MainActivity2 : AppCompatActivity() {
                 return@launch
             }
 
-            // Preenche os campos
             txtTituloDetalhe.text = trabalho.titulo
             txtDescricaoDetalhe.text = trabalho.descricao
             txtCategoriaDetalhe.text = trabalho.categoria
@@ -105,7 +102,6 @@ class MainActivity2 : AppCompatActivity() {
             val nomeExibir = trabalho.nomeCriador.ifEmpty { "Usuário" }
             txtCriador.text = "Publicado por: $nomeExibir"
 
-            // ═══ APLICA AS PERMISSÕES ═══
             val uidAtual = auth.currentUser?.uid ?: ""
             val ehCriador = uidAtual == trabalho.criadorId
 
@@ -115,16 +111,11 @@ class MainActivity2 : AppCompatActivity() {
             } else {
                 layoutBotoesCriador.visibility = View.GONE
                 btnCandidatar.visibility = View.VISIBLE
-
-                // ═══ VERIFICA SE JÁ SE CANDIDATOU ═══
                 verificarCandidatura(uidAtual)
             }
         }
     }
 
-    // ─────────────────────────────────────────────
-    // VERIFICAR SE O USUÁRIO JÁ SE CANDIDATOU
-    // ─────────────────────────────────────────────
     private suspend fun verificarCandidatura(uid: String) {
         try {
             val doc = db.collection("trabalhos")
@@ -135,26 +126,20 @@ class MainActivity2 : AppCompatActivity() {
                 .await()
 
             if (doc.exists()) {
-                // Já se candidatou — troca o botão
                 btnCandidatar.isEnabled = false
                 btnCandidatar.text = "✓ CANDIDATADO"
                 btnCandidatar.setBackgroundColor(android.graphics.Color.parseColor("#757575"))
             }
         } catch (e: Exception) {
-            // Ignora erro silenciosamente (se não conseguir verificar, deixa o botão normal)
+            // Ignora
         }
     }
 
-    // ─────────────────────────────────────────────
-    // CONFIRMAÇÃO DE EXCLUSÃO
-    // ─────────────────────────────────────────────
     private fun confirmarExclusao() {
         AlertDialog.Builder(this)
             .setTitle("Excluir trabalho")
             .setMessage("Tem certeza que quer excluir este trabalho? Essa ação não pode ser desfeita.")
-            .setPositiveButton("Excluir") { _, _ ->
-                excluirTrabalho()
-            }
+            .setPositiveButton("Excluir") { _, _ -> excluirTrabalho() }
             .setNegativeButton("Cancelar", null)
             .show()
     }
@@ -162,27 +147,15 @@ class MainActivity2 : AppCompatActivity() {
     private fun excluirTrabalho() {
         lifecycleScope.launch {
             val sucesso = repository.excluir(trabalhoId)
-
             if (sucesso) {
-                Toast.makeText(
-                    this@MainActivity2,
-                    "Trabalho excluído!",
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(this@MainActivity2, "Trabalho excluído!", Toast.LENGTH_SHORT).show()
                 finish()
             } else {
-                Toast.makeText(
-                    this@MainActivity2,
-                    "Erro ao excluir. Tente novamente.",
-                    Toast.LENGTH_LONG
-                ).show()
+                Toast.makeText(this@MainActivity2, "Erro ao excluir", Toast.LENGTH_LONG).show()
             }
         }
     }
 
-    // ─────────────────────────────────────────────
-    // CANDIDATAR-SE NO TRABALHO
-    // ─────────────────────────────────────────────
     private fun cadastrarSeNoTrabalho() {
         val uid = auth.currentUser?.uid
         if (uid.isNullOrEmpty()) {
@@ -211,25 +184,19 @@ class MainActivity2 : AppCompatActivity() {
                     .set(candidatura)
                     .await()
 
-                // ═══ TROCA O BOTÃO PRA "CANDIDATADO" ═══
                 btnCandidatar.isEnabled = false
                 btnCandidatar.text = "✓ CANDIDATADO"
                 btnCandidatar.setBackgroundColor(android.graphics.Color.parseColor("#757575"))
 
                 Toast.makeText(
                     this@MainActivity2,
-                    "Candidatura enviada! O criador entrará em contato.",
+                    "Candidatura enviada!",
                     Toast.LENGTH_LONG
                 ).show()
-
             } catch (e: Exception) {
                 btnCandidatar.isEnabled = true
                 btnCandidatar.text = "CADASTRAR-SE NO TRABALHO"
-                Toast.makeText(
-                    this@MainActivity2,
-                    "Erro: ${e.message}",
-                    Toast.LENGTH_LONG
-                ).show()
+                Toast.makeText(this@MainActivity2, "Erro: ${e.message}", Toast.LENGTH_LONG).show()
             }
         }
     }
