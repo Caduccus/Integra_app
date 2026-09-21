@@ -9,14 +9,14 @@ class HomeActivity : AppCompatActivity() {
 
     private lateinit var bottomNav: BottomNavigationView
 
-    private var usuarioId: Int = 0
+    private var usuarioId: String = ""       // ← MUDOU de Int pra String
     private var nomeUsuario: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
 
-        usuarioId = intent.getIntExtra("usuarioId", 0)
+        usuarioId = intent.getStringExtra("usuarioId") ?: ""     // ← getStringExtra
         nomeUsuario = intent.getStringExtra("nomeUsuario") ?: ""
 
         bottomNav = findViewById(R.id.bottomNav)
@@ -50,9 +50,8 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun trocarFragment(fragment: Fragment) {
-        // Passa usuarioId e nomeUsuario pro Fragment via arguments
         val bundle = Bundle().apply {
-            putInt("usuarioId", usuarioId)
+            putString("usuarioId", usuarioId)     // ← putString
             putString("nomeUsuario", nomeUsuario)
         }
         fragment.arguments = bundle

@@ -56,24 +56,55 @@
                 android:orientation="vertical"
                 android:padding="24dp">
 
-                <!-- Avatar em círculo -->
-                <com.google.android.material.card.MaterialCardView
-                    android:layout_width="88dp"
-                    android:layout_height="88dp"
-                    android:layout_marginBottom="16dp"
-                    app:cardBackgroundColor="#4DFFFFFF"
-                    app:cardCornerRadius="44dp"
-                    app:cardElevation="0dp"
-                    app:strokeWidth="2dp"
-                    app:strokeColor="#99FFFFFF">
+                <!-- Avatar clicável com badge de câmera -->
+                <FrameLayout
+                    android:layout_width="110dp"
+                    android:layout_height="110dp"
+                    android:layout_marginBottom="16dp">
 
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:padding="18dp"
-                        android:src="@drawable/ic_person"
-                        app:tint="@color/white" />
-                </com.google.android.material.card.MaterialCardView>
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardAvatarPerfil"
+                        android:layout_width="96dp"
+                        android:layout_height="96dp"
+                        android:layout_gravity="center"
+                        android:clickable="true"
+                        android:focusable="true"
+                        app:cardBackgroundColor="#4DFFFFFF"
+                        app:cardCornerRadius="48dp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="2dp"
+                        app:strokeColor="#99FFFFFF">
+
+                        <ImageView
+                            android:id="@+id/imgFotoPerfil"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:padding="18dp"
+                            android:scaleType="fitCenter"
+                            android:src="@drawable/ic_person"
+                            app:tint="@color/white" />
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_gravity="bottom|end"
+                        android:layout_marginEnd="6dp"
+                        android:layout_marginBottom="4dp"
+                        app:cardBackgroundColor="#0D226B"
+                        app:cardCornerRadius="15dp"
+                        app:cardElevation="4dp"
+                        app:strokeWidth="2dp"
+                        app:strokeColor="#FFFFFF">
+
+                        <ImageView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:padding="5dp"
+                            android:src="@drawable/ic_camera"
+                            app:tint="#FFFFFF" />
+                    </com.google.android.material.card.MaterialCardView>
+                </FrameLayout>
 
                 <!-- Nome -->
                 <TextView
@@ -148,7 +179,7 @@
                 android:orientation="vertical"
                 android:padding="8dp">
 
-                <!-- Opção: Editar perfil -->
+                <!-- Editar perfil -->
                 <LinearLayout
                     android:id="@+id/opcaoEditarPerfil"
                     android:layout_width="match_parent"
@@ -189,7 +220,7 @@
                     android:layout_marginHorizontal="16dp"
                     android:background="#33FFFFFF" />
 
-                <!-- Opção: Notificações -->
+                <!-- Notificações -->
                 <LinearLayout
                     android:id="@+id/opcaoNotificacoes"
                     android:layout_width="match_parent"
@@ -216,46 +247,14 @@
                         android:textColor="@color/white"
                         android:textSize="15sp" />
 
-                    <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:src="@drawable/ic_arrow_back"
-                        android:rotation="180"
-                        app:tint="#B3FFFFFF" />
-                </LinearLayout>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginHorizontal="16dp"
-                    android:background="#33FFFFFF" />
-
-                <!-- Opção: Tema -->
-                <LinearLayout
-                    android:id="@+id/opcaoTema"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="?attr/selectableItemBackground"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:padding="16dp">
-
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:layout_marginEnd="16dp"
-                        android:src="@drawable/ic_home"
-                        app:tint="@color/white" />
-
                     <TextView
-                        android:layout_width="0dp"
+                        android:id="@+id/txtStatusNotificacoes"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Tema do aplicativo"
-                        android:textColor="@color/white"
-                        android:textSize="15sp" />
+                        android:layout_marginEnd="8dp"
+                        android:text="Ativado"
+                        android:textColor="#B3FFFFFF"
+                        android:textSize="13sp" />
 
                     <ImageView
                         android:layout_width="20dp"
@@ -271,7 +270,7 @@
                     android:layout_marginHorizontal="16dp"
                     android:background="#33FFFFFF" />
 
-                <!-- Opção: Sobre -->
+                <!-- Sobre -->
                 <LinearLayout
                     android:id="@+id/opcaoSobre"
                     android:layout_width="match_parent"
