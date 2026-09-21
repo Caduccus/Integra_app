@@ -12,7 +12,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.plataformaremota.adapter.TrabalhoAdapter
-import com.example.plataformaremota.data.database.AppDatabase
+import com.example.plataformaremota.data.repository.TrabalhoRepository
 import kotlinx.coroutines.launch
 
 class HomeFragment : Fragment() {
@@ -23,7 +23,9 @@ class HomeFragment : Fragment() {
     private lateinit var layoutEstadoVazio: View
     private lateinit var adapter: TrabalhoAdapter
 
-    private var usuarioId: Int = 0
+    private lateinit var repository: TrabalhoRepository
+
+    private var usuarioId: String = ""
     private var nomeUsuario: String = ""
 
     override fun onCreateView(
@@ -42,8 +44,9 @@ class HomeFragment : Fragment() {
         recyclerTrabalhos = view.findViewById(R.id.recyclerTrabalhos)
         layoutEstadoVazio = view.findViewById(R.id.layoutEstadoVazio)
 
-        // Recebe os dados do usuário via arguments
-        usuarioId = arguments?.getInt("usuarioId", 0) ?: 0
+        repository = TrabalhoRepository(requireContext())
+
+        usuarioId = arguments?.getString("usuarioId") ?: ""
         nomeUsuario = arguments?.getString("nomeUsuario") ?: ""
 
         txtBoasVindas.text = if (nomeUsuario.isEmpty()) {
@@ -53,11 +56,7 @@ class HomeFragment : Fragment() {
         }
 
         configurarRecyclerView()
-
-        btnLogout.setOnClickListener {
-            fazerLogout()
-        }
-
+        btnLogout.setOnClickListener { fazerLogout() }
         carregarTrabalhos()
     }
 
@@ -74,9 +73,7 @@ class HomeFragment : Fragment() {
 
     private fun carregarTrabalhos() {
         lifecycleScope.launch {
-            val database = AppDatabase.getDatabase(requireContext())
-            val trabalhos = database.trabalhoDao().listarTodos()
-
+            val trabalhos = repository.listarTodos()
             adapter.atualizarLista(trabalhos)
 
             if (trabalhos.isEmpty()) {
@@ -90,6 +87,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun fazerLogout() {
+        com.google.firebase.auth.FirebaseAuth.getInstance().signOut()
         val intent = Intent(requireContext(), LoginActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)

@@ -14,7 +14,7 @@ import com.example.plataformaremota.data.entity.Usuario
         Usuario::class,
         Trabalho::class
     ],
-    version = 3, // Incrementado para 3 porque removemos a coluna salario
+    version = 4, // Incrementado para 3 porque removemos a coluna salario
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

@@ -9,11 +9,14 @@ import android.widget.AutoCompleteTextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import com.example.plataformaremota.data.database.AppDatabase
 import com.example.plataformaremota.data.entity.Trabalho
+import com.example.plataformaremota.data.repository.TrabalhoRepository
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 class PublishFragment : Fragment() {
 
@@ -25,7 +28,12 @@ class PublishFragment : Fragment() {
     private lateinit var edtPrazo: TextInputEditText
     private lateinit var btnPublicar: MaterialButton
 
-    private var usuarioId: Int = 0
+    private lateinit var repository: TrabalhoRepository
+    private val auth = FirebaseAuth.getInstance()
+    private val db = FirebaseFirestore.getInstance()
+
+    private var usuarioId: String = ""
+    private var nomeUsuario: String = ""
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -46,45 +54,29 @@ class PublishFragment : Fragment() {
         edtPrazo = view.findViewById(R.id.edtPrazo)
         btnPublicar = view.findViewById(R.id.btnPublicar)
 
-        // Recebe o usuarioId via arguments
-        usuarioId = arguments?.getInt("usuarioId", 0) ?: 0
+        repository = TrabalhoRepository(requireContext())
+
+        usuarioId = arguments?.getString("usuarioId") ?: ""
+        nomeUsuario = arguments?.getString("nomeUsuario") ?: ""
 
         configurarDropdowns()
 
-        btnPublicar.setOnClickListener {
-            publicarTrabalho()
-        }
+        btnPublicar.setOnClickListener { publicarTrabalho() }
     }
 
     private fun configurarDropdowns() {
-
-        val opcoesContrato = arrayOf(
-            "CLT", "PJ", "Freelance", "Estágio", "Temporário"
-        )
-
+        val opcoesContrato = arrayOf("CLT", "PJ", "Freelance", "Estágio", "Temporário")
         edtTipoContrato.setAdapter(
-            ArrayAdapter(
-                requireContext(),
-                android.R.layout.simple_dropdown_item_1line,
-                opcoesContrato
-            )
+            ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, opcoesContrato)
         )
 
-        val opcoesNivel = arrayOf(
-            "Júnior", "Pleno", "Sênior", "Especialista"
-        )
-
+        val opcoesNivel = arrayOf("Júnior", "Pleno", "Sênior", "Especialista")
         edtNivel.setAdapter(
-            ArrayAdapter(
-                requireContext(),
-                android.R.layout.simple_dropdown_item_1line,
-                opcoesNivel
-            )
+            ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, opcoesNivel)
         )
     }
 
     private fun publicarTrabalho() {
-
         val titulo = edtTitulo.text.toString().trim()
         val descricao = edtDescricao.text.toString().trim()
         val categoria = edtCategoria.text.toString().trim()
@@ -92,26 +84,25 @@ class PublishFragment : Fragment() {
         val nivel = edtNivel.text.toString().trim()
         val prazo = edtPrazo.text.toString().trim()
 
-        if (
-            titulo.isEmpty() ||
-            descricao.isEmpty() ||
-            categoria.isEmpty() ||
-            tipoContrato.isEmpty() ||
-            nivel.isEmpty() ||
-            prazo.isEmpty()
+        if (titulo.isEmpty() || descricao.isEmpty() || categoria.isEmpty() ||
+            tipoContrato.isEmpty() || nivel.isEmpty() || prazo.isEmpty()
         ) {
             Toast.makeText(requireContext(), "Preencha todos os campos", Toast.LENGTH_SHORT).show()
             return
         }
 
-        if (usuarioId == 0) {
-            Toast.makeText(requireContext(), "Usuário não identificado", Toast.LENGTH_SHORT).show()
+        val uid = auth.currentUser?.uid
+        if (uid.isNullOrEmpty()) {
+            Toast.makeText(requireContext(), "Usuário não logado", Toast.LENGTH_SHORT).show()
             return
         }
 
-        lifecycleScope.launch {
+        btnPublicar.isEnabled = false
+        btnPublicar.text = "PUBLICANDO..."
 
-            val database = AppDatabase.getDatabase(requireContext())
+        lifecycleScope.launch {
+            // Busca o nome do usuário pra salvar junto
+            val nomeCriador = buscarNomeUsuario(uid) ?: nomeUsuario
 
             val trabalho = Trabalho(
                 titulo = titulo,
@@ -120,20 +111,31 @@ class PublishFragment : Fragment() {
                 prazo = prazo,
                 tipoContrato = tipoContrato,
                 nivel = nivel,
-                criadorId = usuarioId
+                criadorId = uid,
+                nomeCriador = nomeCriador,
+                timestamp = System.currentTimeMillis()
             )
 
-            database.trabalhoDao().inserir(trabalho)
+            val sucesso = repository.publicar(trabalho)
 
-            // Volta pra Home e limpa o formulário
-            requireActivity().runOnUiThread {
-                Toast.makeText(
-                    requireContext(),
-                    "Trabalho publicado!",
-                    Toast.LENGTH_SHORT
-                ).show()
+            btnPublicar.isEnabled = true
+            btnPublicar.text = "PUBLICAR TRABALHO"
+
+            if (sucesso) {
+                Toast.makeText(requireContext(), "Trabalho publicado!", Toast.LENGTH_SHORT).show()
                 limparFormulario()
+            } else {
+                Toast.makeText(requireContext(), "Erro ao publicar. Tente novamente.", Toast.LENGTH_LONG).show()
             }
+        }
+    }
+
+    private suspend fun buscarNomeUsuario(uid: String): String? {
+        return try {
+            val doc = db.collection("usuarios").document(uid).get().await()
+            doc.getString("nome")
+        } catch (e: Exception) {
+            null
         }
     }
 

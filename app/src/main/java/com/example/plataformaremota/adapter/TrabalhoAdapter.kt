@@ -64,7 +64,6 @@ class TrabalhoAdapter(
         }
         holder.txtNivel.setTextColor(Color.parseColor(corNivel))
 
-        // Clique no card
         holder.card.setOnClickListener {
             onClick(trabalho)
         }

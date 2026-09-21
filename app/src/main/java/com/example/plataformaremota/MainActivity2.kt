@@ -6,8 +6,9 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import com.example.plataformaremota.data.database.AppDatabase
+import com.example.plataformaremota.data.repository.TrabalhoRepository
 import com.google.android.material.button.MaterialButton
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
 class MainActivity2 : AppCompatActivity() {
@@ -24,12 +25,16 @@ class MainActivity2 : AppCompatActivity() {
     private lateinit var btnEditar: MaterialButton
     private lateinit var btnChat: MaterialButton
 
-    private var trabalhoId: Int = 0
+    private lateinit var repository: TrabalhoRepository
+    private val auth = FirebaseAuth.getInstance()
+
+    private var trabalhoId: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setContentView(R.layout.activity_main2)
+
+        repository = TrabalhoRepository(this)
 
         btnVoltar = findViewById(R.id.btnVoltar)
         txtTituloDetalhe = findViewById(R.id.txtTituloDetalhe)
@@ -43,47 +48,28 @@ class MainActivity2 : AppCompatActivity() {
         btnEditar = findViewById(R.id.btnEditar)
         btnChat = findViewById(R.id.btnChat)
 
-        trabalhoId = intent.getIntExtra("trabalhoId", 0)
+        trabalhoId = intent.getStringExtra("trabalhoId") ?: ""
 
-        btnVoltar.setOnClickListener {
-            finish()
-        }
-
-        btnExcluir.setOnClickListener {
-            Toast.makeText(this, "Excluir em breve", Toast.LENGTH_SHORT).show()
-        }
-
-        btnEditar.setOnClickListener {
-            Toast.makeText(this, "Editar em breve", Toast.LENGTH_SHORT).show()
-        }
-
-        btnChat.setOnClickListener {
-            Toast.makeText(this, "Chat em breve", Toast.LENGTH_SHORT).show()
-        }
+        btnVoltar.setOnClickListener { finish() }
+        btnExcluir.setOnClickListener { Toast.makeText(this, "Excluir em breve", Toast.LENGTH_SHORT).show() }
+        btnEditar.setOnClickListener { Toast.makeText(this, "Editar em breve", Toast.LENGTH_SHORT).show() }
+        btnChat.setOnClickListener { Toast.makeText(this, "Chat em breve", Toast.LENGTH_SHORT).show() }
 
         carregarTrabalho()
     }
 
     private fun carregarTrabalho() {
-
-        if (trabalhoId == 0) {
+        if (trabalhoId.isEmpty()) {
             Toast.makeText(this, "Trabalho não encontrado", Toast.LENGTH_SHORT).show()
             finish()
             return
         }
 
         lifecycleScope.launch {
-
-            val database = AppDatabase.getDatabase(this@MainActivity2)
-
-            val trabalho = database.trabalhoDao().buscarPorId(trabalhoId)
+            val trabalho = repository.buscarPorId(trabalhoId)
 
             if (trabalho == null) {
-                Toast.makeText(
-                    this@MainActivity2,
-                    "Trabalho não encontrado",
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(this@MainActivity2, "Trabalho não encontrado", Toast.LENGTH_SHORT).show()
                 finish()
                 return@launch
             }
