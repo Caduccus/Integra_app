@@ -75,9 +75,11 @@ class MainActivity2 : AppCompatActivity() {
             Toast.makeText(this, "Editar em breve", Toast.LENGTH_SHORT).show()
         }
 
-        // CHAT do criador: por enquanto só um Toast
+        // CHAT do criador: abre a lista de candidatos
         btnChat.setOnClickListener {
-            Toast.makeText(this, "Ver candidatos em breve", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, CandidatosActivity::class.java)
+            intent.putExtra("trabalhoId", trabalhoId)
+            startActivity(intent)
         }
 
         // Botão candidatar / abrir chat

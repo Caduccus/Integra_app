@@ -1,9 +1,9 @@
 package com.example.plataformaremota.adapter
 
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
@@ -19,7 +19,7 @@ class MensagemAdapter(
 ) : RecyclerView.Adapter<MensagemAdapter.MensagemViewHolder>() {
 
     class MensagemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val container: LinearLayout = itemView.findViewById(R.id.containerMensagem)
+        val container: FrameLayout = itemView.findViewById(R.id.containerMensagem)
         val bubble: LinearLayout = itemView.findViewById(R.id.bubbleContainer)
         val txtNome: TextView = itemView.findViewById(R.id.txtNomeRemetente)
         val txtTexto: TextView = itemView.findViewById(R.id.txtTextoMensagem)
@@ -40,21 +40,28 @@ class MensagemAdapter(
 
         holder.txtTexto.text = msg.texto
 
-        // Formata hora
         val horaFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
         holder.txtHora.text = horaFormat.format(Date(msg.timestamp))
 
+        // Layout params pra alinhar esquerda/direita
+        val params = holder.bubble.layoutParams as FrameLayout.LayoutParams
+
         if (ehMinha) {
-            // Minha mensagem: alinhada à direita, bubble azul
-            holder.container.gravity = Gravity.END
+            // ─── MINHA MENSAGEM: direita, bubble azul ───
+            params.gravity = android.view.Gravity.END
+            holder.bubble.layoutParams = params
             holder.bubble.setBackgroundResource(R.drawable.bubble_minha)
+            holder.txtTexto.setTextColor(android.graphics.Color.WHITE)
+            holder.txtHora.setTextColor(0xB3FFFFFF.toInt())
             holder.txtNome.visibility = View.GONE
         } else {
-            // Mensagem de outro: alinhada à esquerda, bubble semi-transparente
-            holder.container.gravity = Gravity.START
+            // ─── OUTRA MENSAGEM: esquerda, bubble branco ───
+            params.gravity = android.view.Gravity.START
+            holder.bubble.layoutParams = params
             holder.bubble.setBackgroundResource(R.drawable.bubble_outra)
+            holder.txtTexto.setTextColor(0xFF333333.toInt())
+            holder.txtHora.setTextColor(0xFF888888.toInt())
 
-            // Mostra o nome do remetente (importante em grupos)
             if (msg.nomeRemetente.isNotEmpty()) {
                 holder.txtNome.visibility = View.VISIBLE
                 holder.txtNome.text = msg.nomeRemetente

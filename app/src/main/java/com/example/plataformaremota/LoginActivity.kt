@@ -6,8 +6,11 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 class LoginActivity : AppCompatActivity() {
 
@@ -31,15 +34,22 @@ class LoginActivity : AppCompatActivity() {
         btnEntrar = findViewById(R.id.btnEntrar)
         btnCadastrar = findViewById(R.id.btnCadastrar)
 
-        btnEntrar.setOnClickListener {
-            realizarLogin()
+        // ⭐ VERIFICA SE JÁ ESTÁ LOGADO — se sim, pula direto pra Home
+        val usuarioAtual = auth.currentUser
+        if (usuarioAtual != null) {
+            irParaHome(usuarioAtual.uid)
+            return
         }
 
+        btnEntrar.setOnClickListener { realizarLogin() }
         btnCadastrar.setOnClickListener {
             startActivity(Intent(this, CadastroActivity::class.java))
         }
     }
 
+    // ─────────────────────────────────────────────
+    // LOGIN
+    // ─────────────────────────────────────────────
     private fun realizarLogin() {
         val email = edtEmail.text.toString().trim()
         val senha = edtSenha.text.toString().trim()
@@ -49,43 +59,46 @@ class LoginActivity : AppCompatActivity() {
             return
         }
 
+        btnEntrar.isEnabled = false
+        btnEntrar.text = "ENTRANDO..."
+
         auth.signInWithEmailAndPassword(email, senha)
             .addOnCompleteListener { task ->
+                btnEntrar.isEnabled = true
+                btnEntrar.text = "ENTRAR"
+
                 if (task.isSuccessful) {
                     val uid = auth.currentUser?.uid
                     if (uid != null) {
-                        buscarNomeEIrParaHome(uid)
+                        irParaHome(uid)
                     } else {
                         Toast.makeText(this, "Erro: usuário não encontrado", Toast.LENGTH_SHORT).show()
                     }
                 } else {
-                    Toast.makeText(
-                        this,
-                        "E-mail ou senha incorretos",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    Toast.makeText(this, "E-mail ou senha incorretos", Toast.LENGTH_SHORT).show()
                 }
             }
     }
 
-    private fun buscarNomeEIrParaHome(uid: String) {
-        db.collection("usuarios").document(uid).get()
-            .addOnSuccessListener { document ->
-                val nome = document.getString("nome") ?: "Usuário"
+    // ─────────────────────────────────────────────
+    // NAVEGA PRA HOME BUSCANDO O NOME
+    // ─────────────────────────────────────────────
+    private fun irParaHome(uid: String) {
+        lifecycleScope.launch {
+            val nome = try {
+                val doc = db.collection("usuarios").document(uid).get().await()
+                doc.getString("nome") ?: "Usuário"
+            } catch (e: Exception) {
+                "Usuário"
+            }
 
-                val intent = Intent(this, HomeActivity::class.java)
-                intent.putExtra("usuarioId", uid)
-                intent.putExtra("nomeUsuario", nome)
-                startActivity(intent)
-                finish()
-            }
-            .addOnFailureListener {
-                // Se não achar o nome, ainda loga (só fica sem nome)
-                val intent = Intent(this, HomeActivity::class.java)
-                intent.putExtra("usuarioId", uid)
-                intent.putExtra("nomeUsuario", "Usuário")
-                startActivity(intent)
-                finish()
-            }
+            val intent = Intent(this@LoginActivity, HomeActivity::class.java)
+            intent.putExtra("usuarioId", uid)
+            intent.putExtra("nomeUsuario", nome)
+            // Limpa a pilha pra não dar pra "voltar" pro login
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+            finish()
+        }
     }
 }

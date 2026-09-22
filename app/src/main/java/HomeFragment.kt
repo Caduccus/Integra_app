@@ -2,6 +2,7 @@ package com.example.plataformaremota
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,9 +15,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.plataformaremota.adapter.TrabalhoAdapter
 import com.example.plataformaremota.data.entity.Trabalho
 import com.example.plataformaremota.data.repository.TrabalhoRepository
-import com.google.android.material.chip.Chip
+import com.google.android.material.button.MaterialButton
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 class HomeFragment : Fragment() {
 
@@ -26,16 +29,21 @@ class HomeFragment : Fragment() {
     private lateinit var layoutEstadoVazio: View
     private lateinit var layoutLoading: View
     private lateinit var txtEstadoVazio: TextView
-    private lateinit var chipTodos: Chip
-    private lateinit var chipMeus: Chip
+    private lateinit var btnTodos: MaterialButton
+    private lateinit var btnMeus: MaterialButton
+    private lateinit var btnInscritos: MaterialButton
 
     private lateinit var adapter: TrabalhoAdapter
     private lateinit var repository: TrabalhoRepository
+
+    private val db = FirebaseFirestore.getInstance()
+    private val auth = FirebaseAuth.getInstance()
 
     private var usuarioId: String = ""
     private var nomeUsuario: String = ""
 
     private var todosTrabalhos: List<Trabalho> = emptyList()
+    private var idsCandidatados: Set<String> = emptySet()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -54,21 +62,22 @@ class HomeFragment : Fragment() {
         layoutEstadoVazio = view.findViewById(R.id.layoutEstadoVazio)
         layoutLoading = view.findViewById(R.id.layoutLoading)
         txtEstadoVazio = view.findViewById(R.id.txtEstadoVazio)
-        chipTodos = view.findViewById(R.id.chipTodos)
-        chipMeus = view.findViewById(R.id.chipMeus)
+        btnTodos = view.findViewById(R.id.btnTodos)
+        btnMeus = view.findViewById(R.id.btnMeus)
+        btnInscritos = view.findViewById(R.id.btnInscritos)
 
         repository = TrabalhoRepository(requireContext())
 
-        usuarioId = arguments?.getString("usuarioId") ?: FirebaseAuth.getInstance().currentUser?.uid ?: ""
+        usuarioId = arguments?.getString("usuarioId") ?: auth.currentUser?.uid ?: ""
         nomeUsuario = arguments?.getString("nomeUsuario") ?: ""
 
         txtBoasVindas.text = if (nomeUsuario.isEmpty()) "Olá!" else "Olá, $nomeUsuario!"
 
         configurarRecyclerView()
-        configurarChips()
+        configurarBotoes()
 
         btnLogout.setOnClickListener { fazerLogout() }
-        carregarTrabalhos()
+        carregarTudo()
     }
 
     private fun configurarRecyclerView() {
@@ -82,50 +91,79 @@ class HomeFragment : Fragment() {
         recyclerTrabalhos.adapter = adapter
     }
 
-    private fun configurarChips() {
-        chipTodos.setOnClickListener {
-            chipTodos.isChecked = true
-            chipMeus.isChecked = false
+    private fun configurarBotoes() {
+        btnTodos.setOnClickListener {
+            btnTodos.isChecked = true
+            btnMeus.isChecked = false
+            btnInscritos.isChecked = false
             aplicarFiltro()
         }
-        chipMeus.setOnClickListener {
-            chipMeus.isChecked = true
-            chipTodos.isChecked = false
+        btnMeus.setOnClickListener {
+            btnMeus.isChecked = true
+            btnTodos.isChecked = false
+            btnInscritos.isChecked = false
+            aplicarFiltro()
+        }
+        btnInscritos.setOnClickListener {
+            btnInscritos.isChecked = true
+            btnTodos.isChecked = false
+            btnMeus.isChecked = false
             aplicarFiltro()
         }
     }
 
-    // ─────────────────────────────────────────────
-    // CARREGAR DO FIRESTORE
-    // ─────────────────────────────────────────────
-    private fun carregarTrabalhos() {
+    private fun carregarTudo() {
         mostrarLoading()
 
         lifecycleScope.launch {
             todosTrabalhos = repository.listarTodos()
+            carregarCandidaturas()
             aplicarFiltro()
         }
     }
 
-    // ─────────────────────────────────────────────
-    // FILTRAR
-    // ─────────────────────────────────────────────
-    private fun aplicarFiltro() {
-        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: usuarioId
+    private suspend fun carregarCandidaturas() {
+        val uid = auth.currentUser?.uid ?: return
+        try {
+            val trabalhosSnapshot = db.collection("trabalhos").get().await()
+            val set = mutableSetOf<String>()
 
-        val filtrados = if (chipMeus.isChecked) {
-            todosTrabalhos.filter { it.criadorId == uid }
-        } else {
-            todosTrabalhos
+            for (doc in trabalhosSnapshot.documents) {
+                val candidatura = doc.reference
+                    .collection("candidaturas")
+                    .document(uid)
+                    .get()
+                    .await()
+
+                if (candidatura.exists()) {
+                    set.add(doc.id)
+                }
+            }
+
+            idsCandidatados = set
+            Log.d("HOME", "✅ ${idsCandidatados.size} candidaturas encontradas")
+        } catch (e: Exception) {
+            Log.e("HOME", "❌ Erro candidaturas: ${e.message}")
+            idsCandidatados = emptySet()
+        }
+    }
+
+    private fun aplicarFiltro() {
+        val uid = auth.currentUser?.uid ?: usuarioId
+
+        val filtrados = when {
+            btnMeus.isChecked -> todosTrabalhos.filter { it.criadorId == uid }
+            btnInscritos.isChecked -> todosTrabalhos.filter { it.id in idsCandidatados }
+            else -> todosTrabalhos
         }
 
         adapter.atualizarLista(filtrados)
 
         if (filtrados.isEmpty()) {
-            txtEstadoVazio.text = if (chipMeus.isChecked) {
-                "Você ainda não publicou nenhum trabalho"
-            } else {
-                "Nenhum trabalho disponível ainda"
+            txtEstadoVazio.text = when {
+                btnMeus.isChecked -> "Você ainda não publicou nenhum trabalho"
+                btnInscritos.isChecked -> "Você ainda não se inscreveu em nenhum trabalho"
+                else -> "Nenhum trabalho disponível ainda"
             }
             mostrarEstadoVazio()
         } else {
@@ -133,9 +171,6 @@ class HomeFragment : Fragment() {
         }
     }
 
-    // ─────────────────────────────────────────────
-    // CONTROLE DE VISIBILIDADE
-    // ─────────────────────────────────────────────
     private fun mostrarLoading() {
         layoutLoading.visibility = View.VISIBLE
         recyclerTrabalhos.visibility = View.GONE
@@ -155,7 +190,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun fazerLogout() {
-        FirebaseAuth.getInstance().signOut()
+        auth.signOut()
         val intent = Intent(requireContext(), LoginActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
@@ -165,7 +200,7 @@ class HomeFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         if (::adapter.isInitialized) {
-            carregarTrabalhos()
+            carregarTudo()
         }
     }
 }

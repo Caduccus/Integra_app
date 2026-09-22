@@ -71,50 +71,54 @@
     </LinearLayout>
 
     <!-- CHIPS DE FILTRO -->
-    <com.google.android.material.chip.ChipGroup
-        android:id="@+id/chipGroupFiltro"
+    <com.google.android.material.button.MaterialButtonToggleGroup
+        android:id="@+id/toggleGroupFiltro"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
         app:singleSelection="true"
-        app:selectionRequired="true"
-        app:chipSpacingHorizontal="8dp">
+        app:selectionRequired="true">
 
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chipTodos"
-            android:layout_width="wrap_content"
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnTodos"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:checkable="true"
-            android:checked="true"
+            android:layout_weight="1"
             android:text="Todos"
             android:textColor="@color/white"
-            android:textSize="14sp"
-            android:paddingHorizontal="12dp"
-            android:paddingVertical="8dp"
-            app:chipBackgroundColor="#33FFFFFF"
-            app:chipStrokeColor="#66FFFFFF"
-            app:chipStrokeWidth="1dp"
-            app:chipMinHeight="40dp"
-            app:checkedIconVisible="false"
-            app:ensureMinTouchTargetSize="false" />
+            android:textSize="11sp"
+            android:checked="true"
+            app:cornerRadius="20dp"
+            app:strokeColor="#66FFFFFF"
+            app:strokeWidth="1dp" />
 
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chipMeus"
-            android:layout_width="wrap_content"
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnMeus"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:checkable="true"
-            android:text="Meus trabalhos"
+            android:layout_weight="1"
+            android:text="Meus"
             android:textColor="@color/white"
-            android:textSize="14sp"
-            android:paddingHorizontal="12dp"
-            android:paddingVertical="8dp"
-            app:chipBackgroundColor="#33FFFFFF"
-            app:chipStrokeColor="#66FFFFFF"
-            app:chipStrokeWidth="1dp"
-            app:chipMinHeight="40dp"
-            app:checkedIconVisible="false"
-            app:ensureMinTouchTargetSize="false" />
-    </com.google.android.material.chip.ChipGroup>
+            android:textSize="11sp"
+            app:cornerRadius="20dp"
+            app:strokeColor="#66FFFFFF"
+            app:strokeWidth="1dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnInscritos"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Inscritos"
+            android:textColor="@color/white"
+            android:textSize="11sp"
+            app:cornerRadius="20dp"
+            app:strokeColor="#66FFFFFF"
+            app:strokeWidth="1dp" />
+    </com.google.android.material.button.MaterialButtonToggleGroup>
 
     <!-- Container da Lista -->
     <com.google.android.material.card.MaterialCardView

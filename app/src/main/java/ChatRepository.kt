@@ -15,11 +15,17 @@ class ChatRepository {
     private val TAG = "CHAT_REPO"
 
     // ─────────────────────────────────────────────
-    // Gera um ID único pra chat 1:1 (ordem alfabética dos UIDs)
-    // Assim, A→B e B→A sempre geram o mesmo chatId
+    // Gera um ID único pra chat 1:1 (inclui o trabalho)
+    // Assim, A→B sobre "Trabalho 1" e A→B sobre "Trabalho 2"
+    // geram conversas DIFERENTES
     // ─────────────────────────────────────────────
-    private fun gerarChatIdUmParaUm(uid1: String, uid2: String): String {
-        return if (uid1 < uid2) "${uid1}_${uid2}" else "${uid2}_${uid1}"
+    private fun gerarChatIdUmParaUm(uid1: String, uid2: String, trabalhoId: String): String {
+        val ordenados = if (uid1 < uid2) "${uid1}_${uid2}" else "${uid2}_${uid1}"
+        return if (trabalhoId.isEmpty()) {
+            ordenados
+        } else {
+            "${ordenados}_${trabalhoId}"
+        }
     }
 
     // ─────────────────────────────────────────────
@@ -34,20 +40,19 @@ class ChatRepository {
         val meuUid = auth.currentUser?.uid ?: return null
         if (uidOutro.isEmpty() || uidOutro == meuUid) return null
 
-        val chatId = gerarChatIdUmParaUm(meuUid, uidOutro)
+        val chatId = gerarChatIdUmParaUm(meuUid, uidOutro, trabalhoId)
 
         return try {
             val docRef = db.collection("chats").document(chatId)
             val doc = docRef.get().await()
 
             if (!doc.exists()) {
-                // Cria novo chat
                 val nomeMeu = buscarNomeUsuario(meuUid) ?: "Usuário"
 
                 val chat = Chat(
                     id = chatId,
                     participantes = listOf(meuUid, uidOutro),
-                    nome = "",                    // 1:1 não tem nome
+                    nome = "",
                     criadorId = meuUid,
                     ehGrupo = false,
                     trabalhoId = trabalhoId,

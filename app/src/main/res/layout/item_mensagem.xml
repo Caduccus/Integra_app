@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/containerMensagem"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:paddingHorizontal="12dp"
+    android:paddingHorizontal="8dp"
     android:paddingVertical="4dp">
 
     <LinearLayout
@@ -12,8 +11,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="12dp"
         android:maxWidth="280dp"
+        android:paddingHorizontal="14dp"
+        android:paddingVertical="10dp"
         android:background="@drawable/bubble_outra">
 
         <TextView
@@ -32,7 +32,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Mensagem"
-            android:textColor="@color/white"
+            android:textColor="#FFFFFF"
             android:textSize="15sp" />
 
         <TextView
@@ -42,7 +42,7 @@
             android:layout_gravity="end"
             android:layout_marginTop="4dp"
             android:text="12:00"
-            android:textColor="#80FFFFFF"
+            android:textColor="#B3FFFFFF"
             android:textSize="10sp" />
     </LinearLayout>
-</LinearLayout>
+</FrameLayout>

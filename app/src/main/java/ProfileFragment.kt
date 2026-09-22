@@ -18,16 +18,16 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import com.bumptech.glide.Glide
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import java.io.File
-import java.io.FileOutputStream
 
 class ProfileFragment : Fragment() {
 
@@ -43,19 +43,20 @@ class ProfileFragment : Fragment() {
     private var nomeUsuario: String = ""
     private var emailUsuario: String = ""
     private var profissaoUsuario: String = ""
+    private var fotoUrlAtual: String = ""
 
     private val auth = FirebaseAuth.getInstance()
     private val db = FirebaseFirestore.getInstance()
+    private val storage = FirebaseStorage.getInstance()
 
     private val PREFS_NAME = "integra_prefs"
     private val KEY_NOTIFICACOES = "notificacoes_ativas"
-    private val KEY_FOTO_PERFIL = "foto_perfil"
 
     private val pickImageLauncher = registerForActivityResult(
         ActivityResultContracts.PickVisualMedia()
     ) { uri ->
         if (uri != null) {
-            salvarImagem(uri)
+            uploadFoto(uri)
         }
     }
 
@@ -78,13 +79,12 @@ class ProfileFragment : Fragment() {
         txtStatusNotificacoes = view.findViewById(R.id.txtStatusNotificacoes)
         btnLogoutPerfil = view.findViewById(R.id.btnLogoutPerfil)
 
-        usuarioId = arguments?.getString("usuarioId") ?: ""
+        usuarioId = arguments?.getString("usuarioId") ?: auth.currentUser?.uid ?: ""
         nomeUsuario = arguments?.getString("nomeUsuario") ?: ""
 
         txtNomePerfil.text = nomeUsuario.ifEmpty { "Carregando..." }
 
         carregarDadosUsuario()
-        carregarFotoSalva()
         atualizarStatusNotificacoes()
 
         cardAvatarPerfil.setOnClickListener { abrirBottomSheetFoto() }
@@ -103,7 +103,7 @@ class ProfileFragment : Fragment() {
     }
 
     // ─────────────────────────────────────────────
-    // BUSCAR DADOS DO FIRESTORE
+    // CARREGAR DADOS DO FIRESTORE
     // ─────────────────────────────────────────────
     private fun carregarDadosUsuario() {
         val uid = auth.currentUser?.uid ?: usuarioId
@@ -111,7 +111,6 @@ class ProfileFragment : Fragment() {
             txtNomePerfil.text = "Usuário não identificado"
             return
         }
-
         usuarioId = uid
 
         lifecycleScope.launch {
@@ -122,22 +121,36 @@ class ProfileFragment : Fragment() {
                     nomeUsuario = doc.getString("nome") ?: "Usuário"
                     emailUsuario = doc.getString("email") ?: ""
                     profissaoUsuario = doc.getString("profissao") ?: ""
+                    fotoUrlAtual = doc.getString("fotoUrl") ?: ""
 
                     txtNomePerfil.text = nomeUsuario
                     txtEmailPerfil.text = emailUsuario.ifEmpty { "—" }
                     txtProfissaoPerfil.text = profissaoUsuario.ifEmpty { "—" }
+
+                    // Carrega a foto se tiver URL
+                    if (fotoUrlAtual.isNotEmpty()) {
+                        carregarFotoNaImageView(fotoUrlAtual)
+                    }
                 } else {
-                    txtNomePerfil.text = "Usuário"
+                    txtNomePerfil.text = nomeUsuario.ifEmpty { "Usuário" }
                     txtEmailPerfil.text = auth.currentUser?.email ?: "—"
                     txtProfissaoPerfil.text = "—"
                 }
             } catch (e: Exception) {
-                txtNomePerfil.text = nomeUsuario.ifEmpty { "Usuário" }
-                txtEmailPerfil.text = auth.currentUser?.email ?: "—"
-                txtProfissaoPerfil.text = "—"
                 Toast.makeText(requireContext(), "Erro ao carregar: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    private fun carregarFotoNaImageView(url: String) {
+        Glide.with(this)
+            .load(url)
+            .circleCrop()
+            .into(imgFotoPerfil)
+
+        imgFotoPerfil.imageTintList = null
+        imgFotoPerfil.scaleType = ImageView.ScaleType.CENTER_CROP
+        imgFotoPerfil.setPadding(0, 0, 0, 0)
     }
 
     // ─────────────────────────────────────────────
@@ -163,63 +176,68 @@ class ProfileFragment : Fragment() {
         dialog.show()
     }
 
-    private fun salvarImagem(uri: Uri) {
-        try {
-            val inputStream = requireContext().contentResolver.openInputStream(uri) ?: return
-            val arquivo = File(requireContext().filesDir, "perfil_foto.jpg")
-            val outputStream = FileOutputStream(arquivo)
+    // ─────────────────────────────────────────────
+    // UPLOAD DA FOTO PRO FIREBASE STORAGE
+    // ─────────────────────────────────────────────
+    private fun uploadFoto(uri: Uri) {
+        val uid = auth.currentUser?.uid ?: return
 
-            inputStream.copyTo(outputStream)
-            inputStream.close()
-            outputStream.close()
+        Toast.makeText(requireContext(), "Enviando foto...", Toast.LENGTH_SHORT).show()
 
-            val prefs = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            prefs.edit().putString(KEY_FOTO_PERFIL, arquivo.absolutePath).apply()
+        lifecycleScope.launch {
+            try {
+                val ref = storage.reference.child("perfis/$uid")
 
-            imgFotoPerfil.setImageURI(uri)
-            imgFotoPerfil.imageTintList = null
-            imgFotoPerfil.scaleType = ImageView.ScaleType.CENTER_CROP
-            imgFotoPerfil.setPadding(0, 0, 0, 0)
+                // Sobe a imagem
+                ref.putFile(uri).await()
 
-            Toast.makeText(requireContext(), "Foto atualizada!", Toast.LENGTH_SHORT).show()
-        } catch (e: Exception) {
-            Toast.makeText(requireContext(), "Erro: ${e.message}", Toast.LENGTH_SHORT).show()
-        }
-    }
+                // Pega a URL de download
+                val url = ref.downloadUrl.await().toString()
 
-    private fun carregarFotoSalva() {
-        val prefs = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val path = prefs.getString(KEY_FOTO_PERFIL, null)
+                // Salva no Firestore
+                db.collection("usuarios").document(uid)
+                    .update("fotoUrl", url)
+                    .await()
 
-        if (path != null) {
-            val arquivo = File(path)
-            if (arquivo.exists()) {
-                imgFotoPerfil.setImageURI(Uri.fromFile(arquivo))
-                imgFotoPerfil.imageTintList = null
-                imgFotoPerfil.scaleType = ImageView.ScaleType.CENTER_CROP
-                imgFotoPerfil.setPadding(0, 0, 0, 0)
+                fotoUrlAtual = url
+                carregarFotoNaImageView(url)
+
+                Toast.makeText(requireContext(), "Foto atualizada!", Toast.LENGTH_SHORT).show()
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "Erro ao enviar: ${e.message}", Toast.LENGTH_LONG).show()
             }
         }
     }
 
     private fun removerFoto() {
-        val prefs = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val path = prefs.getString(KEY_FOTO_PERFIL, null)
+        val uid = auth.currentUser?.uid ?: return
 
-        if (path != null) {
-            val arquivo = File(path)
-            if (arquivo.exists()) arquivo.delete()
+        lifecycleScope.launch {
+            try {
+                // Remove do Storage
+                try {
+                    storage.reference.child("perfis/$uid").delete().await()
+                } catch (_: Exception) { }
+
+                // Remove do Firestore
+                db.collection("usuarios").document(uid)
+                    .update("fotoUrl", "")
+                    .await()
+
+                fotoUrlAtual = ""
+
+                // Volta pro ícone padrão
+                imgFotoPerfil.setImageResource(R.drawable.ic_person)
+                imgFotoPerfil.imageTintList = ColorStateList.valueOf(Color.WHITE)
+                imgFotoPerfil.scaleType = ImageView.ScaleType.FIT_CENTER
+                val padding = (18 * resources.displayMetrics.density).toInt()
+                imgFotoPerfil.setPadding(padding, padding, padding, padding)
+
+                Toast.makeText(requireContext(), "Foto removida", Toast.LENGTH_SHORT).show()
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "Erro: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
         }
-
-        prefs.edit().remove(KEY_FOTO_PERFIL).apply()
-
-        imgFotoPerfil.setImageResource(R.drawable.ic_person)
-        imgFotoPerfil.imageTintList = ColorStateList.valueOf(Color.WHITE)
-        imgFotoPerfil.scaleType = ImageView.ScaleType.FIT_CENTER
-        val padding = (18 * resources.displayMetrics.density).toInt()
-        imgFotoPerfil.setPadding(padding, padding, padding, padding)
-
-        Toast.makeText(requireContext(), "Foto removida", Toast.LENGTH_SHORT).show()
     }
 
     // ─────────────────────────────────────────────
@@ -259,14 +277,12 @@ class ProfileFragment : Fragment() {
 
         lifecycleScope.launch {
             try {
-                val atualizacao = mapOf(
-                    "nome" to nome,
-                    "email" to email,
-                    "profissao" to profissao
-                )
-
                 db.collection("usuarios").document(usuarioId)
-                    .update(atualizacao)
+                    .update(mapOf(
+                        "nome" to nome,
+                        "email" to email,
+                        "profissao" to profissao
+                    ))
                     .await()
 
                 nomeUsuario = nome
@@ -303,11 +319,6 @@ class ProfileFragment : Fragment() {
             .setPositiveButton("Salvar") { _, _ ->
                 prefs.edit().putBoolean(KEY_NOTIFICACOES, switch.isChecked).apply()
                 atualizarStatusNotificacoes()
-                Toast.makeText(
-                    requireContext(),
-                    if (switch.isChecked) "Notificações ativadas" else "Notificações desativadas",
-                    Toast.LENGTH_SHORT
-                ).show()
             }
             .setNegativeButton("Cancelar", null)
             .show()
@@ -326,10 +337,9 @@ class ProfileFragment : Fragment() {
         AlertDialog.Builder(requireContext())
             .setTitle("Sobre o Integra.app")
             .setMessage(
-                "Integra.app\n" +
-                        "Versão 1.0\n\n" +
+                "Integra.app\nVersão 1.0\n\n" +
                         "Plataforma de trabalhos remotos.\n\n" +
-                        "Conecte-se a oportunidades e publique seus trabalhos de forma simples."
+                        "Conecte-se a oportunidades e publique seus trabalhos."
             )
             .setPositiveButton("OK", null)
             .show()

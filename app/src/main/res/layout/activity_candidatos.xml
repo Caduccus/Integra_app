@@ -5,52 +5,44 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/background_gradiente"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:orientation="vertical">
 
-    <!-- Header -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="#1A000000"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:layout_marginBottom="16dp">
+        android:padding="12dp">
 
         <ImageView
-            android:layout_width="28dp"
-            android:layout_height="28dp"
-            android:layout_marginEnd="12dp"
-            android:src="@drawable/ic_message"
+            android:id="@+id/btnVoltarCandidatos"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:padding="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:contentDescription="Voltar"
+            android:focusable="true"
+            android:src="@drawable/ic_arrow_back"
             app:tint="@color/white" />
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
             android:layout_weight="1"
-            android:text="Mensagens"
+            android:text="Candidatos"
             android:textColor="@color/white"
-            android:textSize="24sp"
+            android:textSize="18sp"
             android:textStyle="bold" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnNovoGrupo"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            android:text="+ GRUPO"
-            android:textColor="@color/white"
-            android:textSize="11sp"
-            android:textStyle="bold"
-            app:backgroundTint="#0D226B"
-            app:cornerRadius="20dp" />
     </LinearLayout>
 
-    <!-- Card Container -->
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        android:layout_margin="16dp"
         app:cardBackgroundColor="#33FFFFFF"
         app:cardCornerRadius="20dp"
         app:cardElevation="6dp"
@@ -63,14 +55,14 @@
             android:padding="4dp">
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvChats"
+                android:id="@+id/rvCandidatos"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:visibility="gone"
-                tools:listitem="@layout/item_chat" />
+                tools:listitem="@layout/item_candidato" />
 
             <LinearLayout
-                android:id="@+id/layoutEstadoVazio"
+                android:id="@+id/layoutEstadoVazioCandidatos"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="center"
@@ -82,29 +74,20 @@
                     android:layout_width="64dp"
                     android:layout_height="64dp"
                     android:layout_marginBottom="16dp"
-                    android:src="@drawable/ic_message"
+                    android:src="@drawable/ic_inbox"
                     app:tint="#80FFFFFF" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Nenhuma conversa ainda"
+                    android:text="Ninguém se candidatou ainda"
                     android:textAlignment="center"
                     android:textColor="#80FFFFFF"
                     android:textSize="16sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="Candidate-se a um trabalho pra começar a conversar"
-                    android:textAlignment="center"
-                    android:textColor="#66FFFFFF"
-                    android:textSize="13sp" />
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/layoutLoading"
+                android:id="@+id/layoutLoadingCandidatos"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="center"
