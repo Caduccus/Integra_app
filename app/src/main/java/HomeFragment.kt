@@ -12,7 +12,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.plataformaremota.adapter.TrabalhoAdapter
+import com.example.plataformaremota.data.entity.Trabalho
 import com.example.plataformaremota.data.repository.TrabalhoRepository
+import com.google.android.material.chip.Chip
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
@@ -23,12 +25,17 @@ class HomeFragment : Fragment() {
     private lateinit var recyclerTrabalhos: RecyclerView
     private lateinit var layoutEstadoVazio: View
     private lateinit var layoutLoading: View
-    private lateinit var adapter: TrabalhoAdapter
+    private lateinit var txtEstadoVazio: TextView
+    private lateinit var chipTodos: Chip
+    private lateinit var chipMeus: Chip
 
+    private lateinit var adapter: TrabalhoAdapter
     private lateinit var repository: TrabalhoRepository
 
     private var usuarioId: String = ""
     private var nomeUsuario: String = ""
+
+    private var todosTrabalhos: List<Trabalho> = emptyList()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -46,19 +53,20 @@ class HomeFragment : Fragment() {
         recyclerTrabalhos = view.findViewById(R.id.recyclerTrabalhos)
         layoutEstadoVazio = view.findViewById(R.id.layoutEstadoVazio)
         layoutLoading = view.findViewById(R.id.layoutLoading)
+        txtEstadoVazio = view.findViewById(R.id.txtEstadoVazio)
+        chipTodos = view.findViewById(R.id.chipTodos)
+        chipMeus = view.findViewById(R.id.chipMeus)
 
         repository = TrabalhoRepository(requireContext())
 
-        usuarioId = arguments?.getString("usuarioId") ?: ""
+        usuarioId = arguments?.getString("usuarioId") ?: FirebaseAuth.getInstance().currentUser?.uid ?: ""
         nomeUsuario = arguments?.getString("nomeUsuario") ?: ""
 
-        txtBoasVindas.text = if (nomeUsuario.isEmpty()) {
-            "Olá!"
-        } else {
-            "Olá, $nomeUsuario!"
-        }
+        txtBoasVindas.text = if (nomeUsuario.isEmpty()) "Olá!" else "Olá, $nomeUsuario!"
 
         configurarRecyclerView()
+        configurarChips()
+
         btnLogout.setOnClickListener { fazerLogout() }
         carregarTrabalhos()
     }
@@ -74,18 +82,54 @@ class HomeFragment : Fragment() {
         recyclerTrabalhos.adapter = adapter
     }
 
+    private fun configurarChips() {
+        chipTodos.setOnClickListener {
+            chipTodos.isChecked = true
+            chipMeus.isChecked = false
+            aplicarFiltro()
+        }
+        chipMeus.setOnClickListener {
+            chipMeus.isChecked = true
+            chipTodos.isChecked = false
+            aplicarFiltro()
+        }
+    }
+
+    // ─────────────────────────────────────────────
+    // CARREGAR DO FIRESTORE
+    // ─────────────────────────────────────────────
     private fun carregarTrabalhos() {
         mostrarLoading()
 
         lifecycleScope.launch {
-            val trabalhos = repository.listarTodos()
-            adapter.atualizarLista(trabalhos)
+            todosTrabalhos = repository.listarTodos()
+            aplicarFiltro()
+        }
+    }
 
-            if (trabalhos.isEmpty()) {
-                mostrarEstadoVazio()
+    // ─────────────────────────────────────────────
+    // FILTRAR
+    // ─────────────────────────────────────────────
+    private fun aplicarFiltro() {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: usuarioId
+
+        val filtrados = if (chipMeus.isChecked) {
+            todosTrabalhos.filter { it.criadorId == uid }
+        } else {
+            todosTrabalhos
+        }
+
+        adapter.atualizarLista(filtrados)
+
+        if (filtrados.isEmpty()) {
+            txtEstadoVazio.text = if (chipMeus.isChecked) {
+                "Você ainda não publicou nenhum trabalho"
             } else {
-                mostrarLista()
+                "Nenhum trabalho disponível ainda"
             }
+            mostrarEstadoVazio()
+        } else {
+            mostrarLista()
         }
     }
 

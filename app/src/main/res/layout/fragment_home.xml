@@ -8,7 +8,7 @@
     android:orientation="vertical"
     android:padding="24dp">
 
-    <!-- Cabeçalho de Boas-Vindas com Avatar -->
+    <!-- Cabeçalho -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -52,7 +52,7 @@
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:layout_marginBottom="16dp">
+        android:layout_marginBottom="12dp">
 
         <ImageView
             android:layout_width="24dp"
@@ -70,7 +70,53 @@
             android:textStyle="bold" />
     </LinearLayout>
 
-    <!-- Container Semi-Transparente para a Lista -->
+    <!-- CHIPS DE FILTRO -->
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/chipGroupFiltro"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        app:singleSelection="true"
+        app:selectionRequired="true"
+        app:chipSpacingHorizontal="8dp">
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipTodos"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checkable="true"
+            android:checked="true"
+            android:text="Todos"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="8dp"
+            app:chipBackgroundColor="#33FFFFFF"
+            app:chipStrokeColor="#66FFFFFF"
+            app:chipStrokeWidth="1dp"
+            app:chipMinHeight="40dp"
+            app:checkedIconVisible="false"
+            app:ensureMinTouchTargetSize="false" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipMeus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checkable="true"
+            android:text="Meus trabalhos"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="8dp"
+            app:chipBackgroundColor="#33FFFFFF"
+            app:chipStrokeColor="#66FFFFFF"
+            app:chipStrokeWidth="1dp"
+            app:chipMinHeight="40dp"
+            app:checkedIconVisible="false"
+            app:ensureMinTouchTargetSize="false" />
+    </com.google.android.material.chip.ChipGroup>
+
+    <!-- Container da Lista -->
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -86,7 +132,6 @@
             android:layout_height="match_parent"
             android:padding="8dp">
 
-            <!-- Lista -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerTrabalhos"
                 android:layout_width="match_parent"
@@ -94,7 +139,6 @@
                 android:visibility="gone"
                 tools:listitem="@layout/item_trabalho" />
 
-            <!-- Estado Vazio -->
             <LinearLayout
                 android:id="@+id/layoutEstadoVazio"
                 android:layout_width="match_parent"
@@ -112,6 +156,7 @@
                     app:tint="#80FFFFFF" />
 
                 <TextView
+                    android:id="@+id/txtEstadoVazio"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Nenhum trabalho disponível ainda"
@@ -120,7 +165,6 @@
                     android:textSize="16sp" />
             </LinearLayout>
 
-            <!-- ⭐ LOADING -->
             <LinearLayout
                 android:id="@+id/layoutLoading"
                 android:layout_width="match_parent"

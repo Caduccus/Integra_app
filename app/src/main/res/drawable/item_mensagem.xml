@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/containerMensagem"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingHorizontal="12dp"
+    android:paddingVertical="4dp">
+
+    <LinearLayout
+        android:id="@+id/bubbleContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp"
+        android:maxWidth="280dp"
+        android:background="@drawable/bubble_outra">
+
+        <TextView
+            android:id="@+id/txtNomeRemetente"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:text="Nome"
+            android:textColor="#0D226B"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/txtTextoMensagem"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Mensagem"
+            android:textColor="@color/white"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/txtHora"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginTop="4dp"
+            android:text="12:00"
+            android:textColor="#80FFFFFF"
+            android:textSize="10sp" />
+    </LinearLayout>
+</LinearLayout>

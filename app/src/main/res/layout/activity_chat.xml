@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background_gradiente"
+    android:orientation="vertical">
+
+    <!-- HEADER -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#1A000000"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="12dp">
+
+        <ImageView
+            android:id="@+id/btnVoltarChat"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:padding="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:contentDescription="Voltar"
+            android:focusable="true"
+            android:src="@drawable/ic_arrow_back"
+            app:tint="@color/white" />
+
+        <TextView
+            android:id="@+id/txtNomeChat"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:text="Chat"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/btnInfoChat"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:padding="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:contentDescription="Informações"
+            android:focusable="true"
+            android:src="@drawable/ic_person"
+            app:tint="@color/white" />
+    </LinearLayout>
+
+    <!-- LISTA DE MENSAGENS -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvMensagens"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:paddingVertical="8dp"
+        tools:listitem="@layout/item_mensagem" />
+
+    <!-- BARRA DE INPUT -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#33000000"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="12dp">
+
+        <EditText
+            android:id="@+id/edtMensagem"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/borda_arredondada"
+            android:hint="Digite uma mensagem..."
+            android:inputType="textMultiLine|textCapSentences"
+            android:maxLines="4"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="12dp"
+            android:textColor="@color/white"
+            android:textColorHint="#80FFFFFF"
+            android:textSize="15sp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnEnviar"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="8dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:text="→"
+            android:textColor="@color/white"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            app:backgroundTint="#0D226B"
+            app:cornerRadius="24dp"
+            app:elevation="4dp" />
+    </LinearLayout>
+
+</LinearLayout>

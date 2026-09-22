@@ -1,14 +1,15 @@
 package com.example.plataformaremota
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
-import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.example.plataformaremota.data.repository.ChatRepository
 import com.example.plataformaremota.data.repository.TrabalhoRepository
 import com.google.android.material.button.MaterialButton
 import com.google.firebase.auth.FirebaseAuth
@@ -34,16 +35,22 @@ class MainActivity2 : AppCompatActivity() {
     private lateinit var btnCandidatar: MaterialButton
 
     private lateinit var repository: TrabalhoRepository
+    private lateinit var chatRepository: ChatRepository
+
     private val auth = FirebaseAuth.getInstance()
     private val db = FirebaseFirestore.getInstance()
 
     private var trabalhoId: String = ""
+    private var criadorId: String = ""
+    private var nomeCriador: String = ""
+    private var jaCandidatou: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main2)
 
         repository = TrabalhoRepository(this)
+        chatRepository = ChatRepository()
 
         btnVoltar = findViewById(R.id.btnVoltar)
         txtCriador = findViewById(R.id.txtCriador)
@@ -63,15 +70,24 @@ class MainActivity2 : AppCompatActivity() {
         trabalhoId = intent.getStringExtra("trabalhoId") ?: ""
 
         btnVoltar.setOnClickListener { finish() }
-
         btnExcluir.setOnClickListener { confirmarExclusao() }
         btnEditar.setOnClickListener {
             Toast.makeText(this, "Editar em breve", Toast.LENGTH_SHORT).show()
         }
+
+        // CHAT do criador: por enquanto só um Toast
         btnChat.setOnClickListener {
-            Toast.makeText(this, "Chat em breve", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Ver candidatos em breve", Toast.LENGTH_SHORT).show()
         }
-        btnCandidatar.setOnClickListener { cadastrarSeNoTrabalho() }
+
+        // Botão candidatar / abrir chat
+        btnCandidatar.setOnClickListener {
+            if (jaCandidatou) {
+                abrirChatComCriador()
+            } else {
+                cadastrarSeNoTrabalho()
+            }
+        }
 
         carregarTrabalho()
     }
@@ -92,6 +108,9 @@ class MainActivity2 : AppCompatActivity() {
                 return@launch
             }
 
+            criadorId = trabalho.criadorId
+            nomeCriador = trabalho.nomeCriador
+
             txtTituloDetalhe.text = trabalho.titulo
             txtDescricaoDetalhe.text = trabalho.descricao
             txtCategoriaDetalhe.text = trabalho.categoria
@@ -99,11 +118,11 @@ class MainActivity2 : AppCompatActivity() {
             txtNivelDetalhe.text = trabalho.nivel
             txtPrazoDetalhe.text = trabalho.prazo
 
-            val nomeExibir = trabalho.nomeCriador.ifEmpty { "Usuário" }
+            val nomeExibir = nomeCriador.ifEmpty { "Usuário" }
             txtCriador.text = "Publicado por: $nomeExibir"
 
             val uidAtual = auth.currentUser?.uid ?: ""
-            val ehCriador = uidAtual == trabalho.criadorId
+            val ehCriador = uidAtual == criadorId
 
             if (ehCriador) {
                 layoutBotoesCriador.visibility = View.VISIBLE
@@ -116,6 +135,9 @@ class MainActivity2 : AppCompatActivity() {
         }
     }
 
+    // ─────────────────────────────────────────────
+    // VERIFICAR SE JÁ SE CANDIDATOU
+    // ─────────────────────────────────────────────
     private suspend fun verificarCandidatura(uid: String) {
         try {
             val doc = db.collection("trabalhos")
@@ -126,15 +148,54 @@ class MainActivity2 : AppCompatActivity() {
                 .await()
 
             if (doc.exists()) {
-                btnCandidatar.isEnabled = false
-                btnCandidatar.text = "✓ CANDIDATADO"
-                btnCandidatar.setBackgroundColor(android.graphics.Color.parseColor("#757575"))
+                jaCandidatou = true
+                btnCandidatar.isEnabled = true
+                btnCandidatar.text = "ABRIR CHAT COM O CRIADOR"
+                btnCandidatar.setBackgroundColor(android.graphics.Color.parseColor("#0D226B"))
+            } else {
+                jaCandidatou = false
             }
         } catch (e: Exception) {
             // Ignora
         }
     }
 
+    // ─────────────────────────────────────────────
+    // ABRIR CHAT COM O CRIADOR
+    // ─────────────────────────────────────────────
+    private fun abrirChatComCriador() {
+        val uidAtual = auth.currentUser?.uid ?: return
+
+        btnCandidatar.isEnabled = false
+        btnCandidatar.text = "ABRINDO..."
+
+        lifecycleScope.launch {
+            val chatId = chatRepository.criarOuBuscarChatUmParaUm(
+                uidOutro = criadorId,
+                nomeOutro = nomeCriador,
+                trabalhoId = trabalhoId
+            )
+
+            btnCandidatar.isEnabled = true
+            btnCandidatar.text = "ABRIR CHAT COM O CRIADOR"
+
+            if (chatId != null) {
+                val intent = Intent(this@MainActivity2, ChatActivity::class.java)
+                intent.putExtra("chatId", chatId)
+                startActivity(intent)
+            } else {
+                Toast.makeText(
+                    this@MainActivity2,
+                    "Erro ao abrir chat",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+
+    // ─────────────────────────────────────────────
+    // CONFIRMAÇÃO DE EXCLUSÃO
+    // ─────────────────────────────────────────────
     private fun confirmarExclusao() {
         AlertDialog.Builder(this)
             .setTitle("Excluir trabalho")
@@ -156,6 +217,9 @@ class MainActivity2 : AppCompatActivity() {
         }
     }
 
+    // ─────────────────────────────────────────────
+    // CANDIDATAR-SE
+    // ─────────────────────────────────────────────
     private fun cadastrarSeNoTrabalho() {
         val uid = auth.currentUser?.uid
         if (uid.isNullOrEmpty()) {
@@ -184,13 +248,14 @@ class MainActivity2 : AppCompatActivity() {
                     .set(candidatura)
                     .await()
 
-                btnCandidatar.isEnabled = false
-                btnCandidatar.text = "✓ CANDIDATADO"
-                btnCandidatar.setBackgroundColor(android.graphics.Color.parseColor("#757575"))
+                jaCandidatou = true
+                btnCandidatar.isEnabled = true
+                btnCandidatar.text = "ABRIR CHAT COM O CRIADOR"
+                btnCandidatar.setBackgroundColor(android.graphics.Color.parseColor("#0D226B"))
 
                 Toast.makeText(
                     this@MainActivity2,
-                    "Candidatura enviada!",
+                    "Candidatura enviada! Clique de novo pra conversar.",
                     Toast.LENGTH_LONG
                 ).show()
             } catch (e: Exception) {
