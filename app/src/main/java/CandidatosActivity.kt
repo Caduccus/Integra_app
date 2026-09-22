@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -16,7 +15,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
-class CandidatosActivity : AppCompatActivity() {
+class CandidatosActivity : BaseActivity() {
 
     private lateinit var btnVoltar: ImageView
     private lateinit var rvCandidatos: RecyclerView
@@ -27,7 +26,6 @@ class CandidatosActivity : AppCompatActivity() {
     private lateinit var chatRepository: ChatRepository
 
     private val db = FirebaseFirestore.getInstance()
-
     private var trabalhoId: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,17 +53,13 @@ class CandidatosActivity : AppCompatActivity() {
     }
 
     private fun configurarRecyclerView() {
-        adapter = CandidatoAdapter(emptyList()) { candidato ->
-            abrirChatComCandidato(candidato)
-        }
-
+        adapter = CandidatoAdapter(emptyList()) { candidato -> abrirChatComCandidato(candidato) }
         rvCandidatos.layoutManager = LinearLayoutManager(this)
         rvCandidatos.adapter = adapter
     }
 
     private fun carregarCandidatos() {
         mostrarLoading()
-
         lifecycleScope.launch {
             try {
                 val snapshot = db.collection("trabalhos")
@@ -82,7 +76,6 @@ class CandidatosActivity : AppCompatActivity() {
                 }.sortedByDescending { it.timestamp }
 
                 adapter.atualizarLista(candidatos)
-
                 if (candidatos.isEmpty()) mostrarEstadoVazio() else mostrarLista()
             } catch (e: Exception) {
                 Toast.makeText(this@CandidatosActivity, "Erro: ${e.message}", Toast.LENGTH_SHORT).show()

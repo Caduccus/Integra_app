@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/background_gradiente"
     android:fillViewport="true">
 
     <LinearLayout
@@ -56,7 +54,6 @@
                 android:orientation="vertical"
                 android:padding="24dp">
 
-                <!-- Avatar clicável com badge de câmera -->
                 <FrameLayout
                     android:layout_width="110dp"
                     android:layout_height="110dp"
@@ -106,7 +103,6 @@
                     </com.google.android.material.card.MaterialCardView>
                 </FrameLayout>
 
-                <!-- Nome -->
                 <TextView
                     android:id="@+id/txtNomePerfil"
                     android:layout_width="wrap_content"
@@ -116,7 +112,6 @@
                     android:textSize="22sp"
                     android:textStyle="bold" />
 
-                <!-- E-mail -->
                 <TextView
                     android:id="@+id/txtEmailPerfil"
                     android:layout_width="wrap_content"
@@ -126,7 +121,6 @@
                     android:textColor="#B3FFFFFF"
                     android:textSize="14sp" />
 
-                <!-- Chip profissão -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -148,11 +142,10 @@
                         android:textSize="13sp"
                         android:textStyle="bold" />
                 </com.google.android.material.card.MaterialCardView>
-
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Título da Seção -->
+        <!-- Configurações -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -162,7 +155,6 @@
             android:textSize="14sp"
             android:textStyle="bold" />
 
-        <!-- Card de Opções -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -270,6 +262,47 @@
                     android:layout_marginHorizontal="16dp"
                     android:background="#33FFFFFF" />
 
+                <!-- Tema -->
+                <LinearLayout
+                    android:id="@+id/opcaoTema"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="16dp">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginEnd="16dp"
+                        android:src="@drawable/ic_home"
+                        app:tint="@color/white" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Tema do aplicativo"
+                        android:textColor="@color/white"
+                        android:textSize="15sp" />
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_arrow_back"
+                        android:rotation="180"
+                        app:tint="#B3FFFFFF" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginHorizontal="16dp"
+                    android:background="#33FFFFFF" />
+
                 <!-- Sobre -->
                 <LinearLayout
                     android:id="@+id/opcaoSobre"
@@ -304,7 +337,6 @@
                         android:rotation="180"
                         app:tint="#B3FFFFFF" />
                 </LinearLayout>
-
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 

@@ -2,18 +2,14 @@ package com.example.plataformaremota
 
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
-class CadastroActivity : AppCompatActivity() {
+class CadastroActivity : BaseActivity() {
 
     private lateinit var edtNome: EditText
     private lateinit var edtEmail: EditText
@@ -24,8 +20,6 @@ class CadastroActivity : AppCompatActivity() {
 
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
-
-    private var cadastroFinalizado = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,53 +55,20 @@ class CadastroActivity : AppCompatActivity() {
             return
         }
 
-        cadastroFinalizado = false
-        btnSalvar.isEnabled = false
-        btnSalvar.text = "CADASTRANDO..."
-
-        Log.d("CADASTRO", "=== Iniciando cadastro ===")
-        Log.d("CADASTRO", "Email: $email")
-
-        // TIMEOUT DE 20 SEGUNDOS
-        Handler(Looper.getMainLooper()).postDelayed({
-            if (!cadastroFinalizado) {
-                cadastroFinalizado = true
-                restaurarBotao()
-                Log.e("CADASTRO", "⏰ TIMEOUT! Firestore não respondeu em 20s")
-                Toast.makeText(
-                    this,
-                    "Firestore não respondeu. Verifica a internet do emulador!",
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-        }, 20000)
-
         auth.createUserWithEmailAndPassword(email, senha)
             .addOnCompleteListener { task ->
-                Log.d("CADASTRO", "Auth callback. Sucesso: ${task.isSuccessful}")
-
                 if (task.isSuccessful) {
                     val uid = auth.currentUser?.uid
-                    Log.d("CADASTRO", "UID criado: $uid")
-
                     if (uid != null) {
-                        salvarNoFirestore(uid, nome, email, profissao)
-                    } else {
-                        cadastroFinalizado = true
-                        restaurarBotao()
-                        Toast.makeText(this, "Erro: UID nulo", Toast.LENGTH_LONG).show()
+                        salvarDadosNoFirestore(uid, nome, email, profissao)
                     }
                 } else {
-                    cadastroFinalizado = true
-                    restaurarBotao()
                     Toast.makeText(this, "Erro: ${task.exception?.message}", Toast.LENGTH_LONG).show()
                 }
             }
     }
 
-    private fun salvarNoFirestore(uid: String, nome: String, email: String, profissao: String) {
-        Log.d("CADASTRO", "Salvando no Firestore...")
-
+    private fun salvarDadosNoFirestore(uid: String, nome: String, email: String, profissao: String) {
         val usuario = hashMapOf(
             "nome" to nome,
             "email" to email,
@@ -118,30 +79,15 @@ class CadastroActivity : AppCompatActivity() {
         db.collection("usuarios").document(uid)
             .set(usuario)
             .addOnSuccessListener {
-                cadastroFinalizado = true
-                Log.d("CADASTRO", "✅ Firestore salvou!")
                 Toast.makeText(this, "Cadastro realizado com sucesso!", Toast.LENGTH_SHORT).show()
                 auth.signOut()
-                irParaLogin()
+                val intent = Intent(this, LoginActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+                startActivity(intent)
+                finish()
             }
             .addOnFailureListener { e ->
-                cadastroFinalizado = true
-                Log.e("CADASTRO", "❌ Firestore falhou: ${e.message}")
-                restaurarBotao()
-                Toast.makeText(this, "Erro: ${e.message}", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "Erro ao salvar: ${e.message}", Toast.LENGTH_LONG).show()
             }
-    }
-
-    private fun irParaLogin() {
-        val intent = Intent(this, LoginActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        }
-        startActivity(intent)
-        finishAffinity()
-    }
-
-    private fun restaurarBotao() {
-        btnSalvar.isEnabled = true
-        btnSalvar.text = "CADASTRAR"
     }
 }

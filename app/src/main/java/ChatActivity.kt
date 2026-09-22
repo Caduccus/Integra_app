@@ -5,7 +5,6 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -20,7 +19,7 @@ import com.google.firebase.firestore.Query
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
-class ChatActivity : AppCompatActivity() {
+class ChatActivity : BaseActivity() {
 
     private lateinit var btnVoltar: ImageView
     private lateinit var btnInfo: ImageView
@@ -64,25 +63,18 @@ class ChatActivity : AppCompatActivity() {
         ouvirMensagens()
 
         btnVoltar.setOnClickListener { finish() }
-
         btnEnviar.setOnClickListener { enviarMensagem() }
-
         btnInfo.setOnClickListener {
-            Toast.makeText(this, "Info do chat em breve", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Info em breve", Toast.LENGTH_SHORT).show()
         }
     }
 
     private fun configurarRecyclerView() {
         adapter = MensagemAdapter(emptyList())
-        rvMensagens.layoutManager = LinearLayoutManager(this).apply {
-            stackFromEnd = true
-        }
+        rvMensagens.layoutManager = LinearLayoutManager(this).apply { stackFromEnd = true }
         rvMensagens.adapter = adapter
     }
 
-    // ─────────────────────────────────────────────
-    // NOME DO CHAT (busca do outro participante ou nome do grupo)
-    // ─────────────────────────────────────────────
     private fun carregarNomeChat() {
         lifecycleScope.launch {
             val chat = repository.buscarChat(chatId) ?: return@launch
@@ -104,9 +96,6 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
-    // ─────────────────────────────────────────────
-    // OUVIR MENSAGENS EM TEMPO REAL
-    // ─────────────────────────────────────────────
     private fun ouvirMensagens() {
         listenerRegistration = db.collection("chats")
             .document(chatId)
@@ -120,16 +109,10 @@ class ChatActivity : AppCompatActivity() {
                 } ?: emptyList()
 
                 adapter.atualizarLista(lista)
-
-                if (lista.isNotEmpty()) {
-                    rvMensagens.scrollToPosition(lista.size - 1)
-                }
+                if (lista.isNotEmpty()) rvMensagens.scrollToPosition(lista.size - 1)
             }
     }
 
-    // ─────────────────────────────────────────────
-    // ENVIAR MENSAGEM
-    // ─────────────────────────────────────────────
     private fun enviarMensagem() {
         val texto = edtMensagem.text.toString().trim()
         if (texto.isEmpty()) return
@@ -140,7 +123,6 @@ class ChatActivity : AppCompatActivity() {
         lifecycleScope.launch {
             val sucesso = repository.enviarMensagem(chatId, texto)
             btnEnviar.isEnabled = true
-
             if (!sucesso) {
                 Toast.makeText(this@ChatActivity, "Erro ao enviar", Toast.LENGTH_SHORT).show()
             }

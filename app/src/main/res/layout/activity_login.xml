@@ -7,6 +7,23 @@
     android:layout_height="match_parent"
     android:background="@drawable/background_gradiente">
 
+    <!-- Botão de trocar tema -->
+    <ImageView
+        android:id="@+id/btnTemaLogin"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:padding="10dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:clickable="true"
+        android:contentDescription="Trocar tema"
+        android:focusable="true"
+        android:src="@drawable/ic_home"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@color/white" />
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -24,8 +41,8 @@
             <!-- Logo -->
             <ImageView
                 android:id="@+id/imageView4"
-                android:layout_width="209dp"
-                android:layout_height="197dp"
+                android:layout_width="140dp"
+                android:layout_height="140dp"
                 android:layout_marginTop="24dp"
                 android:contentDescription="Logo Integra"
                 app:layout_constraintBottom_toTopOf="@+id/textView"
@@ -73,16 +90,16 @@
                 android:layout_marginTop="32dp"
                 android:hint="E-mail"
                 android:textColorHint="#B3FFFFFF"
+                app:boxBackgroundColor="@android:color/transparent"
                 app:boxStrokeColor="@color/white"
                 app:boxStrokeWidth="1.5dp"
-                app:boxBackgroundColor="@android:color/transparent"
                 app:hintTextColor="@color/white"
-                app:startIconDrawable="@android:drawable/ic_dialog_email"
-                app:startIconTint="@color/white"
                 app:layout_constraintBottom_toTopOf="@+id/tilSenha"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/txtSubtitulo">
+                app:layout_constraintTop_toBottomOf="@+id/txtSubtitulo"
+                app:startIconDrawable="@android:drawable/ic_dialog_email"
+                app:startIconTint="@color/white">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edtEmail"
@@ -101,18 +118,18 @@
                 android:layout_marginTop="16dp"
                 android:hint="Senha"
                 android:textColorHint="#B3FFFFFF"
+                app:boxBackgroundColor="@android:color/transparent"
                 app:boxStrokeColor="@color/white"
                 app:boxStrokeWidth="1.5dp"
-                app:boxBackgroundColor="@android:color/transparent"
-                app:hintTextColor="@color/white"
                 app:endIconMode="password_toggle"
                 app:endIconTint="@color/white"
-                app:startIconDrawable="@android:drawable/ic_lock_idle_lock"
-                app:startIconTint="@color/white"
+                app:hintTextColor="@color/white"
                 app:layout_constraintBottom_toTopOf="@+id/txtEsqueciSenha"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tilEmail">
+                app:layout_constraintTop_toBottomOf="@+id/tilEmail"
+                app:startIconDrawable="@android:drawable/ic_lock_idle_lock"
+                app:startIconTint="@color/white">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edtSenha"

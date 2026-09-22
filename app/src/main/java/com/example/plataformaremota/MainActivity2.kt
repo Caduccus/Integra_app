@@ -7,7 +7,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.plataformaremota.data.repository.ChatRepository
 import com.example.plataformaremota.data.repository.TrabalhoRepository
@@ -17,7 +16,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
-class MainActivity2 : AppCompatActivity() {
+class MainActivity2 : BaseActivity() {
 
     private lateinit var btnVoltar: ImageView
     private lateinit var txtCriador: TextView
@@ -74,21 +73,13 @@ class MainActivity2 : AppCompatActivity() {
         btnEditar.setOnClickListener {
             Toast.makeText(this, "Editar em breve", Toast.LENGTH_SHORT).show()
         }
-
-        // CHAT do criador: abre a lista de candidatos
         btnChat.setOnClickListener {
             val intent = Intent(this, CandidatosActivity::class.java)
             intent.putExtra("trabalhoId", trabalhoId)
             startActivity(intent)
         }
-
-        // Botão candidatar / abrir chat
         btnCandidatar.setOnClickListener {
-            if (jaCandidatou) {
-                abrirChatComCriador()
-            } else {
-                cadastrarSeNoTrabalho()
-            }
+            if (jaCandidatou) abrirChatComCriador() else cadastrarSeNoTrabalho()
         }
 
         carregarTrabalho()
@@ -103,7 +94,6 @@ class MainActivity2 : AppCompatActivity() {
 
         lifecycleScope.launch {
             val trabalho = repository.buscarPorId(trabalhoId)
-
             if (trabalho == null) {
                 Toast.makeText(this@MainActivity2, "Trabalho não encontrado", Toast.LENGTH_SHORT).show()
                 finish()
@@ -120,8 +110,7 @@ class MainActivity2 : AppCompatActivity() {
             txtNivelDetalhe.text = trabalho.nivel
             txtPrazoDetalhe.text = trabalho.prazo
 
-            val nomeExibir = nomeCriador.ifEmpty { "Usuário" }
-            txtCriador.text = "Publicado por: $nomeExibir"
+            txtCriador.text = "Publicado por: ${nomeCriador.ifEmpty { "Usuário" }}"
 
             val uidAtual = auth.currentUser?.uid ?: ""
             val ehCriador = uidAtual == criadorId
@@ -137,9 +126,6 @@ class MainActivity2 : AppCompatActivity() {
         }
     }
 
-    // ─────────────────────────────────────────────
-    // VERIFICAR SE JÁ SE CANDIDATOU
-    // ─────────────────────────────────────────────
     private suspend fun verificarCandidatura(uid: String) {
         try {
             val doc = db.collection("trabalhos")
@@ -157,20 +143,10 @@ class MainActivity2 : AppCompatActivity() {
             } else {
                 jaCandidatou = false
             }
-        } catch (e: Exception) {
-            // Ignora
-        }
+        } catch (_: Exception) { }
     }
 
-    // ─────────────────────────────────────────────
-    // ABRIR CHAT COM O CRIADOR
-    // ─────────────────────────────────────────────
     private fun abrirChatComCriador() {
-        val uidAtual = auth.currentUser?.uid ?: return
-
-        btnCandidatar.isEnabled = false
-        btnCandidatar.text = "ABRINDO..."
-
         lifecycleScope.launch {
             val chatId = chatRepository.criarOuBuscarChatUmParaUm(
                 uidOutro = criadorId,
@@ -178,30 +154,20 @@ class MainActivity2 : AppCompatActivity() {
                 trabalhoId = trabalhoId
             )
 
-            btnCandidatar.isEnabled = true
-            btnCandidatar.text = "ABRIR CHAT COM O CRIADOR"
-
             if (chatId != null) {
                 val intent = Intent(this@MainActivity2, ChatActivity::class.java)
                 intent.putExtra("chatId", chatId)
                 startActivity(intent)
             } else {
-                Toast.makeText(
-                    this@MainActivity2,
-                    "Erro ao abrir chat",
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(this@MainActivity2, "Erro ao abrir chat", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    // ─────────────────────────────────────────────
-    // CONFIRMAÇÃO DE EXCLUSÃO
-    // ─────────────────────────────────────────────
     private fun confirmarExclusao() {
         AlertDialog.Builder(this)
             .setTitle("Excluir trabalho")
-            .setMessage("Tem certeza que quer excluir este trabalho? Essa ação não pode ser desfeita.")
+            .setMessage("Tem certeza que quer excluir este trabalho?")
             .setPositiveButton("Excluir") { _, _ -> excluirTrabalho() }
             .setNegativeButton("Cancelar", null)
             .show()
@@ -219,9 +185,6 @@ class MainActivity2 : AppCompatActivity() {
         }
     }
 
-    // ─────────────────────────────────────────────
-    // CANDIDATAR-SE
-    // ─────────────────────────────────────────────
     private fun cadastrarSeNoTrabalho() {
         val uid = auth.currentUser?.uid
         if (uid.isNullOrEmpty()) {
@@ -255,11 +218,7 @@ class MainActivity2 : AppCompatActivity() {
                 btnCandidatar.text = "ABRIR CHAT COM O CRIADOR"
                 btnCandidatar.setBackgroundColor(android.graphics.Color.parseColor("#0D226B"))
 
-                Toast.makeText(
-                    this@MainActivity2,
-                    "Candidatura enviada! Clique de novo pra conversar.",
-                    Toast.LENGTH_LONG
-                ).show()
+                Toast.makeText(this@MainActivity2, "Candidatura enviada!", Toast.LENGTH_LONG).show()
             } catch (e: Exception) {
                 btnCandidatar.isEnabled = true
                 btnCandidatar.text = "CADASTRAR-SE NO TRABALHO"

@@ -18,16 +18,16 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import com.bumptech.glide.Glide
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import java.io.File
+import java.io.FileOutputStream
 
 class ProfileFragment : Fragment() {
 
@@ -43,20 +43,19 @@ class ProfileFragment : Fragment() {
     private var nomeUsuario: String = ""
     private var emailUsuario: String = ""
     private var profissaoUsuario: String = ""
-    private var fotoUrlAtual: String = ""
 
     private val auth = FirebaseAuth.getInstance()
     private val db = FirebaseFirestore.getInstance()
-    private val storage = FirebaseStorage.getInstance()
 
     private val PREFS_NAME = "integra_prefs"
     private val KEY_NOTIFICACOES = "notificacoes_ativas"
+    private val KEY_FOTO_PERFIL = "foto_perfil"
 
     private val pickImageLauncher = registerForActivityResult(
         ActivityResultContracts.PickVisualMedia()
     ) { uri ->
         if (uri != null) {
-            uploadFoto(uri)
+            salvarImagem(uri)
         }
     }
 
@@ -85,6 +84,7 @@ class ProfileFragment : Fragment() {
         txtNomePerfil.text = nomeUsuario.ifEmpty { "Carregando..." }
 
         carregarDadosUsuario()
+        carregarFotoSalva()
         atualizarStatusNotificacoes()
 
         cardAvatarPerfil.setOnClickListener { abrirBottomSheetFoto() }
@@ -95,11 +95,49 @@ class ProfileFragment : Fragment() {
         view.findViewById<View>(R.id.opcaoNotificacoes).setOnClickListener {
             abrirDialogNotificacoes()
         }
+        view.findViewById<View>(R.id.opcaoTema).setOnClickListener {
+            abrirDialogTemas()
+        }
         view.findViewById<View>(R.id.opcaoSobre).setOnClickListener {
             abrirDialogSobre()
         }
 
         btnLogoutPerfil.setOnClickListener { fazerLogout() }
+    }
+
+    // ─────────────────────────────────────────────
+    // DIALOG: TEMA
+    // ─────────────────────────────────────────────
+    private fun abrirDialogTemas() {
+        val dialogView = LayoutInflater.from(requireContext())
+            .inflate(R.layout.dialog_temas, null)
+
+        val dialog = AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .create()
+
+        dialogView.findViewById<View>(R.id.temaPadrao).setOnClickListener {
+            ThemeManager.setTema(requireContext(), ThemeManager.TEMA_PADRAO)
+            dialog.dismiss()
+            requireActivity().recreate()
+        }
+        dialogView.findViewById<View>(R.id.temaVermelho).setOnClickListener {
+            ThemeManager.setTema(requireContext(), ThemeManager.TEMA_VERMELHO)
+            dialog.dismiss()
+            requireActivity().recreate()
+        }
+        dialogView.findViewById<View>(R.id.temaAzul).setOnClickListener {
+            ThemeManager.setTema(requireContext(), ThemeManager.TEMA_AZUL)
+            dialog.dismiss()
+            requireActivity().recreate()
+        }
+        dialogView.findViewById<View>(R.id.temaVerde).setOnClickListener {
+            ThemeManager.setTema(requireContext(), ThemeManager.TEMA_VERDE)
+            dialog.dismiss()
+            requireActivity().recreate()
+        }
+
+        dialog.show()
     }
 
     // ─────────────────────────────────────────────
@@ -121,40 +159,23 @@ class ProfileFragment : Fragment() {
                     nomeUsuario = doc.getString("nome") ?: "Usuário"
                     emailUsuario = doc.getString("email") ?: ""
                     profissaoUsuario = doc.getString("profissao") ?: ""
-                    fotoUrlAtual = doc.getString("fotoUrl") ?: ""
 
                     txtNomePerfil.text = nomeUsuario
                     txtEmailPerfil.text = emailUsuario.ifEmpty { "—" }
                     txtProfissaoPerfil.text = profissaoUsuario.ifEmpty { "—" }
-
-                    // Carrega a foto se tiver URL
-                    if (fotoUrlAtual.isNotEmpty()) {
-                        carregarFotoNaImageView(fotoUrlAtual)
-                    }
                 } else {
                     txtNomePerfil.text = nomeUsuario.ifEmpty { "Usuário" }
                     txtEmailPerfil.text = auth.currentUser?.email ?: "—"
                     txtProfissaoPerfil.text = "—"
                 }
             } catch (e: Exception) {
-                Toast.makeText(requireContext(), "Erro ao carregar: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Erro: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    private fun carregarFotoNaImageView(url: String) {
-        Glide.with(this)
-            .load(url)
-            .circleCrop()
-            .into(imgFotoPerfil)
-
-        imgFotoPerfil.imageTintList = null
-        imgFotoPerfil.scaleType = ImageView.ScaleType.CENTER_CROP
-        imgFotoPerfil.setPadding(0, 0, 0, 0)
-    }
-
     // ─────────────────────────────────────────────
-    // FOTO DE PERFIL
+    // FOTO DE PERFIL (local)
     // ─────────────────────────────────────────────
     private fun abrirBottomSheetFoto() {
         val dialog = BottomSheetDialog(requireContext())
@@ -176,68 +197,63 @@ class ProfileFragment : Fragment() {
         dialog.show()
     }
 
-    // ─────────────────────────────────────────────
-    // UPLOAD DA FOTO PRO FIREBASE STORAGE
-    // ─────────────────────────────────────────────
-    private fun uploadFoto(uri: Uri) {
-        val uid = auth.currentUser?.uid ?: return
+    private fun salvarImagem(uri: Uri) {
+        try {
+            val inputStream = requireContext().contentResolver.openInputStream(uri) ?: return
+            val arquivo = File(requireContext().filesDir, "perfil_foto.jpg")
+            val outputStream = FileOutputStream(arquivo)
 
-        Toast.makeText(requireContext(), "Enviando foto...", Toast.LENGTH_SHORT).show()
+            inputStream.copyTo(outputStream)
+            inputStream.close()
+            outputStream.close()
 
-        lifecycleScope.launch {
-            try {
-                val ref = storage.reference.child("perfis/$uid")
+            val prefs = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            prefs.edit().putString(KEY_FOTO_PERFIL, arquivo.absolutePath).apply()
 
-                // Sobe a imagem
-                ref.putFile(uri).await()
+            imgFotoPerfil.setImageURI(uri)
+            imgFotoPerfil.imageTintList = null
+            imgFotoPerfil.scaleType = ImageView.ScaleType.CENTER_CROP
+            imgFotoPerfil.setPadding(0, 0, 0, 0)
 
-                // Pega a URL de download
-                val url = ref.downloadUrl.await().toString()
+            Toast.makeText(requireContext(), "Foto atualizada!", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), "Erro: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
 
-                // Salva no Firestore
-                db.collection("usuarios").document(uid)
-                    .update("fotoUrl", url)
-                    .await()
+    private fun carregarFotoSalva() {
+        val prefs = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val path = prefs.getString(KEY_FOTO_PERFIL, null)
 
-                fotoUrlAtual = url
-                carregarFotoNaImageView(url)
-
-                Toast.makeText(requireContext(), "Foto atualizada!", Toast.LENGTH_SHORT).show()
-            } catch (e: Exception) {
-                Toast.makeText(requireContext(), "Erro ao enviar: ${e.message}", Toast.LENGTH_LONG).show()
+        if (path != null) {
+            val arquivo = File(path)
+            if (arquivo.exists()) {
+                imgFotoPerfil.setImageURI(Uri.fromFile(arquivo))
+                imgFotoPerfil.imageTintList = null
+                imgFotoPerfil.scaleType = ImageView.ScaleType.CENTER_CROP
+                imgFotoPerfil.setPadding(0, 0, 0, 0)
             }
         }
     }
 
     private fun removerFoto() {
-        val uid = auth.currentUser?.uid ?: return
+        val prefs = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val path = prefs.getString(KEY_FOTO_PERFIL, null)
 
-        lifecycleScope.launch {
-            try {
-                // Remove do Storage
-                try {
-                    storage.reference.child("perfis/$uid").delete().await()
-                } catch (_: Exception) { }
-
-                // Remove do Firestore
-                db.collection("usuarios").document(uid)
-                    .update("fotoUrl", "")
-                    .await()
-
-                fotoUrlAtual = ""
-
-                // Volta pro ícone padrão
-                imgFotoPerfil.setImageResource(R.drawable.ic_person)
-                imgFotoPerfil.imageTintList = ColorStateList.valueOf(Color.WHITE)
-                imgFotoPerfil.scaleType = ImageView.ScaleType.FIT_CENTER
-                val padding = (18 * resources.displayMetrics.density).toInt()
-                imgFotoPerfil.setPadding(padding, padding, padding, padding)
-
-                Toast.makeText(requireContext(), "Foto removida", Toast.LENGTH_SHORT).show()
-            } catch (e: Exception) {
-                Toast.makeText(requireContext(), "Erro: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
+        if (path != null) {
+            val arquivo = File(path)
+            if (arquivo.exists()) arquivo.delete()
         }
+
+        prefs.edit().remove(KEY_FOTO_PERFIL).apply()
+
+        imgFotoPerfil.setImageResource(R.drawable.ic_person)
+        imgFotoPerfil.imageTintList = ColorStateList.valueOf(Color.WHITE)
+        imgFotoPerfil.scaleType = ImageView.ScaleType.FIT_CENTER
+        val padding = (18 * resources.displayMetrics.density).toInt()
+        imgFotoPerfil.setPadding(padding, padding, padding, padding)
+
+        Toast.makeText(requireContext(), "Foto removida", Toast.LENGTH_SHORT).show()
     }
 
     // ─────────────────────────────────────────────
