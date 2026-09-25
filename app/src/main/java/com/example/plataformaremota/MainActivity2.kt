@@ -42,6 +42,7 @@ class MainActivity2 : BaseActivity() {
     private var trabalhoId: String = ""
     private var criadorId: String = ""
     private var nomeCriador: String = ""
+    private var tituloTrabalho: String = ""
     private var jaCandidatou: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -102,6 +103,7 @@ class MainActivity2 : BaseActivity() {
 
             criadorId = trabalho.criadorId
             nomeCriador = trabalho.nomeCriador
+            tituloTrabalho = trabalho.titulo
 
             txtTituloDetalhe.text = trabalho.titulo
             txtDescricaoDetalhe.text = trabalho.descricao
@@ -175,13 +177,46 @@ class MainActivity2 : BaseActivity() {
 
     private fun excluirTrabalho() {
         lifecycleScope.launch {
+            // ⭐ Busca candidatos ANTES de excluir
+            val candidatos = buscarCandidatos()
+
             val sucesso = repository.excluir(trabalhoId)
+
             if (sucesso) {
+                // ⭐ Notifica todos os candidatos
+                notificarCandidatosExclusao(candidatos)
+
                 Toast.makeText(this@MainActivity2, "Trabalho excluído!", Toast.LENGTH_SHORT).show()
                 finish()
             } else {
                 Toast.makeText(this@MainActivity2, "Erro ao excluir", Toast.LENGTH_LONG).show()
             }
+        }
+    }
+
+    private suspend fun buscarCandidatos(): List<String> {
+        return try {
+            val snapshot = db.collection("trabalhos")
+                .document(trabalhoId)
+                .collection("candidaturas")
+                .get()
+                .await()
+
+            snapshot.documents.mapNotNull { it.getString("usuarioId") }
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    private fun notificarCandidatosExclusao(uids: List<String>) {
+        if (uids.isEmpty()) return
+
+        lifecycleScope.launch {
+            NotificacaoHelper.enviarParaVarios(
+                uidsDestino = uids,
+                titulo = "Trabalho encerrado",
+                mensagem = "O trabalho '$tituloTrabalho' foi excluído pelo criador."
+            )
         }
     }
 
@@ -212,6 +247,20 @@ class MainActivity2 : BaseActivity() {
                     .document(uid)
                     .set(candidatura)
                     .await()
+
+                // ⭐ Notifica o criador
+                NotificacaoHelper.enviar(
+                    uidDestino = criadorId,
+                    titulo = "Nova candidatura! 🎯",
+                    mensagem = "$nomeUsuario se candidatou para '$tituloTrabalho'"
+                )
+
+                // ⭐ Notifica o próprio candidato (confirmação)
+                NotificacaoHelper.enviar(
+                    uidDestino = uid,
+                    titulo = "Candidatura enviada ✅",
+                    mensagem = "Você se candidatou para '$tituloTrabalho'"
+                )
 
                 jaCandidatou = true
                 btnCandidatar.isEnabled = true

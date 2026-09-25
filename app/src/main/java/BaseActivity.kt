@@ -5,16 +5,17 @@ import android.os.Bundle
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import com.cloudinary.android.MediaManager
+import com.onesignal.OneSignal
 
 open class BaseActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // ⭐ Status bar PRETA + ícones brancos
+        // Status bar preta
         window.statusBarColor = Color.BLACK
 
-        // ⭐ Inicializa Cloudinary (só uma vez)
+        // Inicializa Cloudinary (só uma vez)
         if (!CloudinaryManager.iniciado) {
             val config = HashMap<String, String>()
             config["cloud_name"] = "qatmo4ge"
@@ -22,10 +23,10 @@ open class BaseActivity : AppCompatActivity() {
             CloudinaryManager.iniciado = true
         }
 
-        // ⏸️ OneSignal — descomentar quando instalar
-        // com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid?.let { uid ->
-        //     com.onesignal.OneSignal.login(uid)
-        // }
+        // ⭐ Associa o usuário logado ao OneSignal
+        com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid?.let { uid ->
+            OneSignal.login(uid)
+        }
     }
 
     override fun onContentChanged() {

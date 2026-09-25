@@ -47,6 +47,8 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation("com.github.bumptech.glide:glide:4.16.0")
     implementation("com.cloudinary:cloudinary-android:3.1.2")
+    // OneSignal
+    implementation("com.onesignal:OneSignal:5.1.6")
 
     // Room
     implementation(libs.room.runtime)

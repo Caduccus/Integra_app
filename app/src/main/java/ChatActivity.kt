@@ -37,6 +37,9 @@ class ChatActivity : BaseActivity() {
     private var chatId: String = ""
     private var listenerRegistration: ListenerRegistration? = null
 
+    private var participantesAtuais: List<String> = emptyList()
+    private var ehGrupoAtual: Boolean = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat)
@@ -79,6 +82,9 @@ class ChatActivity : BaseActivity() {
         lifecycleScope.launch {
             val chat = repository.buscarChat(chatId) ?: return@launch
             val uidAtual = auth.currentUser?.uid ?: return@launch
+
+            participantesAtuais = chat.participantes
+            ehGrupoAtual = chat.ehGrupo
 
             if (chat.ehGrupo) {
                 txtNomeChat.text = chat.nome.ifEmpty { "Grupo" }
@@ -123,8 +129,35 @@ class ChatActivity : BaseActivity() {
         lifecycleScope.launch {
             val sucesso = repository.enviarMensagem(chatId, texto)
             btnEnviar.isEnabled = true
-            if (!sucesso) {
+
+            if (sucesso) {
+                // ⭐ Envia notificação pros participantes
+                notificarParticipantes(texto)
+            } else {
                 Toast.makeText(this@ChatActivity, "Erro ao enviar", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    // ⭐ Notifica todos os participantes exceto eu
+    private fun notificarParticipantes(texto: String) {
+        val uidAtual = auth.currentUser?.uid ?: return
+        val destinatarios = participantesAtuais.filter { it != uidAtual }
+
+        if (destinatarios.isEmpty()) return
+
+        lifecycleScope.launch {
+            try {
+                // Pega o nome de quem mandou
+                val docMeu = db.collection("usuarios").document(uidAtual).get().await()
+                val meuNome = docMeu.getString("nome") ?: "Usuário"
+
+                val titulo = if (ehGrupoAtual) "Nova mensagem no grupo" else "Nova mensagem"
+                val mensagem = "$meuNome: $texto"
+
+                NotificacaoHelper.enviarParaVarios(destinatarios, titulo, mensagem)
+            } catch (e: Exception) {
+                // Ignora erro
             }
         }
     }
