@@ -18,6 +18,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import com.bumptech.glide.Glide
+import com.cloudinary.android.MediaManager
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
@@ -43,6 +45,7 @@ class ProfileFragment : Fragment() {
     private var nomeUsuario: String = ""
     private var emailUsuario: String = ""
     private var profissaoUsuario: String = ""
+    private var fotoUrlAtual: String = ""
 
     private val auth = FirebaseAuth.getInstance()
     private val db = FirebaseFirestore.getInstance()
@@ -103,6 +106,210 @@ class ProfileFragment : Fragment() {
         }
 
         btnLogoutPerfil.setOnClickListener { fazerLogout() }
+
+        // ⭐ Aplica cor do tema
+        ThemeManager.aplicarCores(requireContext(), view)
+    }
+
+    // ─────────────────────────────────────────────
+    // CARREGAR DADOS DO FIRESTORE
+    // ─────────────────────────────────────────────
+    private fun carregarDadosUsuario() {
+        val uid = auth.currentUser?.uid ?: usuarioId
+        if (uid.isEmpty()) {
+            txtNomePerfil.text = "Usuário não identificado"
+            return
+        }
+        usuarioId = uid
+
+        lifecycleScope.launch {
+            try {
+                val doc = db.collection("usuarios").document(uid).get().await()
+
+                if (doc.exists()) {
+                    nomeUsuario = doc.getString("nome") ?: "Usuário"
+                    emailUsuario = doc.getString("email") ?: ""
+                    profissaoUsuario = doc.getString("profissao") ?: ""
+                    fotoUrlAtual = doc.getString("fotoUrl") ?: ""
+
+                    txtNomePerfil.text = nomeUsuario
+                    txtEmailPerfil.text = emailUsuario.ifEmpty { "—" }
+                    txtProfissaoPerfil.text = profissaoUsuario.ifEmpty { "—" }
+
+                    // ⭐ Carrega a foto remota do Cloudinary (se tiver)
+                    if (fotoUrlAtual.isNotEmpty()) {
+                        carregarFotoRemota(fotoUrlAtual)
+                    }
+                } else {
+                    txtNomePerfil.text = nomeUsuario.ifEmpty { "Usuário" }
+                    txtEmailPerfil.text = auth.currentUser?.email ?: "—"
+                    txtProfissaoPerfil.text = "—"
+                }
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "Erro: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    // ⭐ Carrega foto do Cloudinary com Glide
+    private fun carregarFotoRemota(url: String) {
+        if (!isAdded) return
+
+        Glide.with(this)
+            .load(url)
+            .circleCrop()
+            .into(imgFotoPerfil)
+
+        imgFotoPerfil.imageTintList = null
+        imgFotoPerfil.scaleType = ImageView.ScaleType.CENTER_CROP
+        imgFotoPerfil.setPadding(0, 0, 0, 0)
+    }
+
+    // ─────────────────────────────────────────────
+    // FOTO DE PERFIL
+    // ─────────────────────────────────────────────
+    private fun abrirBottomSheetFoto() {
+        val dialog = BottomSheetDialog(requireContext())
+        val sheetView = layoutInflater.inflate(R.layout.bottom_sheet_foto_perfil, null)
+
+        sheetView.findViewById<View>(R.id.opcaoGaleria).setOnClickListener {
+            pickImageLauncher.launch(
+                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+            )
+            dialog.dismiss()
+        }
+
+        sheetView.findViewById<View>(R.id.opcaoRemover).setOnClickListener {
+            removerFoto()
+            dialog.dismiss()
+        }
+
+        dialog.setContentView(sheetView)
+        dialog.show()
+    }
+
+    private fun salvarImagem(uri: Uri) {
+        try {
+            // Salva localmente (cache pra UI rápida)
+            val inputStream = requireContext().contentResolver.openInputStream(uri) ?: return
+            val arquivo = File(requireContext().filesDir, "perfil_foto.jpg")
+            val outputStream = FileOutputStream(arquivo)
+            inputStream.copyTo(outputStream)
+            inputStream.close()
+            outputStream.close()
+
+            // Atualiza a UI imediatamente
+            imgFotoPerfil.setImageURI(uri)
+            imgFotoPerfil.imageTintList = null
+            imgFotoPerfil.scaleType = ImageView.ScaleType.CENTER_CROP
+            imgFotoPerfil.setPadding(0, 0, 0, 0)
+
+            // ⭐ Sobe pro Cloudinary
+            uploadParaCloudinary(uri)
+
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), "Erro: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // ⭐ Upload pro Cloudinary
+    private fun uploadParaCloudinary(uri: Uri) {
+        Toast.makeText(requireContext(), "Enviando foto...", Toast.LENGTH_SHORT).show()
+
+        try {
+            MediaManager.get().upload(uri)
+                .unsigned("fotos_perfil")
+                .option("folder", "perfis")
+                .callback(object : com.cloudinary.android.callback.UploadCallback {
+                    override fun onStart(requestId: String?) {
+                        // Início do upload
+                    }
+
+                    override fun onProgress(requestId: String?, bytes: Long, totalBytes: Long) {
+                        // Progresso do upload
+                    }
+
+                    override fun onSuccess(requestId: String?, resultData: MutableMap<Any?, Any?>?) {
+                        val url = resultData?.get("secure_url") as? String
+                            ?: resultData?.get("url") as? String
+                            ?: return
+                        val secureUrl = url.replace("http://", "https://")
+
+                        // Salva a URL no Firestore
+                        lifecycleScope.launch {
+                            try {
+                                db.collection("usuarios").document(usuarioId)
+                                    .update("fotoUrl", secureUrl)
+                                    .await()
+
+                                fotoUrlAtual = secureUrl
+                                Toast.makeText(requireContext(), "Foto atualizada!", Toast.LENGTH_SHORT).show()
+                            } catch (e: Exception) {
+                                Toast.makeText(requireContext(), "Erro ao salvar URL: ${e.message}", Toast.LENGTH_LONG).show()
+                            }
+                        }
+                    }
+
+                    override fun onError(requestId: String?, error: com.cloudinary.android.callback.ErrorInfo?) {
+                        Toast.makeText(requireContext(), "Erro no upload: ${error?.description}", Toast.LENGTH_LONG).show()
+                    }
+
+                    override fun onReschedule(requestId: String?, error: com.cloudinary.android.callback.ErrorInfo?) {
+                        // Reagendado
+                    }
+                })
+                .dispatch()
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), "Cloudinary não inicializado: ${e.message}", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    private fun carregarFotoSalva() {
+        val prefs = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val path = prefs.getString(KEY_FOTO_PERFIL, null)
+
+        if (path != null && fotoUrlAtual.isEmpty()) {
+            val arquivo = File(path)
+            if (arquivo.exists()) {
+                imgFotoPerfil.setImageURI(Uri.fromFile(arquivo))
+                imgFotoPerfil.imageTintList = null
+                imgFotoPerfil.scaleType = ImageView.ScaleType.CENTER_CROP
+                imgFotoPerfil.setPadding(0, 0, 0, 0)
+            }
+        }
+    }
+
+    private fun removerFoto() {
+        lifecycleScope.launch {
+            try {
+                // Remove a URL do Firestore
+                db.collection("usuarios").document(usuarioId)
+                    .update("fotoUrl", "")
+                    .await()
+
+                // Remove o arquivo local
+                val prefs = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                val path = prefs.getString(KEY_FOTO_PERFIL, null)
+                if (path != null) {
+                    val arquivo = File(path)
+                    if (arquivo.exists()) arquivo.delete()
+                }
+                prefs.edit().remove(KEY_FOTO_PERFIL).apply()
+
+                fotoUrlAtual = ""
+
+                // Volta pro ícone padrão
+                imgFotoPerfil.setImageResource(R.drawable.ic_person)
+                imgFotoPerfil.imageTintList = ColorStateList.valueOf(Color.WHITE)
+                imgFotoPerfil.scaleType = ImageView.ScaleType.FIT_CENTER
+                val padding = (18 * resources.displayMetrics.density).toInt()
+                imgFotoPerfil.setPadding(padding, padding, padding, padding)
+
+                Toast.makeText(requireContext(), "Foto removida", Toast.LENGTH_SHORT).show()
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "Erro: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     // ─────────────────────────────────────────────
@@ -138,122 +345,6 @@ class ProfileFragment : Fragment() {
         }
 
         dialog.show()
-    }
-
-    // ─────────────────────────────────────────────
-    // CARREGAR DADOS DO FIRESTORE
-    // ─────────────────────────────────────────────
-    private fun carregarDadosUsuario() {
-        val uid = auth.currentUser?.uid ?: usuarioId
-        if (uid.isEmpty()) {
-            txtNomePerfil.text = "Usuário não identificado"
-            return
-        }
-        usuarioId = uid
-
-        lifecycleScope.launch {
-            try {
-                val doc = db.collection("usuarios").document(uid).get().await()
-
-                if (doc.exists()) {
-                    nomeUsuario = doc.getString("nome") ?: "Usuário"
-                    emailUsuario = doc.getString("email") ?: ""
-                    profissaoUsuario = doc.getString("profissao") ?: ""
-
-                    txtNomePerfil.text = nomeUsuario
-                    txtEmailPerfil.text = emailUsuario.ifEmpty { "—" }
-                    txtProfissaoPerfil.text = profissaoUsuario.ifEmpty { "—" }
-                } else {
-                    txtNomePerfil.text = nomeUsuario.ifEmpty { "Usuário" }
-                    txtEmailPerfil.text = auth.currentUser?.email ?: "—"
-                    txtProfissaoPerfil.text = "—"
-                }
-            } catch (e: Exception) {
-                Toast.makeText(requireContext(), "Erro: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-
-    // ─────────────────────────────────────────────
-    // FOTO DE PERFIL (local)
-    // ─────────────────────────────────────────────
-    private fun abrirBottomSheetFoto() {
-        val dialog = BottomSheetDialog(requireContext())
-        val sheetView = layoutInflater.inflate(R.layout.bottom_sheet_foto_perfil, null)
-
-        sheetView.findViewById<View>(R.id.opcaoGaleria).setOnClickListener {
-            pickImageLauncher.launch(
-                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-            )
-            dialog.dismiss()
-        }
-
-        sheetView.findViewById<View>(R.id.opcaoRemover).setOnClickListener {
-            removerFoto()
-            dialog.dismiss()
-        }
-
-        dialog.setContentView(sheetView)
-        dialog.show()
-    }
-
-    private fun salvarImagem(uri: Uri) {
-        try {
-            val inputStream = requireContext().contentResolver.openInputStream(uri) ?: return
-            val arquivo = File(requireContext().filesDir, "perfil_foto.jpg")
-            val outputStream = FileOutputStream(arquivo)
-
-            inputStream.copyTo(outputStream)
-            inputStream.close()
-            outputStream.close()
-
-            val prefs = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            prefs.edit().putString(KEY_FOTO_PERFIL, arquivo.absolutePath).apply()
-
-            imgFotoPerfil.setImageURI(uri)
-            imgFotoPerfil.imageTintList = null
-            imgFotoPerfil.scaleType = ImageView.ScaleType.CENTER_CROP
-            imgFotoPerfil.setPadding(0, 0, 0, 0)
-
-            Toast.makeText(requireContext(), "Foto atualizada!", Toast.LENGTH_SHORT).show()
-        } catch (e: Exception) {
-            Toast.makeText(requireContext(), "Erro: ${e.message}", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private fun carregarFotoSalva() {
-        val prefs = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val path = prefs.getString(KEY_FOTO_PERFIL, null)
-
-        if (path != null) {
-            val arquivo = File(path)
-            if (arquivo.exists()) {
-                imgFotoPerfil.setImageURI(Uri.fromFile(arquivo))
-                imgFotoPerfil.imageTintList = null
-                imgFotoPerfil.scaleType = ImageView.ScaleType.CENTER_CROP
-                imgFotoPerfil.setPadding(0, 0, 0, 0)
-            }
-        }
-    }
-
-    private fun removerFoto() {
-        val prefs = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val path = prefs.getString(KEY_FOTO_PERFIL, null)
-
-        if (path != null) {
-            val arquivo = File(path)
-            if (arquivo.exists()) arquivo.delete()
-        }
-
-        prefs.edit().remove(KEY_FOTO_PERFIL).apply()
-
-        imgFotoPerfil.setImageResource(R.drawable.ic_person)
-        imgFotoPerfil.imageTintList = ColorStateList.valueOf(Color.WHITE)
-        imgFotoPerfil.scaleType = ImageView.ScaleType.FIT_CENTER
-        val padding = (18 * resources.displayMetrics.density).toInt()
-        imgFotoPerfil.setPadding(padding, padding, padding, padding)
-
-        Toast.makeText(requireContext(), "Foto removida", Toast.LENGTH_SHORT).show()
     }
 
     // ─────────────────────────────────────────────
