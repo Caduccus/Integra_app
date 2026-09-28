@@ -27,6 +27,13 @@ class ChatListFragment : Fragment() {
 
     private lateinit var adapter: ChatAdapter
 
+    private val novoGrupoLauncher = registerForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == android.app.Activity.RESULT_OK) {
+            carregarChats()
+        }
+    }
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
@@ -53,7 +60,8 @@ class ChatListFragment : Fragment() {
         configurarRecyclerView()
 
         btnNovoGrupo.setOnClickListener {
-            Toast.makeText(requireContext(), "Grupos em breve", Toast.LENGTH_SHORT).show()
+            val intent = Intent(requireContext(), NovoGrupoActivity::class.java)
+            novoGrupoLauncher.launch(intent)
         }
 
         carregarChats()

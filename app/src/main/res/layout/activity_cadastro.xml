@@ -13,7 +13,6 @@
         android:orientation="vertical"
         android:padding="24dp">
 
-        <!-- Cabeçalho com botão voltar -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -29,12 +28,10 @@
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:clickable="true"
                 android:focusable="true"
-                android:contentDescription="Voltar"
                 android:src="@drawable/ic_arrow_back"
                 app:tint="@color/white" />
         </LinearLayout>
 
-        <!-- Imagem + Título -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -47,7 +44,6 @@
                 android:layout_height="140dp"
                 android:layout_marginBottom="16dp"
                 android:scaleType="fitCenter"
-                android:contentDescription="Ilustração de cadastro"
                 app:srcCompat="@drawable/user_imagem" />
 
             <TextView
@@ -69,13 +65,13 @@
                 android:textSize="15sp" />
         </LinearLayout>
 
-        <!-- Campo Nome -->
+        <!-- Nome -->
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            android:hint="Nome"
+            android:hint="Nome completo"
             android:textColorHint="#B3FFFFFF"
             app:boxStrokeColor="@color/white"
             app:boxStrokeWidth="1.5dp"
@@ -92,7 +88,33 @@
                 android:textColor="@color/white" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Campo E-mail -->
+        <!-- ⭐ Username -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:hint="Nome de usuário (ex: joao123)"
+            android:textColorHint="#B3FFFFFF"
+            app:boxStrokeColor="@color/white"
+            app:boxStrokeWidth="1.5dp"
+            app:boxBackgroundColor="@android:color/transparent"
+            app:hintTextColor="@color/white"
+            app:prefixText="@"
+            app:prefixTextColor="@color/white"
+            app:startIconDrawable="@android:drawable/ic_menu_my_calendar"
+            app:startIconTint="@color/white">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edtUsername"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:maxLength="20"
+                android:textColor="@color/white" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- E-mail -->
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
@@ -115,7 +137,7 @@
                 android:textColor="@color/white" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Campo Senha -->
+        <!-- Senha -->
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
@@ -140,7 +162,7 @@
                 android:textColor="@color/white" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Campo Profissão -->
+        <!-- Profissão -->
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
@@ -163,7 +185,6 @@
                 android:textColor="@color/white" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Botão Cadastrar -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnSalvar"
             android:layout_width="match_parent"
@@ -177,5 +198,4 @@
             app:elevation="4dp" />
 
     </LinearLayout>
-
 </ScrollView>

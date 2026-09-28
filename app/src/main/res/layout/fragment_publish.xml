@@ -132,7 +132,7 @@
                         android:textColor="@color/white" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- Campo Tipo de Contrato -->
+                <!-- Campo Tipo de Contrato (Dropdown com texto livre) -->
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                     android:layout_width="match_parent"
@@ -152,11 +152,12 @@
                         android:id="@+id/edtTipoContrato"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="none"
+                        android:inputType="text"
+                        android:completionThreshold="0"
                         android:textColor="@color/white" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- Campo Nível -->
+                <!-- Campo Nível (Dropdown com texto livre) -->
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                     android:layout_width="match_parent"
@@ -176,7 +177,8 @@
                         android:id="@+id/edtNivel"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="none"
+                        android:inputType="text"
+                        android:completionThreshold="0"
                         android:textColor="@color/white" />
                 </com.google.android.material.textfield.TextInputLayout>
 

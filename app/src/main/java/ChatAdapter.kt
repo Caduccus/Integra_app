@@ -61,14 +61,20 @@ class ChatAdapter(
             "$prefixo${chat.ultimaMensagem}"
         }
 
+        // Foto
         val fotoUrl = fotoDoChat(chat)
         if (fotoUrl.isNotEmpty()) {
             Glide.with(holder.itemView.context)
                 .load(fotoUrl)
                 .circleCrop()
                 .into(holder.imgFoto)
+            holder.imgFoto.imageTintList = null
+            holder.imgFoto.setPadding(0, 0, 0, 0)
         } else {
             holder.imgFoto.setImageResource(R.drawable.ic_person)
+            holder.imgFoto.imageTintList = android.content.res.ColorStateList.valueOf(0xFF0D226B.toInt())
+            val pad = (10 * holder.itemView.resources.displayMetrics.density).toInt()
+            holder.imgFoto.setPadding(pad, pad, pad, pad)
         }
 
         holder.card.setOnClickListener { onClick(chat) }

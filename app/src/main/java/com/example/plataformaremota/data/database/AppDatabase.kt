@@ -14,7 +14,7 @@ import com.example.plataformaremota.data.entity.Usuario
         Usuario::class,
         Trabalho::class
     ],
-    version = 4, // Incrementado para 3 porque removemos a coluna salario
+    version = 5,                      // ⭐ Subiu de 4 pra 5
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -37,8 +37,8 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "plataforma_remota.db"
                 )
-                .fallbackToDestructiveMigration() // Limpa e recria o banco sem travar por falta de migração manual
-                .build()
+                    .fallbackToDestructiveMigration()  // ⭐ Recria se a versão mudar
+                    .build()
 
                 INSTANCE = instance
 

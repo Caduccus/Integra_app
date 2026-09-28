@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/containerMensagem"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -7,42 +8,165 @@
     android:paddingVertical="4dp">
 
     <LinearLayout
-        android:id="@+id/bubbleContainer"
-        android:layout_width="wrap_content"
+        android:id="@+id/linhaMensagem"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:maxWidth="280dp"
-        android:paddingHorizontal="14dp"
-        android:paddingVertical="10dp"
-        android:background="@drawable/bubble_outra">
+        android:orientation="horizontal"
+        android:gravity="bottom">
 
-        <TextView
-            android:id="@+id/txtNomeRemetente"
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardFotoRemetente"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_marginEnd="6dp"
+            android:visibility="gone"
+            app:cardBackgroundColor="#33FFFFFF"
+            app:cardCornerRadius="14dp"
+            app:cardElevation="0dp">
+
+            <ImageView
+                android:id="@+id/imgFotoRemetente"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="6dp"
+                android:src="@drawable/ic_person"
+                app:tint="@color/white" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <LinearLayout
+            android:id="@+id/bubbleContainer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="4dp"
-            android:text="Nome"
-            android:textColor="#0D226B"
-            android:textSize="12sp"
-            android:textStyle="bold"
-            android:visibility="gone" />
+            android:orientation="vertical"
+            android:maxWidth="280dp"
+            android:paddingHorizontal="14dp"
+            android:paddingVertical="10dp"
+            android:background="@drawable/bubble_outra">
 
-        <TextView
-            android:id="@+id/txtTextoMensagem"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Mensagem"
-            android:textColor="#FFFFFF"
-            android:textSize="15sp" />
+            <TextView
+                android:id="@+id/txtNomeRemetente"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                android:text="Nome"
+                android:textColor="#0D226B"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
 
-        <TextView
-            android:id="@+id/txtHora"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:layout_marginTop="4dp"
-            android:text="12:00"
-            android:textColor="#B3FFFFFF"
-            android:textSize="10sp" />
+            <!-- ⭐ REPLY PREVIEW -->
+            <LinearLayout
+                android:id="@+id/layoutReply"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="6dp"
+                android:background="#33FFFFFF"
+                android:orientation="vertical"
+                android:padding="8dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/txtReplyNome"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Nome"
+                    android:textColor="#0D226B"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/txtReplyTexto"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:text="Mensagem respondida"
+                    android:textColor="#666666"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <!-- IMAGEM -->
+            <ImageView
+                android:id="@+id/imgMensagem"
+                android:layout_width="220dp"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:maxHeight="400dp"
+                android:minHeight="100dp"
+                android:scaleType="fitCenter"
+                android:visibility="gone" />
+
+            <!-- ÁUDIO -->
+            <LinearLayout
+                android:id="@+id/layoutAudio"
+                android:layout_width="220dp"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <ImageView
+                    android:id="@+id/btnPlayAudio"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:padding="6dp"
+                    android:src="@drawable/ic_send"
+                    app:tint="@color/white" />
+
+                <ProgressBar
+                    android:id="@+id/progressAudio"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:max="100"
+                    android:progress="0" />
+
+                <TextView
+                    android:id="@+id/txtDuracaoAudio"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="00:00"
+                    android:textColor="@color/white"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <!-- TEXTO / LEGENDA -->
+            <TextView
+                android:id="@+id/txtTextoMensagem"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="Mensagem"
+                android:textColor="#FFFFFF"
+                android:textSize="15sp" />
+
+            <!-- ⭐ EDITADA -->
+            <TextView
+                android:id="@+id/txtEditada"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="editada"
+                android:textColor="#999999"
+                android:textSize="10sp"
+                android:textStyle="italic"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/txtHora"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginTop="4dp"
+                android:text="12:00"
+                android:textColor="#B3FFFFFF"
+                android:textSize="10sp" />
+        </LinearLayout>
     </LinearLayout>
 </FrameLayout>

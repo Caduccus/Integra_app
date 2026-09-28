@@ -2,6 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
+
     <application
         android:name=".IntegraApplication"
         android:allowBackup="true"
@@ -42,6 +46,29 @@
 
         <activity
             android:name=".CandidatosActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".PreviewImagemActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".PreviewAudioActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".NovoGrupoActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".InfoGrupoActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".PerfilUsuarioActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
 

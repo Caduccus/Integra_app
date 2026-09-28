@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/background_gradiente"
     android:orientation="vertical">
 
     <!-- HEADER -->
@@ -28,15 +27,34 @@
             android:src="@drawable/ic_arrow_back"
             app:tint="@color/white" />
 
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="10dp"
+            app:cardBackgroundColor="#33FFFFFF"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="#66FFFFFF">
+
+            <ImageView
+                android:id="@+id/imgFotoChatHeader"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="8dp"
+                android:src="@drawable/ic_person"
+                app:tint="@color/white" />
+        </com.google.android.material.card.MaterialCardView>
+
         <TextView
             android:id="@+id/txtNomeChat"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
             android:layout_weight="1"
             android:text="Chat"
             android:textColor="@color/white"
-            android:textSize="18sp"
+            android:textSize="17sp"
             android:textStyle="bold" />
 
         <ImageView
@@ -46,7 +64,6 @@
             android:padding="8dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:clickable="true"
-            android:contentDescription="Informações"
             android:focusable="true"
             android:src="@drawable/ic_person"
             app:tint="@color/white" />
@@ -62,6 +79,118 @@
         android:paddingVertical="8dp"
         tools:listitem="@layout/item_mensagem" />
 
+    <!-- ⭐ REPLY BAR (aparece quando responde) -->
+    <LinearLayout
+        android:id="@+id/layoutReplyBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#1A000000"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="8dp"
+        android:visibility="gone">
+
+        <View
+            android:layout_width="4dp"
+            android:layout_height="match_parent"
+            android:background="#43A047" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/txtReplyBarNome"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Nome"
+                android:textColor="#43A047"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/txtReplyBarTexto"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="Texto respondido"
+                android:textColor="#B3FFFFFF"
+                android:textSize="13sp" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/btnFecharReply"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="6dp"
+            android:src="@drawable/ic_close"
+            app:tint="@color/white" />
+    </LinearLayout>
+
+    <!-- ⭐ ÁUDIO PRONTO (aparece quando termina de gravar) -->
+    <LinearLayout
+        android:id="@+id/layoutAudioReady"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#1A000000"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="12dp"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/btnCancelarAudioReady"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="6dp"
+            android:src="@drawable/ic_delete"
+            app:tint="#D32F2F" />
+
+        <ImageView
+            android:id="@+id/btnPlayAudioReady"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginStart="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="6dp"
+            android:src="@drawable/ic_send"
+            app:tint="@color/white" />
+
+        <ProgressBar
+            android:id="@+id/progressAudioReady"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:max="100"
+            android:progress="0"
+            android:progressTint="@color/white" />
+
+        <TextView
+            android:id="@+id/txtDuracaoReady"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="00:00"
+            android:textColor="@color/white"
+            android:textSize="13sp" />
+    </LinearLayout>
+
     <!-- BARRA DE INPUT -->
     <LinearLayout
         android:layout_width="match_parent"
@@ -70,6 +199,30 @@
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:padding="12dp">
+
+        <ImageView
+            android:id="@+id/btnAnexar"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="4dp"
+            android:padding="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true"
+            android:src="@drawable/ic_add"
+            app:tint="@color/white" />
+
+        <ImageView
+            android:id="@+id/btnGravarAudio"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="4dp"
+            android:padding="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true"
+            android:src="@drawable/ic_mic"
+            app:tint="@color/white" />
 
         <EditText
             android:id="@+id/edtMensagem"
@@ -93,13 +246,14 @@
             android:layout_marginStart="8dp"
             android:insetTop="0dp"
             android:insetBottom="0dp"
-            android:text="→"
-            android:textColor="@color/white"
-            android:textSize="22sp"
-            android:textStyle="bold"
             app:backgroundTint="#0D226B"
             app:cornerRadius="24dp"
-            app:elevation="4dp" />
+            app:elevation="4dp"
+            app:icon="@drawable/ic_send"
+            app:iconGravity="textStart"
+            app:iconPadding="0dp"
+            app:iconSize="22dp"
+            app:iconTint="@color/white" />
     </LinearLayout>
 
 </LinearLayout>

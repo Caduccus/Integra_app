@@ -36,9 +36,7 @@ class PublishFragment : Fragment() {
     private var nomeUsuario: String = ""
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
         return inflater.inflate(R.layout.fragment_publish, container, false)
     }
@@ -55,13 +53,14 @@ class PublishFragment : Fragment() {
         btnPublicar = view.findViewById(R.id.btnPublicar)
 
         repository = TrabalhoRepository(requireContext())
-
         usuarioId = arguments?.getString("usuarioId") ?: ""
         nomeUsuario = arguments?.getString("nomeUsuario") ?: ""
 
         configurarDropdowns()
-
         btnPublicar.setOnClickListener { publicarTrabalho() }
+
+        // Aplica cor do tema
+        ThemeManager.aplicarCores(requireContext(), view)
     }
 
     private fun configurarDropdowns() {
@@ -74,6 +73,14 @@ class PublishFragment : Fragment() {
         edtNivel.setAdapter(
             ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, opcoesNivel)
         )
+
+        // ⭐ Mostra a lista assim que clica
+        edtTipoContrato.setOnClickListener {
+            edtTipoContrato.showDropDown()
+        }
+        edtNivel.setOnClickListener {
+            edtNivel.showDropDown()
+        }
     }
 
     private fun publicarTrabalho() {
@@ -101,7 +108,6 @@ class PublishFragment : Fragment() {
         btnPublicar.text = "PUBLICANDO..."
 
         lifecycleScope.launch {
-            // Busca o nome do usuário pra salvar junto
             val nomeCriador = buscarNomeUsuario(uid) ?: nomeUsuario
 
             val trabalho = Trabalho(
@@ -117,7 +123,6 @@ class PublishFragment : Fragment() {
             )
 
             val sucesso = repository.publicar(trabalho)
-
             btnPublicar.isEnabled = true
             btnPublicar.text = "PUBLICAR TRABALHO"
 
@@ -125,7 +130,7 @@ class PublishFragment : Fragment() {
                 Toast.makeText(requireContext(), "Trabalho publicado!", Toast.LENGTH_SHORT).show()
                 limparFormulario()
             } else {
-                Toast.makeText(requireContext(), "Erro ao publicar. Tente novamente.", Toast.LENGTH_LONG).show()
+                Toast.makeText(requireContext(), "Erro ao publicar", Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -134,9 +139,7 @@ class PublishFragment : Fragment() {
         return try {
             val doc = db.collection("usuarios").document(uid).get().await()
             doc.getString("nome")
-        } catch (e: Exception) {
-            null
-        }
+        } catch (e: Exception) { null }
     }
 
     private fun limparFormulario() {

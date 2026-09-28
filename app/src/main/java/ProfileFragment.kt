@@ -40,6 +40,7 @@ class ProfileFragment : Fragment() {
     private lateinit var txtProfissaoPerfil: TextView
     private lateinit var txtStatusNotificacoes: TextView
     private lateinit var btnLogoutPerfil: MaterialButton
+    private lateinit var btnExcluirConta: MaterialButton
 
     private var usuarioId: String = ""
     private var nomeUsuario: String = ""
@@ -80,6 +81,7 @@ class ProfileFragment : Fragment() {
         txtProfissaoPerfil = view.findViewById(R.id.txtProfissaoPerfil)
         txtStatusNotificacoes = view.findViewById(R.id.txtStatusNotificacoes)
         btnLogoutPerfil = view.findViewById(R.id.btnLogoutPerfil)
+        btnExcluirConta = view.findViewById(R.id.btnExcluirConta)
 
         usuarioId = arguments?.getString("usuarioId") ?: auth.currentUser?.uid ?: ""
         nomeUsuario = arguments?.getString("nomeUsuario") ?: ""
@@ -106,8 +108,9 @@ class ProfileFragment : Fragment() {
         }
 
         btnLogoutPerfil.setOnClickListener { fazerLogout() }
+        btnExcluirConta.setOnClickListener { confirmarExcluirConta() }
 
-        // ⭐ Aplica cor do tema
+        // Aplica cor do tema
         ThemeManager.aplicarCores(requireContext(), view)
     }
 
@@ -136,7 +139,6 @@ class ProfileFragment : Fragment() {
                     txtEmailPerfil.text = emailUsuario.ifEmpty { "—" }
                     txtProfissaoPerfil.text = profissaoUsuario.ifEmpty { "—" }
 
-                    // ⭐ Carrega a foto remota do Cloudinary (se tiver)
                     if (fotoUrlAtual.isNotEmpty()) {
                         carregarFotoRemota(fotoUrlAtual)
                     }
@@ -151,7 +153,6 @@ class ProfileFragment : Fragment() {
         }
     }
 
-    // ⭐ Carrega foto do Cloudinary com Glide
     private fun carregarFotoRemota(url: String) {
         if (!isAdded) return
 
@@ -190,7 +191,6 @@ class ProfileFragment : Fragment() {
 
     private fun salvarImagem(uri: Uri) {
         try {
-            // Salva localmente (cache pra UI rápida)
             val inputStream = requireContext().contentResolver.openInputStream(uri) ?: return
             val arquivo = File(requireContext().filesDir, "perfil_foto.jpg")
             val outputStream = FileOutputStream(arquivo)
@@ -198,13 +198,11 @@ class ProfileFragment : Fragment() {
             inputStream.close()
             outputStream.close()
 
-            // Atualiza a UI imediatamente
             imgFotoPerfil.setImageURI(uri)
             imgFotoPerfil.imageTintList = null
             imgFotoPerfil.scaleType = ImageView.ScaleType.CENTER_CROP
             imgFotoPerfil.setPadding(0, 0, 0, 0)
 
-            // ⭐ Sobe pro Cloudinary
             uploadParaCloudinary(uri)
 
         } catch (e: Exception) {
@@ -212,7 +210,6 @@ class ProfileFragment : Fragment() {
         }
     }
 
-    // ⭐ Upload pro Cloudinary
     private fun uploadParaCloudinary(uri: Uri) {
         Toast.makeText(requireContext(), "Enviando foto...", Toast.LENGTH_SHORT).show()
 
@@ -221,13 +218,8 @@ class ProfileFragment : Fragment() {
                 .unsigned("fotos_perfil")
                 .option("folder", "perfis")
                 .callback(object : com.cloudinary.android.callback.UploadCallback {
-                    override fun onStart(requestId: String?) {
-                        // Início do upload
-                    }
-
-                    override fun onProgress(requestId: String?, bytes: Long, totalBytes: Long) {
-                        // Progresso do upload
-                    }
+                    override fun onStart(requestId: String?) { }
+                    override fun onProgress(requestId: String?, bytes: Long, totalBytes: Long) { }
 
                     override fun onSuccess(requestId: String?, resultData: MutableMap<Any?, Any?>?) {
                         val url = resultData?.get("secure_url") as? String
@@ -235,7 +227,6 @@ class ProfileFragment : Fragment() {
                             ?: return
                         val secureUrl = url.replace("http://", "https://")
 
-                        // Salva a URL no Firestore
                         lifecycleScope.launch {
                             try {
                                 db.collection("usuarios").document(usuarioId)
@@ -245,22 +236,20 @@ class ProfileFragment : Fragment() {
                                 fotoUrlAtual = secureUrl
                                 Toast.makeText(requireContext(), "Foto atualizada!", Toast.LENGTH_SHORT).show()
                             } catch (e: Exception) {
-                                Toast.makeText(requireContext(), "Erro ao salvar URL: ${e.message}", Toast.LENGTH_LONG).show()
+                                Toast.makeText(requireContext(), "Erro: ${e.message}", Toast.LENGTH_LONG).show()
                             }
                         }
                     }
 
                     override fun onError(requestId: String?, error: com.cloudinary.android.callback.ErrorInfo?) {
-                        Toast.makeText(requireContext(), "Erro no upload: ${error?.description}", Toast.LENGTH_LONG).show()
+                        Toast.makeText(requireContext(), "Erro: ${error?.description}", Toast.LENGTH_LONG).show()
                     }
 
-                    override fun onReschedule(requestId: String?, error: com.cloudinary.android.callback.ErrorInfo?) {
-                        // Reagendado
-                    }
+                    override fun onReschedule(requestId: String?, error: com.cloudinary.android.callback.ErrorInfo?) { }
                 })
                 .dispatch()
         } catch (e: Exception) {
-            Toast.makeText(requireContext(), "Cloudinary não inicializado: ${e.message}", Toast.LENGTH_LONG).show()
+            Toast.makeText(requireContext(), "Erro: ${e.message}", Toast.LENGTH_LONG).show()
         }
     }
 
@@ -282,12 +271,10 @@ class ProfileFragment : Fragment() {
     private fun removerFoto() {
         lifecycleScope.launch {
             try {
-                // Remove a URL do Firestore
                 db.collection("usuarios").document(usuarioId)
                     .update("fotoUrl", "")
                     .await()
 
-                // Remove o arquivo local
                 val prefs = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
                 val path = prefs.getString(KEY_FOTO_PERFIL, null)
                 if (path != null) {
@@ -298,7 +285,6 @@ class ProfileFragment : Fragment() {
 
                 fotoUrlAtual = ""
 
-                // Volta pro ícone padrão
                 imgFotoPerfil.setImageResource(R.drawable.ic_person)
                 imgFotoPerfil.imageTintList = ColorStateList.valueOf(Color.WHITE)
                 imgFotoPerfil.scaleType = ImageView.ScaleType.FIT_CENTER
@@ -453,7 +439,7 @@ class ProfileFragment : Fragment() {
     }
 
     // ─────────────────────────────────────────────
-    // LOGOUT
+    // SAIR DA CONTA
     // ─────────────────────────────────────────────
     private fun fazerLogout() {
         auth.signOut()
@@ -461,5 +447,108 @@ class ProfileFragment : Fragment() {
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
         requireActivity().finish()
+    }
+
+    // ─────────────────────────────────────────────
+    // EXCLUIR CONTA
+    // ─────────────────────────────────────────────
+    private fun confirmarExcluirConta() {
+        AlertDialog.Builder(requireContext())
+            .setTitle("⚠️ Excluir conta")
+            .setMessage(
+                "Tem CERTEZA que quer excluir sua conta?\n\n" +
+                        "Isso vai apagar PERMANENTEMENTE:\n" +
+                        "• Seu perfil\n" +
+                        "• Todos os seus trabalhos publicados\n" +
+                        "• Todas as suas candidaturas\n" +
+                        "• Sua participação em chats e grupos\n\n" +
+                        "Essa ação NÃO pode ser desfeita!"
+            )
+            .setPositiveButton("EXCLUIR TUDO") { _, _ ->
+                executarExclusaoConta()
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+
+    private fun executarExclusaoConta() {
+        val uid = auth.currentUser?.uid ?: return
+
+        Toast.makeText(requireContext(), "Excluindo conta...", Toast.LENGTH_SHORT).show()
+
+        lifecycleScope.launch {
+            try {
+                // 1. Apaga trabalhos do usuário (com as candidaturas dentro)
+                val trabalhos = db.collection("trabalhos")
+                    .whereEqualTo("criadorId", uid)
+                    .get().await()
+
+                for (t in trabalhos.documents) {
+                    val cands = t.reference.collection("candidaturas").get().await()
+                    for (c in cands.documents) {
+                        c.reference.delete().await()
+                    }
+                    t.reference.delete().await()
+                }
+
+                // 2. Apaga candidaturas em trabalhos de OUTROS
+                val todosTrabalhos = db.collection("trabalhos").get().await()
+                for (t in todosTrabalhos.documents) {
+                    try {
+                        t.reference.collection("candidaturas").document(uid).delete().await()
+                    } catch (_: Exception) { }
+                }
+
+                // 3. Remove dos chats/grupos
+                val chats = db.collection("chats")
+                    .whereArrayContains("participantes", uid)
+                    .get().await()
+
+                for (c in chats.documents) {
+                    val participantes = (c.get("participantes") as? List<*>)?.filterIsInstance<String>() ?: emptyList()
+                    val admins = (c.get("admins") as? List<*>)?.filterIsInstance<String>() ?: emptyList()
+
+                    val novosParticipantes = participantes.filter { it != uid }
+                    val novosAdmins = admins.filter { it != uid }
+
+                    if (novosParticipantes.isEmpty()) {
+                        c.reference.delete().await()
+                    } else {
+                        c.reference.update(
+                            mapOf(
+                                "participantes" to novosParticipantes,
+                                "admins" to novosAdmins
+                            )
+                        ).await()
+                    }
+                }
+
+                // 4. Apaga o documento do usuário
+                db.collection("usuarios").document(uid).delete().await()
+
+                // 5. Tenta apagar do Firebase Auth
+                try {
+                    auth.currentUser?.delete()?.await()
+                } catch (e: Exception) {
+                    // Não conseguiu apagar do Auth — dados já foram
+                }
+
+                // 6. Logout e volta pro login
+                auth.signOut()
+                Toast.makeText(requireContext(), "Conta excluída", Toast.LENGTH_SHORT).show()
+
+                val intent = Intent(requireContext(), LoginActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(intent)
+                requireActivity().finish()
+
+            } catch (e: Exception) {
+                Toast.makeText(
+                    requireContext(),
+                    "Erro ao excluir: ${e.message}",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
     }
 }

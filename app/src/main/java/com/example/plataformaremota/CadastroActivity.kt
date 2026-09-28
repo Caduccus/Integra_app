@@ -12,6 +12,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 class CadastroActivity : BaseActivity() {
 
     private lateinit var edtNome: EditText
+    private lateinit var edtUsername: EditText
     private lateinit var edtEmail: EditText
     private lateinit var edtSenha: EditText
     private lateinit var edtProfissao: EditText
@@ -29,6 +30,7 @@ class CadastroActivity : BaseActivity() {
         db = FirebaseFirestore.getInstance()
 
         edtNome = findViewById(R.id.edtNome)
+        edtUsername = findViewById(R.id.edtUsername)    // ⭐ NOVO
         edtEmail = findViewById(R.id.edtEmail)
         edtSenha = findViewById(R.id.edtSenha)
         edtProfissao = findViewById(R.id.edtProfissao)
@@ -41,12 +43,18 @@ class CadastroActivity : BaseActivity() {
 
     private fun cadastrarUsuario() {
         val nome = edtNome.text.toString().trim()
+        val username = edtUsername.text.toString().trim().lowercase().replace(" ", "")
         val email = edtEmail.text.toString().trim()
         val senha = edtSenha.text.toString().trim()
         val profissao = edtProfissao.text.toString().trim()
 
-        if (nome.isEmpty() || email.isEmpty() || senha.isEmpty() || profissao.isEmpty()) {
+        if (nome.isEmpty() || username.isEmpty() || email.isEmpty() || senha.isEmpty() || profissao.isEmpty()) {
             Toast.makeText(this, "Preencha todos os campos", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (username.length < 3) {
+            Toast.makeText(this, "Username precisa ter no mínimo 3 caracteres", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -55,12 +63,27 @@ class CadastroActivity : BaseActivity() {
             return
         }
 
+        // Verifica se username já existe
+        db.collection("usuarios").whereEqualTo("username", username).get()
+            .addOnSuccessListener { snapshot ->
+                if (!snapshot.isEmpty) {
+                    Toast.makeText(this, "Este username já está em uso", Toast.LENGTH_LONG).show()
+                    return@addOnSuccessListener
+                }
+                criarConta(username, nome, email, senha, profissao)
+            }
+            .addOnFailureListener {
+                criarConta(username, nome, email, senha, profissao)
+            }
+    }
+
+    private fun criarConta(username: String, nome: String, email: String, senha: String, profissao: String) {
         auth.createUserWithEmailAndPassword(email, senha)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     val uid = auth.currentUser?.uid
                     if (uid != null) {
-                        salvarDadosNoFirestore(uid, nome, email, profissao)
+                        salvarDadosNoFirestore(uid, nome, username, email, profissao)
                     }
                 } else {
                     Toast.makeText(this, "Erro: ${task.exception?.message}", Toast.LENGTH_LONG).show()
@@ -68,9 +91,10 @@ class CadastroActivity : BaseActivity() {
             }
     }
 
-    private fun salvarDadosNoFirestore(uid: String, nome: String, email: String, profissao: String) {
+    private fun salvarDadosNoFirestore(uid: String, nome: String, username: String, email: String, profissao: String) {
         val usuario = hashMapOf(
             "nome" to nome,
+            "username" to username,
             "email" to email,
             "profissao" to profissao,
             "timestamp" to System.currentTimeMillis()
@@ -87,7 +111,7 @@ class CadastroActivity : BaseActivity() {
                 finish()
             }
             .addOnFailureListener { e ->
-                Toast.makeText(this, "Erro ao salvar: ${e.message}", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "Erro: ${e.message}", Toast.LENGTH_LONG).show()
             }
     }
 }
