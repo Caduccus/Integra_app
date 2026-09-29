@@ -62,7 +62,7 @@
                 android:orientation="vertical"
                 android:padding="20dp">
 
-                <!-- Campo Título -->
+                <!-- Título -->
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
@@ -85,7 +85,7 @@
                         android:textColor="@color/white" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- Campo Descrição -->
+                <!-- Descrição -->
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
@@ -109,9 +109,9 @@
                         android:textColor="@color/white" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- Campo Categoria -->
+                <!-- ⭐ Categoria (DROPDOWN) -->
                 <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
@@ -122,42 +122,18 @@
                     app:boxBackgroundColor="@android:color/transparent"
                     app:hintTextColor="@color/white"
                     app:startIconDrawable="@android:drawable/ic_menu_compass"
-                    app:startIconTint="@color/white">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/edtCategoria"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="text"
-                        android:textColor="@color/white" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <!-- Campo Tipo de Contrato (Dropdown com texto livre) -->
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    android:hint="Tipo de contrato"
-                    android:textColorHint="#B3FFFFFF"
-                    app:boxStrokeColor="@color/white"
-                    app:boxStrokeWidth="1.5dp"
-                    app:boxBackgroundColor="@android:color/transparent"
-                    app:hintTextColor="@color/white"
-                    app:startIconDrawable="@drawable/ic_menu_description"
                     app:startIconTint="@color/white"
                     app:endIconTint="@color/white">
 
                     <AutoCompleteTextView
-                        android:id="@+id/edtTipoContrato"
+                        android:id="@+id/edtCategoria"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="text"
-                        android:completionThreshold="0"
+                        android:inputType="none"
                         android:textColor="@color/white" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- Campo Nível (Dropdown com texto livre) -->
+                <!-- Nível -->
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                     android:layout_width="match_parent"
@@ -182,7 +158,7 @@
                         android:textColor="@color/white" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- Campo Prazo -->
+                <!-- Prazo -->
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"

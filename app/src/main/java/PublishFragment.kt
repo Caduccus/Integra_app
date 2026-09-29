@@ -22,8 +22,7 @@ class PublishFragment : Fragment() {
 
     private lateinit var edtTitulo: TextInputEditText
     private lateinit var edtDescricao: TextInputEditText
-    private lateinit var edtCategoria: TextInputEditText
-    private lateinit var edtTipoContrato: AutoCompleteTextView
+    private lateinit var edtCategoria: AutoCompleteTextView   // ⭐ MUDOU
     private lateinit var edtNivel: AutoCompleteTextView
     private lateinit var edtPrazo: TextInputEditText
     private lateinit var btnPublicar: MaterialButton
@@ -47,7 +46,6 @@ class PublishFragment : Fragment() {
         edtTitulo = view.findViewById(R.id.edtTitulo)
         edtDescricao = view.findViewById(R.id.edtDescricao)
         edtCategoria = view.findViewById(R.id.edtCategoria)
-        edtTipoContrato = view.findViewById(R.id.edtTipoContrato)
         edtNivel = view.findViewById(R.id.edtNivel)
         edtPrazo = view.findViewById(R.id.edtPrazo)
         btnPublicar = view.findViewById(R.id.btnPublicar)
@@ -59,24 +57,39 @@ class PublishFragment : Fragment() {
         configurarDropdowns()
         btnPublicar.setOnClickListener { publicarTrabalho() }
 
-        // Aplica cor do tema
         ThemeManager.aplicarCores(requireContext(), view)
+        ThemeManager.aplicarCoresTexto(requireContext(), view)
     }
 
     private fun configurarDropdowns() {
-        val opcoesContrato = arrayOf("CLT", "PJ", "Freelance", "Estágio", "Temporário")
-        edtTipoContrato.setAdapter(
-            ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, opcoesContrato)
+        // ⭐ CATEGORIA (dropdown com opções)
+        val opcoesCategoria = arrayOf(
+            "Tecnologia",
+            "Design",
+            "Marketing",
+            "Vendas",
+            "Suporte",
+            "Educação",
+            "Saúde",
+            "Finanças",
+            "Recursos Humanos",
+            "Administrativo",
+            "Engenharia",
+            "Outros"
+        )
+        edtCategoria.setAdapter(
+            ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, opcoesCategoria)
         )
 
+        // NÍVEL (dropdown com texto livre)
         val opcoesNivel = arrayOf("Júnior", "Pleno", "Sênior", "Especialista")
         edtNivel.setAdapter(
             ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, opcoesNivel)
         )
 
-        // ⭐ Mostra a lista assim que clica
-        edtTipoContrato.setOnClickListener {
-            edtTipoContrato.showDropDown()
+        // Mostra a lista assim que clica
+        edtCategoria.setOnClickListener {
+            edtCategoria.showDropDown()
         }
         edtNivel.setOnClickListener {
             edtNivel.showDropDown()
@@ -87,12 +100,11 @@ class PublishFragment : Fragment() {
         val titulo = edtTitulo.text.toString().trim()
         val descricao = edtDescricao.text.toString().trim()
         val categoria = edtCategoria.text.toString().trim()
-        val tipoContrato = edtTipoContrato.text.toString().trim()
         val nivel = edtNivel.text.toString().trim()
         val prazo = edtPrazo.text.toString().trim()
 
         if (titulo.isEmpty() || descricao.isEmpty() || categoria.isEmpty() ||
-            tipoContrato.isEmpty() || nivel.isEmpty() || prazo.isEmpty()
+            nivel.isEmpty() || prazo.isEmpty()
         ) {
             Toast.makeText(requireContext(), "Preencha todos os campos", Toast.LENGTH_SHORT).show()
             return
@@ -115,7 +127,7 @@ class PublishFragment : Fragment() {
                 descricao = descricao,
                 categoria = categoria,
                 prazo = prazo,
-                tipoContrato = tipoContrato,
+                tipoContrato = "",   // ⭐ Vazio (campo removido)
                 nivel = nivel,
                 criadorId = uid,
                 nomeCriador = nomeCriador,
@@ -146,7 +158,6 @@ class PublishFragment : Fragment() {
         edtTitulo.text?.clear()
         edtDescricao.text?.clear()
         edtCategoria.text?.clear()
-        edtTipoContrato.text?.clear()
         edtNivel.text?.clear()
         edtPrazo.text?.clear()
     }

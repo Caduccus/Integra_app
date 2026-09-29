@@ -3,6 +3,7 @@
     <style name="Base.Theme.PlataformaRemota" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="android:windowAnimationStyle">@style/ActivityAnimation</item>
     </style>
 
     <style name="Theme.PlataformaRemota" parent="Base.Theme.PlataformaRemota" />

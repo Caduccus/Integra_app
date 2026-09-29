@@ -58,7 +58,7 @@ class ProfileFragment : Fragment() {
     private val pickImageLauncher = registerForActivityResult(
         ActivityResultContracts.PickVisualMedia()
     ) { uri ->
-        if (uri != null) {
+        if (uri != null && isAdded) {
             salvarImagem(uri)
         }
     }
@@ -110,12 +110,12 @@ class ProfileFragment : Fragment() {
         btnLogoutPerfil.setOnClickListener { fazerLogout() }
         btnExcluirConta.setOnClickListener { confirmarExcluirConta() }
 
-        // Aplica cor do tema
         ThemeManager.aplicarCores(requireContext(), view)
+        ThemeManager.aplicarCoresTexto(requireContext(), view)
     }
 
     // ─────────────────────────────────────────────
-    // CARREGAR DADOS DO FIRESTORE
+    // CARREGAR DADOS (corrigido contra crash)
     // ─────────────────────────────────────────────
     private fun carregarDadosUsuario() {
         val uid = auth.currentUser?.uid ?: usuarioId
@@ -125,9 +125,13 @@ class ProfileFragment : Fragment() {
         }
         usuarioId = uid
 
-        lifecycleScope.launch {
+        // ⭐ viewLifecycleOwner.lifecycleScope — cancela automaticamente quando a view morre
+        viewLifecycleOwner.lifecycleScope.launch {
             try {
                 val doc = db.collection("usuarios").document(uid).get().await()
+
+                // ⭐ Verifica se o Fragment ainda tá vivo ANTES de mexer na UI
+                if (!isAdded || view == null) return@launch
 
                 if (doc.exists()) {
                     nomeUsuario = doc.getString("nome") ?: "Usuário"
@@ -148,7 +152,10 @@ class ProfileFragment : Fragment() {
                     txtProfissaoPerfil.text = "—"
                 }
             } catch (e: Exception) {
-                Toast.makeText(requireContext(), "Erro: ${e.message}", Toast.LENGTH_SHORT).show()
+                // ⭐ Não crasha se o Fragment morrer
+                if (isAdded) {
+                    Toast.makeText(requireContext(), "Erro: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
@@ -167,7 +174,7 @@ class ProfileFragment : Fragment() {
     }
 
     // ─────────────────────────────────────────────
-    // FOTO DE PERFIL
+    // FOTO
     // ─────────────────────────────────────────────
     private fun abrirBottomSheetFoto() {
         val dialog = BottomSheetDialog(requireContext())
@@ -204,13 +211,15 @@ class ProfileFragment : Fragment() {
             imgFotoPerfil.setPadding(0, 0, 0, 0)
 
             uploadParaCloudinary(uri)
-
         } catch (e: Exception) {
-            Toast.makeText(requireContext(), "Erro: ${e.message}", Toast.LENGTH_SHORT).show()
+            if (isAdded) {
+                Toast.makeText(requireContext(), "Erro: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
     private fun uploadParaCloudinary(uri: Uri) {
+        if (!isAdded) return
         Toast.makeText(requireContext(), "Enviando foto...", Toast.LENGTH_SHORT).show()
 
         try {
@@ -227,33 +236,43 @@ class ProfileFragment : Fragment() {
                             ?: return
                         val secureUrl = url.replace("http://", "https://")
 
-                        lifecycleScope.launch {
+                        if (!isAdded) return
+
+                        viewLifecycleOwner.lifecycleScope.launch {
                             try {
                                 db.collection("usuarios").document(usuarioId)
                                     .update("fotoUrl", secureUrl)
                                     .await()
 
+                                if (!isAdded) return@launch
                                 fotoUrlAtual = secureUrl
                                 Toast.makeText(requireContext(), "Foto atualizada!", Toast.LENGTH_SHORT).show()
                             } catch (e: Exception) {
-                                Toast.makeText(requireContext(), "Erro: ${e.message}", Toast.LENGTH_LONG).show()
+                                if (isAdded) {
+                                    Toast.makeText(requireContext(), "Erro: ${e.message}", Toast.LENGTH_LONG).show()
+                                }
                             }
                         }
                     }
 
                     override fun onError(requestId: String?, error: com.cloudinary.android.callback.ErrorInfo?) {
-                        Toast.makeText(requireContext(), "Erro: ${error?.description}", Toast.LENGTH_LONG).show()
+                        if (isAdded) {
+                            Toast.makeText(requireContext(), "Erro: ${error?.description}", Toast.LENGTH_LONG).show()
+                        }
                     }
 
                     override fun onReschedule(requestId: String?, error: com.cloudinary.android.callback.ErrorInfo?) { }
                 })
                 .dispatch()
         } catch (e: Exception) {
-            Toast.makeText(requireContext(), "Erro: ${e.message}", Toast.LENGTH_LONG).show()
+            if (isAdded) {
+                Toast.makeText(requireContext(), "Erro: ${e.message}", Toast.LENGTH_LONG).show()
+            }
         }
     }
 
     private fun carregarFotoSalva() {
+        if (!isAdded) return
         val prefs = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val path = prefs.getString(KEY_FOTO_PERFIL, null)
 
@@ -269,11 +288,13 @@ class ProfileFragment : Fragment() {
     }
 
     private fun removerFoto() {
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             try {
                 db.collection("usuarios").document(usuarioId)
                     .update("fotoUrl", "")
                     .await()
+
+                if (!isAdded) return@launch
 
                 val prefs = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
                 val path = prefs.getString(KEY_FOTO_PERFIL, null)
@@ -293,15 +314,18 @@ class ProfileFragment : Fragment() {
 
                 Toast.makeText(requireContext(), "Foto removida", Toast.LENGTH_SHORT).show()
             } catch (e: Exception) {
-                Toast.makeText(requireContext(), "Erro: ${e.message}", Toast.LENGTH_SHORT).show()
+                if (isAdded) {
+                    Toast.makeText(requireContext(), "Erro: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
 
     // ─────────────────────────────────────────────
-    // DIALOG: TEMA
+    // DIALOGS
     // ─────────────────────────────────────────────
     private fun abrirDialogTemas() {
+        if (!isAdded) return
         val dialogView = LayoutInflater.from(requireContext())
             .inflate(R.layout.dialog_temas, null)
 
@@ -309,34 +333,29 @@ class ProfileFragment : Fragment() {
             .setView(dialogView)
             .create()
 
-        dialogView.findViewById<View>(R.id.temaPadrao).setOnClickListener {
-            ThemeManager.setTema(requireContext(), ThemeManager.TEMA_PADRAO)
-            dialog.dismiss()
-            requireActivity().recreate()
-        }
-        dialogView.findViewById<View>(R.id.temaVermelho).setOnClickListener {
-            ThemeManager.setTema(requireContext(), ThemeManager.TEMA_VERMELHO)
-            dialog.dismiss()
-            requireActivity().recreate()
-        }
-        dialogView.findViewById<View>(R.id.temaAzul).setOnClickListener {
-            ThemeManager.setTema(requireContext(), ThemeManager.TEMA_AZUL)
-            dialog.dismiss()
-            requireActivity().recreate()
-        }
-        dialogView.findViewById<View>(R.id.temaVerde).setOnClickListener {
-            ThemeManager.setTema(requireContext(), ThemeManager.TEMA_VERDE)
-            dialog.dismiss()
-            requireActivity().recreate()
+        val temas = mapOf(
+            R.id.temaPadrao to ThemeManager.TEMA_PADRAO,
+            R.id.temaVermelho to ThemeManager.TEMA_VERMELHO,
+            R.id.temaAzul to ThemeManager.TEMA_AZUL,
+            R.id.temaVerde to ThemeManager.TEMA_VERDE,
+            R.id.temaPreto to ThemeManager.TEMA_PRETO,
+            R.id.temaBranco to ThemeManager.TEMA_BRANCO,
+            R.id.temaAmarelo to ThemeManager.TEMA_AMARELO
+        )
+
+        for ((id, tema) in temas) {
+            dialogView.findViewById<View>(id).setOnClickListener {
+                ThemeManager.setTema(requireContext(), tema)
+                dialog.dismiss()
+                requireActivity().recreate()
+            }
         }
 
         dialog.show()
     }
 
-    // ─────────────────────────────────────────────
-    // DIALOG: EDITAR PERFIL
-    // ─────────────────────────────────────────────
     private fun abrirDialogEditarPerfil() {
+        if (!isAdded) return
         val dialogView = LayoutInflater.from(requireContext())
             .inflate(R.layout.dialog_editar_perfil, null)
 
@@ -368,7 +387,7 @@ class ProfileFragment : Fragment() {
             return
         }
 
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             try {
                 db.collection("usuarios").document(usuarioId)
                     .update(mapOf(
@@ -377,6 +396,8 @@ class ProfileFragment : Fragment() {
                         "profissao" to profissao
                     ))
                     .await()
+
+                if (!isAdded) return@launch
 
                 nomeUsuario = nome
                 emailUsuario = email
@@ -388,15 +409,15 @@ class ProfileFragment : Fragment() {
 
                 Toast.makeText(requireContext(), "Perfil atualizado!", Toast.LENGTH_SHORT).show()
             } catch (e: Exception) {
-                Toast.makeText(requireContext(), "Erro: ${e.message}", Toast.LENGTH_LONG).show()
+                if (isAdded) {
+                    Toast.makeText(requireContext(), "Erro: ${e.message}", Toast.LENGTH_LONG).show()
+                }
             }
         }
     }
 
-    // ─────────────────────────────────────────────
-    // DIALOG: NOTIFICAÇÕES
-    // ─────────────────────────────────────────────
     private fun abrirDialogNotificacoes() {
+        if (!isAdded) return
         val prefs = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val ativoAtual = prefs.getBoolean(KEY_NOTIFICACOES, true)
 
@@ -418,15 +439,14 @@ class ProfileFragment : Fragment() {
     }
 
     private fun atualizarStatusNotificacoes() {
+        if (!isAdded) return
         val prefs = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val ativo = prefs.getBoolean(KEY_NOTIFICACOES, true)
         txtStatusNotificacoes.text = if (ativo) "Ativado" else "Desativado"
     }
 
-    // ─────────────────────────────────────────────
-    // DIALOG: SOBRE
-    // ─────────────────────────────────────────────
     private fun abrirDialogSobre() {
+        if (!isAdded) return
         AlertDialog.Builder(requireContext())
             .setTitle("Sobre o Integra.app")
             .setMessage(
@@ -439,7 +459,7 @@ class ProfileFragment : Fragment() {
     }
 
     // ─────────────────────────────────────────────
-    // SAIR DA CONTA
+    // LOGOUT / EXCLUIR CONTA
     // ─────────────────────────────────────────────
     private fun fazerLogout() {
         auth.signOut()
@@ -449,10 +469,8 @@ class ProfileFragment : Fragment() {
         requireActivity().finish()
     }
 
-    // ─────────────────────────────────────────────
-    // EXCLUIR CONTA
-    // ─────────────────────────────────────────────
     private fun confirmarExcluirConta() {
+        if (!isAdded) return
         AlertDialog.Builder(requireContext())
             .setTitle("⚠️ Excluir conta")
             .setMessage(
@@ -474,11 +492,12 @@ class ProfileFragment : Fragment() {
     private fun executarExclusaoConta() {
         val uid = auth.currentUser?.uid ?: return
 
-        Toast.makeText(requireContext(), "Excluindo conta...", Toast.LENGTH_SHORT).show()
+        if (isAdded) {
+            Toast.makeText(requireContext(), "Excluindo conta...", Toast.LENGTH_SHORT).show()
+        }
 
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             try {
-                // 1. Apaga trabalhos do usuário (com as candidaturas dentro)
                 val trabalhos = db.collection("trabalhos")
                     .whereEqualTo("criadorId", uid)
                     .get().await()
@@ -491,7 +510,6 @@ class ProfileFragment : Fragment() {
                     t.reference.delete().await()
                 }
 
-                // 2. Apaga candidaturas em trabalhos de OUTROS
                 val todosTrabalhos = db.collection("trabalhos").get().await()
                 for (t in todosTrabalhos.documents) {
                     try {
@@ -499,7 +517,6 @@ class ProfileFragment : Fragment() {
                     } catch (_: Exception) { }
                 }
 
-                // 3. Remove dos chats/grupos
                 val chats = db.collection("chats")
                     .whereArrayContains("participantes", uid)
                     .get().await()
@@ -523,19 +540,17 @@ class ProfileFragment : Fragment() {
                     }
                 }
 
-                // 4. Apaga o documento do usuário
                 db.collection("usuarios").document(uid).delete().await()
 
-                // 5. Tenta apagar do Firebase Auth
                 try {
                     auth.currentUser?.delete()?.await()
-                } catch (e: Exception) {
-                    // Não conseguiu apagar do Auth — dados já foram
-                }
+                } catch (e: Exception) { }
 
-                // 6. Logout e volta pro login
                 auth.signOut()
-                Toast.makeText(requireContext(), "Conta excluída", Toast.LENGTH_SHORT).show()
+
+                if (isAdded) {
+                    Toast.makeText(requireContext(), "Conta excluída", Toast.LENGTH_SHORT).show()
+                }
 
                 val intent = Intent(requireContext(), LoginActivity::class.java)
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -543,11 +558,13 @@ class ProfileFragment : Fragment() {
                 requireActivity().finish()
 
             } catch (e: Exception) {
-                Toast.makeText(
-                    requireContext(),
-                    "Erro ao excluir: ${e.message}",
-                    Toast.LENGTH_LONG
-                ).show()
+                if (isAdded) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Erro ao excluir: ${e.message}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
             }
         }
     }

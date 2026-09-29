@@ -42,17 +42,24 @@ class TrabalhoAdapter(
         holder.txtPrazo.text = trabalho.prazo
         holder.txtNivel.text = trabalho.nivel
 
-        // Chip tipo contrato com cor dinâmica
-        holder.txtTipoContrato.text = trabalho.tipoContrato
-        val corChip = when (trabalho.tipoContrato.lowercase()) {
-            "clt" -> Color.parseColor("#1E88E5")
-            "pj" -> Color.parseColor("#43A047")
-            "freelance" -> Color.parseColor("#FB8C00")
-            "estágio", "estagio" -> Color.parseColor("#8E24AA")
-            "temporário", "temporario" -> Color.parseColor("#00897B")
-            else -> Color.parseColor("#757575")
+        // ⭐ Chip tipo contrato (SÓ aparece se tiver valor)
+        if (trabalho.tipoContrato.isNotEmpty()) {
+            holder.cardTipoContrato.visibility = View.VISIBLE
+            holder.txtTipoContrato.text = trabalho.tipoContrato
+
+            val corChip = when (trabalho.tipoContrato.lowercase()) {
+                "clt" -> Color.parseColor("#1E88E5")
+                "pj" -> Color.parseColor("#43A047")
+                "freelance" -> Color.parseColor("#FB8C00")
+                "estágio", "estagio" -> Color.parseColor("#8E24AA")
+                "temporário", "temporario" -> Color.parseColor("#00897B")
+                else -> Color.parseColor("#757575")
+            }
+            holder.cardTipoContrato.setCardBackgroundColor(corChip)
+        } else {
+            // ⭐ Esconde o chip
+            holder.cardTipoContrato.visibility = View.GONE
         }
-        holder.cardTipoContrato.setCardBackgroundColor(corChip)
 
         // Cor do nível
         val corNivel = when (trabalho.nivel.lowercase()) {

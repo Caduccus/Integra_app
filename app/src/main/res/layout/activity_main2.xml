@@ -124,23 +124,12 @@
                     android:textColor="@color/white"
                     android:textSize="15sp" />
 
-                <!-- Tipo de Contrato -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Tipo de Contrato"
-                    android:textColor="#CCFFFFFF"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
-
+                <!-- Tipo de Contrato (escondido, mantido pra código não quebrar) -->
                 <TextView
                     android:id="@+id/txtTipoContratoDetalhe"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    android:text="CLT"
-                    android:textColor="@color/white"
-                    android:textSize="15sp" />
+                    android:visibility="gone" />
 
                 <!-- Nível -->
                 <TextView

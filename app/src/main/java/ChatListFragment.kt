@@ -66,6 +66,7 @@ class ChatListFragment : Fragment() {
         carregarChats()
 
         ThemeManager.aplicarCores(requireContext(), view)
+        ThemeManager.aplicarCoresTexto(requireContext(), view)
     }
 
     private fun configurarRecyclerView() {

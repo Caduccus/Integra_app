@@ -12,10 +12,8 @@ open class BaseActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Status bar preta
         window.statusBarColor = Color.BLACK
 
-        // Inicializa Cloudinary (só uma vez)
         if (!CloudinaryManager.iniciado) {
             val config = HashMap<String, String>()
             config["cloud_name"] = "qatmo4ge"
@@ -23,7 +21,6 @@ open class BaseActivity : AppCompatActivity() {
             CloudinaryManager.iniciado = true
         }
 
-        // ⭐ Associa o usuário logado ao OneSignal
         com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid?.let { uid ->
             OneSignal.login(uid)
         }
@@ -40,6 +37,7 @@ open class BaseActivity : AppCompatActivity() {
             val firstChild = root.getChildAt(0)
             ThemeManager.aplicarBackground(this, firstChild)
             ThemeManager.aplicarCores(this, firstChild)
+            ThemeManager.aplicarCoresTexto(this, firstChild)  // ⭐ NOVO
         }
     }
 

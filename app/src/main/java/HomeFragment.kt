@@ -78,6 +78,12 @@ class HomeFragment : Fragment() {
 
         btnLogout.setOnClickListener { fazerLogout() }
         carregarTudo()
+
+        // ⭐ Aplica cor do tema nos botões
+        ThemeManager.aplicarCores(requireContext(), view)
+
+        // ⭐ Aplica cor do tema nos TEXTOS
+        ThemeManager.aplicarCoresTexto(requireContext(), view)
     }
 
     private fun configurarRecyclerView() {
