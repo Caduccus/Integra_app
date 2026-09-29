@@ -27,13 +27,6 @@ class ChatListFragment : Fragment() {
 
     private lateinit var adapter: ChatAdapter
 
-    private val novoGrupoLauncher = registerForActivityResult(
-        androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == android.app.Activity.RESULT_OK) {
-            carregarChats()
-        }
-    }
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
@@ -41,10 +34,16 @@ class ChatListFragment : Fragment() {
     private var fotosUsuarios: Map<String, String> = emptyMap()
     private var titulosTrabalhos: Map<String, String> = emptyMap()
 
+    private val novoGrupoLauncher = registerForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == android.app.Activity.RESULT_OK) {
+            carregarChats()
+        }
+    }
+
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
         return inflater.inflate(R.layout.fragment_chat_list, container, false)
     }
@@ -65,6 +64,8 @@ class ChatListFragment : Fragment() {
         }
 
         carregarChats()
+
+        ThemeManager.aplicarCores(requireContext(), view)
     }
 
     private fun configurarRecyclerView() {
@@ -74,14 +75,41 @@ class ChatListFragment : Fragment() {
             fotoDoChat = { chat -> fotoDoChat(chat) },
             contextoDoChat = { chat -> contextoDoChat(chat) },
             onClick = { chat ->
+                // ⭐ Clique no card → abre conversa
                 val intent = Intent(requireContext(), ChatActivity::class.java)
                 intent.putExtra("chatId", chat.id)
                 startActivity(intent)
+            },
+            onProfileClick = { chat ->
+                // ⭐ Clique no avatar/nome → abre perfil ou info do grupo
+                abrirPerfilOuGrupo(chat)
             }
         )
 
         rvChats.layoutManager = LinearLayoutManager(requireContext())
         rvChats.adapter = adapter
+    }
+
+    // ⭐ NOVO: abre o perfil do usuário ou Info do Grupo
+    private fun abrirPerfilOuGrupo(chat: Chat) {
+        if (chat.ehGrupo) {
+            // Grupo → Info do Grupo
+            val intent = Intent(requireContext(), InfoGrupoActivity::class.java)
+            intent.putExtra("chatId", chat.id)
+            startActivity(intent)
+        } else {
+            // 1:1 → Perfil do usuário
+            val uidAtual = auth.currentUser?.uid
+            if (uidAtual != null) {
+                val outroUid = chat.participantes.firstOrNull { it != uidAtual }
+                if (outroUid != null) {
+                    val intent = Intent(requireContext(), PerfilUsuarioActivity::class.java)
+                    intent.putExtra("uidUsuario", outroUid)
+                    intent.putExtra("chatId", "")  // Sem chatId = sem ações de grupo
+                    startActivity(intent)
+                }
+            }
+        }
     }
 
     private fun nomeDoChat(chat: Chat): String {
@@ -92,7 +120,7 @@ class ChatListFragment : Fragment() {
     }
 
     private fun fotoDoChat(chat: Chat): String {
-        if (chat.ehGrupo) return ""
+        if (chat.ehGrupo) return chat.fotoUrl
         val uidAtual = auth.currentUser?.uid ?: return ""
         val outroUid = chat.participantes.firstOrNull { it != uidAtual } ?: return ""
         return fotosUsuarios[outroUid] ?: ""
@@ -165,14 +193,12 @@ class ChatListFragment : Fragment() {
 
     private suspend fun buscarTitulosTrabalhos(ids: List<String>) {
         val mapa = mutableMapOf<String, String>()
-
         for (id in ids) {
             try {
                 val doc = db.collection("trabalhos").document(id).get().await()
                 mapa[id] = doc.getString("titulo") ?: ""
             } catch (_: Exception) { }
         }
-
         titulosTrabalhos = mapa
     }
 

@@ -3,6 +3,7 @@ package com.example.plataformaremota.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
@@ -20,11 +21,13 @@ class ChatAdapter(
     private val nomeDoChat: (Chat) -> String,
     private val fotoDoChat: (Chat) -> String,
     private val contextoDoChat: (Chat) -> String,
-    private val onClick: (Chat) -> Unit
+    private val onClick: (Chat) -> Unit,
+    private val onProfileClick: (Chat) -> Unit = {}    // ⭐ NOVO
 ) : RecyclerView.Adapter<ChatAdapter.ChatViewHolder>() {
 
     class ChatViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val card: MaterialCardView = itemView.findViewById(R.id.cardChat)
+        val containerAvatar: FrameLayout = itemView.findViewById(R.id.containerAvatarChat)
         val imgFoto: ImageView = itemView.findViewById(R.id.imgFotoChat)
         val txtNome: TextView = itemView.findViewById(R.id.txtNomeChat)
         val txtHora: TextView = itemView.findViewById(R.id.txtHoraChat)
@@ -77,7 +80,12 @@ class ChatAdapter(
             holder.imgFoto.setPadding(pad, pad, pad, pad)
         }
 
+        // ⭐ Clique no card → abre conversa
         holder.card.setOnClickListener { onClick(chat) }
+
+        // ⭐ Clique no avatar OU no nome → abre perfil
+        holder.containerAvatar.setOnClickListener { onProfileClick(chat) }
+        holder.txtNome.setOnClickListener { onProfileClick(chat) }
     }
 
     private fun formatarHora(timestamp: Long): String {

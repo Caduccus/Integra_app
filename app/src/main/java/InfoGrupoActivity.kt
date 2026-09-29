@@ -1,9 +1,9 @@
 package com.example.plataformaremota
 
+import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
 import android.widget.EditText
 import android.widget.ImageView
@@ -33,7 +33,10 @@ import kotlinx.coroutines.tasks.await
 
 class InfoGrupoActivity : BaseActivity() {
 
-    // ⭐ DECLARAÇÕES DOS CAMPOS
+
+    private lateinit var btnApagarGrupo: MaterialButton
+
+    private var souCriador: Boolean = false
     private lateinit var btnVoltar: ImageView
     private lateinit var cardFotoGrupo: MaterialCardView
     private lateinit var badgeCamera: MaterialCardView
@@ -41,6 +44,7 @@ class InfoGrupoActivity : BaseActivity() {
     private lateinit var txtNomeGrupo: TextView
     private lateinit var txtTotalMembros: TextView
     private lateinit var btnEditarNome: MaterialButton
+    private lateinit var btnAdicionarMembros: MaterialButton
     private lateinit var btnSair: MaterialButton
     private lateinit var layoutAcoesAdmin: LinearLayout
     private lateinit var rvMembros: RecyclerView
@@ -64,13 +68,20 @@ class InfoGrupoActivity : BaseActivity() {
         }
     }
 
+    private val adicionarLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            carregarInfo()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_info_grupo)
 
         repository = ChatRepository()
 
-        // Inicializa TODOS os campos
         btnVoltar = findViewById(R.id.btnVoltarInfoGrupo)
         cardFotoGrupo = findViewById(R.id.cardFotoGrupo)
         badgeCamera = findViewById(R.id.badgeCameraGrupo)
@@ -78,7 +89,9 @@ class InfoGrupoActivity : BaseActivity() {
         txtNomeGrupo = findViewById(R.id.txtNomeGrupo)
         txtTotalMembros = findViewById(R.id.txtTotalMembros)
         btnEditarNome = findViewById(R.id.btnEditarNomeGrupo)
+        btnAdicionarMembros = findViewById(R.id.btnAdicionarMembros)
         btnSair = findViewById(R.id.btnSairGrupo)
+        btnApagarGrupo = findViewById(R.id.btnApagarGrupo)
         layoutAcoesAdmin = findViewById(R.id.layoutAcoesAdmin)
         rvMembros = findViewById(R.id.rvMembros)
         layoutLoading = findViewById(R.id.layoutLoadingMembros)
@@ -96,6 +109,8 @@ class InfoGrupoActivity : BaseActivity() {
         btnVoltar.setOnClickListener { finish() }
         btnSair.setOnClickListener { confirmarSaida() }
         btnEditarNome.setOnClickListener { abrirDialogNome() }
+        btnAdicionarMembros.setOnClickListener { abrirAdicionarMembros() }
+        btnApagarGrupo.setOnClickListener { confirmarApagarGrupo() }
         cardFotoGrupo.setOnClickListener { if (souAdmin) escolherFoto() }
 
         carregarInfo()
@@ -128,6 +143,7 @@ class InfoGrupoActivity : BaseActivity() {
 
                 chatAtual = chat
                 souAdmin = chat.admins.contains(uidAtual) || chat.criadorId == uidAtual
+                souCriador = chat.criadorId == uidAtual
 
                 txtNomeGrupo.text = chat.nome.ifEmpty { "Grupo" }
                 txtTotalMembros.text = "${chat.participantes.size} membros"
@@ -140,6 +156,8 @@ class InfoGrupoActivity : BaseActivity() {
                 }
 
                 badgeCamera.visibility = if (souAdmin) View.VISIBLE else View.GONE
+                btnAdicionarMembros.visibility = if (souAdmin) View.VISIBLE else View.GONE
+                btnApagarGrupo.visibility = if (souCriador) View.VISIBLE else View.GONE
 
                 carregarMembros(chat)
 
@@ -174,6 +192,12 @@ class InfoGrupoActivity : BaseActivity() {
 
         adapter.atualizarLista(ordenados)
         rvMembros.visibility = View.VISIBLE
+    }
+
+    private fun abrirAdicionarMembros() {
+        val intent = Intent(this, AdicionarMembrosActivity::class.java)
+        intent.putExtra("chatId", chatId)
+        adicionarLauncher.launch(intent)
     }
 
     private fun abrirDialogNome() {
@@ -268,6 +292,51 @@ class InfoGrupoActivity : BaseActivity() {
             .setNegativeButton("Cancelar", null)
             .show()
     }
+    private fun confirmarApagarGrupo() {
+        AlertDialog.Builder(this)
+            .setTitle("⚠️ Apagar grupo")
+            .setMessage(
+                "Tem CERTEZA que quer apagar este grupo?\n\n" +
+                        "Isso vai apagar:\n" +
+                        "• O grupo\n" +
+                        "• Todas as mensagens\n" +
+                        "• Todos os membros serão removidos\n\n" +
+                        "Essa ação NÃO pode ser desfeita!"
+            )
+            .setPositiveButton("APAGAR") { _, _ ->
+                apagarGrupo()
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+
+    private fun apagarGrupo() {
+        Toast.makeText(this, "Apagando grupo...", Toast.LENGTH_SHORT).show()
+
+        lifecycleScope.launch {
+            val ok = repository.apagarGrupo(chatId)
+
+            if (ok) {
+                // Notifica os outros membros
+                chatAtual?.participantes?.forEach { uid ->
+                    if (uid != auth.currentUser?.uid) {
+                        NotificacaoHelper.enviar(
+                            uidDestino = uid,
+                            titulo = "Grupo apagado",
+                            mensagem = "O grupo '${chatAtual?.nome}' foi apagado pelo criador."
+                        )
+                    }
+                }
+
+                Toast.makeText(this@InfoGrupoActivity, "Grupo apagado!", Toast.LENGTH_SHORT).show()
+                setResult(Activity.RESULT_OK)
+                finish()
+            } else {
+                Toast.makeText(this@InfoGrupoActivity, "Erro ao apagar grupo", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
 
     override fun onResume() {
         super.onResume()

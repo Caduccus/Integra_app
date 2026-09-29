@@ -9,8 +9,8 @@ import java.net.URL
 
 object NotificacaoHelper {
 
-    // ⚠️ SUBSTITUI PELA SUA REST API KEY COMPLETA (os_v2_app_...)
-    private const val REST_API_KEY = "COLE_AQUI_SUA_REST_API_KEY"
+    // ⭐ Lê do BuildConfig (que vem do local.properties)
+    private val REST_API_KEY = BuildConfig.ONESIGNAL_REST_API_KEY
 
     private const val APP_ID = "eb63f7b4-c19e-4a5a-8a69-ecf5bc8413db"
 
@@ -20,6 +20,11 @@ object NotificacaoHelper {
         mensagem: String,
         chatId: String = ""
     ) {
+        if (REST_API_KEY.isEmpty()) {
+            Log.e("ONESIGNAL", "REST_API_KEY não configurada no local.properties")
+            return
+        }
+
         withContext(Dispatchers.IO) {
             try {
                 val url = URL("https://api.onesignal.com/notifications")
@@ -70,6 +75,11 @@ object NotificacaoHelper {
         chatId: String = ""
     ) {
         if (uidsDestino.isEmpty()) return
+
+        if (REST_API_KEY.isEmpty()) {
+            Log.e("ONESIGNAL", "REST_API_KEY não configurada")
+            return
+        }
 
         withContext(Dispatchers.IO) {
             try {

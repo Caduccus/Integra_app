@@ -1,8 +1,17 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.ksp)
     alias(libs.plugins.google.services)
+}
+
+// ⭐ Lê a REST API Key do local.properties
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.inputStream().use { localProperties.load(it) }
 }
 
 android {
@@ -17,6 +26,13 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // ⭐ Cria a variável BuildConfig
+        buildConfigField(
+            "String",
+            "ONESIGNAL_REST_API_KEY",
+            "\"${localProperties.getProperty("ONESIGNAL_REST_API_KEY") ?: ""}\""
+        )
     }
 
     buildTypes {
@@ -27,6 +43,11 @@ android {
                 "proguard-rules.pro"
             )
         }
+    }
+
+    // ⭐ Habilita BuildConfig
+    buildFeatures {
+        buildConfig = true
     }
 
     compileOptions {
@@ -45,10 +66,6 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.constraintlayout)
-    implementation("com.github.bumptech.glide:glide:4.16.0")
-    implementation("com.cloudinary:cloudinary-android:3.1.2")
-    // OneSignal
-    implementation("com.onesignal:OneSignal:5.1.6")
 
     // Room
     implementation(libs.room.runtime)
@@ -67,6 +84,15 @@ dependencies {
 
     // Coroutines + Firebase
     implementation(libs.kotlinx.coroutines.play.services)
+
+    // Cloudinary
+    implementation("com.cloudinary:cloudinary-android:3.1.2")
+
+    // Glide
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+
+    // OneSignal
+    implementation("com.onesignal:OneSignal:5.1.6")
 
     // Testes
     testImplementation(libs.junit)

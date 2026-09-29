@@ -10,6 +10,7 @@ import kotlinx.coroutines.tasks.await
 
 class ChatRepository {
 
+    private var estaBloqueado: Boolean = false
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
     private val TAG = "CHAT_REPO"
@@ -390,6 +391,101 @@ class ChatRepository {
                 .update("bloqueados", novaLista).await()
             true
         } catch (e: Exception) { false }
+    }
+
+    // ⭐ Verifica se há bloqueio entre os 2 usuários do chat
+    // Retorna true se EU bloqueei ele OU se ele me bloqueou
+    suspend fun estouBloqueado(chatId: String): Boolean {
+        val uid = auth.currentUser?.uid ?: return false
+        return try {
+            val chat = buscarChat(chatId) ?: return false
+            if (chat.ehGrupo) return false  // Só pra 1:1
+
+            val outroUid = chat.participantes.firstOrNull { it != uid } ?: return false
+
+            // Verifica se EU bloqueei ele
+            val meuDoc = db.collection("usuarios").document(uid).get().await()
+            val meusBloqueados = (meuDoc.get("bloqueados") as? List<*>)?.filterIsInstance<String>() ?: emptyList()
+
+            // Verifica se ELE me bloqueou
+            val outroDoc = db.collection("usuarios").document(outroUid).get().await()
+            val bloqueadosDele = (outroDoc.get("bloqueados") as? List<*>)?.filterIsInstance<String>() ?: emptyList()
+
+            meusBloqueados.contains(outroUid) || bloqueadosDele.contains(uid)
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    // ⭐ Retorna true se EU bloqueei o outro (pra mostrar msg específica)
+    suspend fun euBloqueei(chatId: String): Boolean {
+        val uid = auth.currentUser?.uid ?: return false
+        return try {
+            val chat = buscarChat(chatId) ?: return false
+            if (chat.ehGrupo) return false
+
+            val outroUid = chat.participantes.firstOrNull { it != uid } ?: return false
+
+            val meuDoc = db.collection("usuarios").document(uid).get().await()
+            val meusBloqueados = (meuDoc.get("bloqueados") as? List<*>)?.filterIsInstance<String>() ?: emptyList()
+
+            meusBloqueados.contains(outroUid)
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    // ⭐ Adicionar membros ao grupo
+    suspend fun adicionarMembros(chatId: String, novosUids: List<String>): Boolean {
+        if (novosUids.isEmpty()) return false
+
+        return try {
+            val doc = db.collection("chats").document(chatId).get().await()
+            val chat = doc.toObject(Chat::class.java) ?: return false
+
+            val participantesAtuais = chat.participantes
+            val participantesFinal = (participantesAtuais + novosUids).distinct()
+
+            db.collection("chats").document(chatId)
+                .update("participantes", participantesFinal).await()
+
+            true
+        } catch (e: Exception) {
+            Log.e(TAG, "❌ Erro ao adicionar membros: ${e.message}")
+            false
+        }
+    }
+
+    // ⭐ Apagar grupo inteiro (só criador)
+    suspend fun apagarGrupo(chatId: String): Boolean {
+        val uid = auth.currentUser?.uid ?: return false
+        return try {
+            val doc = db.collection("chats").document(chatId).get().await()
+            val chat = doc.toObject(Chat::class.java) ?: return false
+
+            // Só o criador pode apagar
+            if (chat.criadorId != uid) return false
+
+            // Apaga todas as mensagens
+            val mensagens = doc.reference.collection("mensagens").get().await()
+            for (m in mensagens.documents) {
+                m.reference.delete().await()
+            }
+
+            // Apaga os status
+            val status = doc.reference.collection("status").get().await()
+            for (s in status.documents) {
+                s.reference.delete().await()
+            }
+
+            // Apaga o chat
+            doc.reference.delete().await()
+
+            true
+        } catch (e: Exception) {
+            Log.e(TAG, "❌ Erro ao apagar grupo: ${e.message}")
+            false
+        }
     }
 
     private suspend fun buscarNomeUsuario(uid: String): String? {

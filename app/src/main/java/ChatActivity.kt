@@ -90,6 +90,9 @@ class ChatActivity : BaseActivity() {
     private var tocandoPreview: Boolean = false
     private val handler = Handler(Looper.getMainLooper())
 
+    // ⭐ Estado de bloqueio
+    private var estaBloqueado: Boolean = false
+
     private val pickImageLauncher = registerForActivityResult(
         ActivityResultContracts.PickVisualMedia()
     ) { uri ->
@@ -107,7 +110,7 @@ class ChatActivity : BaseActivity() {
 
         repository = ChatRepository()
 
-        // ⭐ Inicializa TODOS os campos
+        // Inicializa campos
         btnVoltar = findViewById(R.id.btnVoltarChat)
         btnInfo = findViewById(R.id.btnInfoChat)
         btnAnexar = findViewById(R.id.btnAnexar)
@@ -143,29 +146,33 @@ class ChatActivity : BaseActivity() {
 
         btnVoltar.setOnClickListener { finish() }
         btnEnviar.setOnClickListener { enviar() }
+
         btnAnexar.setOnClickListener {
+            if (estaBloqueado) {
+                Toast.makeText(this, "Não é possível enviar imagens aqui", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
             pickImageLauncher.launch(
                 PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
             )
         }
+
         btnGravarAudio.setOnClickListener { toggleGravacao() }
 
-        // ⭐ Abre Info do Grupo
+        // ⭐ Abre Info do Grupo OU Perfil do usuário
         btnInfo.setOnClickListener {
             if (ehGrupoAtual) {
-                // ⭐ É grupo → abre Info do Grupo
                 val intent = Intent(this, InfoGrupoActivity::class.java)
                 intent.putExtra("chatId", chatId)
                 startActivity(intent)
             } else {
-                // ⭐ É 1:1 → abre perfil do outro usuário
                 val uidAtual = auth.currentUser?.uid ?: return@setOnClickListener
                 val outroUid = participantesAtuais.firstOrNull { it != uidAtual }
 
                 if (outroUid != null) {
                     val intent = Intent(this, PerfilUsuarioActivity::class.java)
                     intent.putExtra("uidUsuario", outroUid)
-                    intent.putExtra("chatId", "")  // Sem chatId = sem botões de grupo
+                    intent.putExtra("chatId", "")
                     startActivity(intent)
                 } else {
                     Toast.makeText(this, "Não foi possível abrir o perfil", Toast.LENGTH_SHORT).show()
@@ -183,6 +190,12 @@ class ChatActivity : BaseActivity() {
         activityAtiva = true
         ChatAtivoManager.chatAtivo = chatId
         resetarContadorNaoLidas()
+
+        // ⭐ Re-verifica bloqueio (caso tenha mudado em outra tela)
+        lifecycleScope.launch {
+            estaBloqueado = repository.estouBloqueado(chatId)
+            atualizarEstadoBloqueio()
+        }
     }
 
     override fun onPause() {
@@ -191,6 +204,53 @@ class ChatActivity : BaseActivity() {
         ChatAtivoManager.chatAtivo = null
     }
 
+    // ─────────────────────────────────────────────
+    // ⭐ BLOQUEIO
+    // ─────────────────────────────────────────────
+    private fun atualizarEstadoBloqueio() {
+        if (!estaBloqueado) {
+            edtMensagem.isEnabled = true
+            edtMensagem.hint = "Digite uma mensagem..."
+            edtMensagem.alpha = 1f
+            btnEnviar.isEnabled = true
+            btnAnexar.isEnabled = true
+            btnAnexar.alpha = 1f
+            btnGravarAudio.isEnabled = true
+            btnGravarAudio.alpha = 1f
+            return
+        }
+
+        lifecycleScope.launch {
+            val euBloqueei = repository.euBloqueei(chatId)
+
+            edtMensagem.isEnabled = false
+            edtMensagem.text?.clear()
+            edtMensagem.alpha = 0.5f
+            btnEnviar.isEnabled = false
+            btnAnexar.isEnabled = false
+            btnAnexar.alpha = 0.4f
+            btnGravarAudio.isEnabled = false
+            btnGravarAudio.alpha = 0.4f
+
+            edtMensagem.hint = if (euBloqueei) {
+                "Você bloqueou este usuário"
+            } else {
+                "Você não pode enviar mensagens"
+            }
+        }
+    }
+
+    private fun podeEnviar(): Boolean {
+        if (estaBloqueado) {
+            Toast.makeText(this, "Você não pode enviar mensagens nesta conversa", Toast.LENGTH_SHORT).show()
+            return false
+        }
+        return true
+    }
+
+    // ─────────────────────────────────────────────
+    // REPLY
+    // ─────────────────────────────────────────────
     private fun mostrarReply(msg: Mensagem) {
         mensagemRespondendo = msg
         layoutReplyBar.visibility = LinearLayout.VISIBLE
@@ -213,6 +273,9 @@ class ChatActivity : BaseActivity() {
         layoutReplyBar.visibility = LinearLayout.GONE
     }
 
+    // ─────────────────────────────────────────────
+    // EDITAR
+    // ─────────────────────────────────────────────
     private fun abrirDialogEditar(msg: Mensagem) {
         val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_editar_perfil, null)
         val edtNome = dialogView.findViewById<EditText>(R.id.edtDialogNome)
@@ -244,6 +307,9 @@ class ChatActivity : BaseActivity() {
             .show()
     }
 
+    // ─────────────────────────────────────────────
+    // DELETAR
+    // ─────────────────────────────────────────────
     private fun confirmarDeletar(msg: Mensagem) {
         AlertDialog.Builder(this)
             .setTitle("Deletar mensagem")
@@ -262,6 +328,9 @@ class ChatActivity : BaseActivity() {
             .show()
     }
 
+    // ─────────────────────────────────────────────
+    // MENU LONG PRESS
+    // ─────────────────────────────────────────────
     private fun abrirMenuMensagem(msg: Mensagem) {
         val uid = auth.currentUser?.uid ?: return
         val ehMinha = msg.remetenteId == uid
@@ -282,7 +351,15 @@ class ChatActivity : BaseActivity() {
             .show()
     }
 
+    // ─────────────────────────────────────────────
+    // GRAVAÇÃO DE ÁUDIO
+    // ─────────────────────────────────────────────
     private fun toggleGravacao() {
+        if (estaBloqueado) {
+            Toast.makeText(this, "Não é possível gravar áudio aqui", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         if (!estaGravando && arquivoAudio == null) {
             recorderHelper = AudioRecorderHelper(this)
             val arquivo = recorderHelper?.iniciarGravacao()
@@ -439,7 +516,12 @@ class ChatActivity : BaseActivity() {
         }
     }
 
+    // ─────────────────────────────────────────────
+    // ENVIAR
+    // ─────────────────────────────────────────────
     private fun enviar() {
+        if (!podeEnviar()) return
+
         if (arquivoAudio != null) {
             enviarAudio()
             return
@@ -469,6 +551,9 @@ class ChatActivity : BaseActivity() {
         }
     }
 
+    // ─────────────────────────────────────────────
+    // RESTO
+    // ─────────────────────────────────────────────
     private fun resetarContadorNaoLidas() {
         val uid = auth.currentUser?.uid ?: return
         lifecycleScope.launch {
@@ -547,6 +632,10 @@ class ChatActivity : BaseActivity() {
                 )
                 rvMensagens.adapter = adapter
             }
+
+            // ⭐ Verifica bloqueio
+            estaBloqueado = repository.estouBloqueado(chatId)
+            atualizarEstadoBloqueio()
 
             if (mensagensAtuais.isNotEmpty()) {
                 rvMensagens.scrollToPosition(mensagensAtuais.size - 1)
