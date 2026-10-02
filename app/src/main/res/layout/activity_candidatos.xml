@@ -4,9 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/background_gradiente"
     android:orientation="vertical">
 
+    <!-- Header -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -22,7 +22,6 @@
             android:padding="8dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:clickable="true"
-            android:contentDescription="Voltar"
             android:focusable="true"
             android:src="@drawable/ic_arrow_back"
             app:tint="@color/white" />
@@ -38,6 +37,7 @@
             android:textStyle="bold" />
     </LinearLayout>
 
+    <!-- Container -->
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -61,31 +61,55 @@
                 android:visibility="gone"
                 tools:listitem="@layout/item_candidato" />
 
+            <!-- Estado Vazio (NOVO) -->
             <LinearLayout
                 android:id="@+id/layoutEstadoVazioCandidatos"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="center"
                 android:orientation="vertical"
-                android:padding="24dp"
+                android:padding="32dp"
                 android:visibility="gone">
 
-                <ImageView
-                    android:layout_width="64dp"
-                    android:layout_height="64dp"
-                    android:layout_marginBottom="16dp"
-                    android:src="@drawable/ic_inbox"
-                    app:tint="#80FFFFFF" />
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    android:layout_marginBottom="20dp"
+                    app:cardBackgroundColor="#1AFFFFFF"
+                    app:cardCornerRadius="60dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="2dp"
+                    app:strokeColor="#33FFFFFF">
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:padding="35dp"
+                        android:src="@drawable/ic_person"
+                        app:tint="#B3FFFFFF" />
+                </com.google.android.material.card.MaterialCardView>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Ninguém se candidatou ainda"
                     android:textAlignment="center"
-                    android:textColor="#80FFFFFF"
-                    android:textSize="16sp" />
+                    android:textColor="@color/white"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Quando alguém se candidatar, aparece aqui"
+                    android:textAlignment="center"
+                    android:textColor="#B3FFFFFF"
+                    android:textSize="14sp" />
+
             </LinearLayout>
 
+            <!-- Loading -->
             <LinearLayout
                 android:id="@+id/layoutLoadingCandidatos"
                 android:layout_width="match_parent"

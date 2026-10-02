@@ -22,7 +22,8 @@ class ChatAdapter(
     private val fotoDoChat: (Chat) -> String,
     private val contextoDoChat: (Chat) -> String,
     private val onClick: (Chat) -> Unit,
-    private val onProfileClick: (Chat) -> Unit = {}    // ⭐ NOVO
+    private val onProfileClick: (Chat) -> Unit = {},
+    private val onLongClick: (Chat) -> Unit = {}    // ⭐ NOVO
 ) : RecyclerView.Adapter<ChatAdapter.ChatViewHolder>() {
 
     class ChatViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -64,7 +65,6 @@ class ChatAdapter(
             "$prefixo${chat.ultimaMensagem}"
         }
 
-        // Foto
         val fotoUrl = fotoDoChat(chat)
         if (fotoUrl.isNotEmpty()) {
             Glide.with(holder.itemView.context)
@@ -80,12 +80,18 @@ class ChatAdapter(
             holder.imgFoto.setPadding(pad, pad, pad, pad)
         }
 
-        // ⭐ Clique no card → abre conversa
+        // Clique normal → abre conversa
         holder.card.setOnClickListener { onClick(chat) }
 
-        // ⭐ Clique no avatar OU no nome → abre perfil
+        // Clique no avatar/nome → abre perfil
         holder.containerAvatar.setOnClickListener { onProfileClick(chat) }
         holder.txtNome.setOnClickListener { onProfileClick(chat) }
+
+        // ⭐ Long press → menu de opções (excluir)
+        holder.card.setOnLongClickListener {
+            onLongClick(chat)
+            true
+        }
     }
 
     private fun formatarHora(timestamp: Long): String {

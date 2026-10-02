@@ -25,7 +25,17 @@
         android:id="@+id/edtDialogProfissao"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
         android:hint="Profissão"
         android:inputType="text" />
+
+    <EditText
+        android:id="@+id/edtDialogBio"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Bio (opcional, máx 150)"
+        android:inputType="textMultiLine"
+        android:maxLength="150"
+        android:maxLines="3" />
 
 </LinearLayout>

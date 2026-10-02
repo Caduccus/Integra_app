@@ -12,8 +12,9 @@
         android:orientation="vertical"
         android:padding="24dp">
 
-        <!-- Cabeçalho -->
+        <!-- ⭐ Cabeçalho (id pra esconder na EditarTrabalhoActivity) -->
         <LinearLayout
+            android:id="@+id/layoutHeaderPublicar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
@@ -49,7 +50,7 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
+            android:layout_marginBottom="20dp"
             app:cardBackgroundColor="#33FFFFFF"
             app:cardCornerRadius="20dp"
             app:cardElevation="6dp"
@@ -61,6 +62,16 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:padding="20dp">
+
+                <!-- Seção: Sobre o trabalho -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:text="SOBRE O TRABALHO"
+                    android:textColor="#B3FFFFFF"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
 
                 <!-- Título -->
                 <com.google.android.material.textfield.TextInputLayout
@@ -90,8 +101,8 @@
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    android:hint="Descrição"
+                    android:layout_marginBottom="20dp"
+                    android:hint="Descrição detalhada"
                     android:textColorHint="#B3FFFFFF"
                     app:boxStrokeColor="@color/white"
                     app:boxStrokeWidth="1.5dp"
@@ -109,7 +120,24 @@
                         android:textColor="@color/white" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- ⭐ Categoria (DROPDOWN) -->
+                <!-- Divisor -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginBottom="20dp"
+                    android:background="#33FFFFFF" />
+
+                <!-- Seção: Detalhes -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:text="DETALHES"
+                    android:textColor="#B3FFFFFF"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+
+                <!-- Categoria -->
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                     android:layout_width="match_parent"
@@ -163,7 +191,8 @@
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Prazo"
+                    android:layout_marginBottom="20dp"
+                    android:hint="Prazo (ex: 30 dias)"
                     android:textColorHint="#B3FFFFFF"
                     app:boxStrokeColor="@color/white"
                     app:boxStrokeWidth="1.5dp"
@@ -179,6 +208,77 @@
                         android:inputType="text"
                         android:textColor="@color/white" />
                 </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- Divisor -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginBottom="20dp"
+                    android:background="#33FFFFFF" />
+
+                <!-- ⭐ Seção: Visibilidade (id pra esconder na edição) -->
+                <TextView
+                    android:id="@+id/txtSecaoVisibilidade"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:text="VISIBILIDADE"
+                    android:textColor="#B3FFFFFF"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+
+                <!-- ⭐ Publicar como (id pra esconder na edição) -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilPublicarComo"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:hint="Publicar como"
+                    android:textColorHint="#B3FFFFFF"
+                    app:boxStrokeColor="@color/white"
+                    app:boxStrokeWidth="1.5dp"
+                    app:boxBackgroundColor="@android:color/transparent"
+                    app:hintTextColor="@color/white"
+                    app:startIconDrawable="@android:drawable/ic_menu_myplaces"
+                    app:startIconTint="@color/white"
+                    app:endIconTint="@color/white">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/edtPublicarComo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="none"
+                        android:textColor="@color/white" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- Info box dinâmica -->
+                <LinearLayout
+                    android:id="@+id/layoutInfoVisibilidade"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="#1A0D226B"
+                    android:orientation="horizontal"
+                    android:padding="12dp"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:id="@+id/imgIconeVisibilidade"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_marginEnd="10dp"
+                        android:src="@android:drawable/ic_menu_info_details"
+                        app:tint="#B3FFFFFF" />
+
+                    <TextView
+                        android:id="@+id/txtInfoVisibilidade"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Trabalho público: qualquer pessoa pode ver e se candidatar."
+                        android:textColor="#B3FFFFFF"
+                        android:textSize="12sp" />
+                </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 

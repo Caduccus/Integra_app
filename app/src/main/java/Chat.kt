@@ -13,6 +13,9 @@ data class Chat(
     val ultimaMensagem: String = "",
     val ultimaMensagemRemetente: String = "",
     val timestamp: Long = 0L,
-    val admins: List<String> = emptyList(),     // ⭐ NOVO
-    val fotoUrl: String = ""                     // ⭐ NOVO
+    val admins: List<String> = emptyList(),
+    val fotoUrl: String = "",
+    val empresaId: String = "",
+    // ⭐ NOVO: UIDs que "esconderam" essa conversa
+    val deletadosPara: List<String> = emptyList()
 )

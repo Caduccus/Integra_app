@@ -18,7 +18,11 @@ import kotlinx.coroutines.tasks.await
 
 class MainActivity2 : BaseActivity() {
 
+    private var empresaIdDoTrabalho: String = ""
+    private var souMembroDaEmpresa: Boolean = false
+
     private lateinit var btnVoltar: ImageView
+    private lateinit var btnCompartilhar: ImageView
     private lateinit var txtCriador: TextView
     private lateinit var txtTituloDetalhe: TextView
     private lateinit var txtDescricaoDetalhe: TextView
@@ -53,6 +57,7 @@ class MainActivity2 : BaseActivity() {
         chatRepository = ChatRepository()
 
         btnVoltar = findViewById(R.id.btnVoltar)
+        btnCompartilhar = findViewById(R.id.btnCompartilhar)
         txtCriador = findViewById(R.id.txtCriador)
         txtTituloDetalhe = findViewById(R.id.txtTituloDetalhe)
         txtDescricaoDetalhe = findViewById(R.id.txtDescricaoDetalhe)
@@ -70,20 +75,33 @@ class MainActivity2 : BaseActivity() {
         trabalhoId = intent.getStringExtra("trabalhoId") ?: ""
 
         btnVoltar.setOnClickListener { finish() }
+        btnCompartilhar.setOnClickListener { compartilharTrabalho() }
         btnExcluir.setOnClickListener { confirmarExclusao() }
+
         btnEditar.setOnClickListener {
-            Toast.makeText(this, "Editar em breve", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, EditarTrabalhoActivity::class.java)
+            intent.putExtra("trabalhoId", trabalhoId)
+            startActivity(intent)
         }
+
         btnChat.setOnClickListener {
             val intent = Intent(this, CandidatosActivity::class.java)
             intent.putExtra("trabalhoId", trabalhoId)
             startActivity(intent)
         }
+
         btnCandidatar.setOnClickListener {
             if (jaCandidatou) abrirChatComCriador() else cadastrarSeNoTrabalho()
         }
 
         carregarTrabalho()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (trabalhoId.isNotEmpty()) {
+            carregarTrabalho()
+        }
     }
 
     private fun carregarTrabalho() {
@@ -104,6 +122,7 @@ class MainActivity2 : BaseActivity() {
             criadorId = trabalho.criadorId
             nomeCriador = trabalho.nomeCriador
             tituloTrabalho = trabalho.titulo
+            empresaIdDoTrabalho = trabalho.empresaId
 
             txtTituloDetalhe.text = trabalho.titulo
             txtDescricaoDetalhe.text = trabalho.descricao
@@ -122,10 +141,51 @@ class MainActivity2 : BaseActivity() {
                 btnCandidatar.visibility = View.GONE
             } else {
                 layoutBotoesCriador.visibility = View.GONE
-                btnCandidatar.visibility = View.VISIBLE
-                verificarCandidatura(uidAtual)
+
+                if (empresaIdDoTrabalho.isNotEmpty()) {
+                    verificarSeMembroDaEmpresa(uidAtual)
+                } else {
+                    btnCandidatar.visibility = View.VISIBLE
+                    verificarCandidatura(uidAtual)
+                }
             }
         }
+    }
+
+    // ─────────────────────────────────────────────
+    // ⭐ SHARE SHEET
+    // ─────────────────────────────────────────────
+    private fun compartilharTrabalho() {
+        if (tituloTrabalho.isEmpty()) {
+            Toast.makeText(this, "Aguarde o trabalho carregar", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val texto = buildString {
+            append("📋 ").append(tituloTrabalho).append("\n\n")
+            if (txtDescricaoDetalhe.text.isNotEmpty()) {
+                append(txtDescricaoDetalhe.text).append("\n\n")
+            }
+            if (txtCategoriaDetalhe.text.isNotEmpty()) {
+                append("📍 Categoria: ").append(txtCategoriaDetalhe.text).append("\n")
+            }
+            if (txtNivelDetalhe.text.isNotEmpty()) {
+                append("⭐ Nível: ").append(txtNivelDetalhe.text).append("\n")
+            }
+            if (txtPrazoDetalhe.text.isNotEmpty()) {
+                append("⏱ Prazo: ").append(txtPrazoDetalhe.text).append("\n")
+            }
+            append("\n")
+            append("Encontrado no Integra.app")
+        }
+
+        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_SUBJECT, tituloTrabalho)
+            putExtra(Intent.EXTRA_TEXT, texto)
+        }
+
+        startActivity(Intent.createChooser(shareIntent, "Compartilhar trabalho"))
     }
 
     private suspend fun verificarCandidatura(uid: String) {
@@ -175,15 +235,36 @@ class MainActivity2 : BaseActivity() {
             .show()
     }
 
+    private suspend fun verificarSeMembroDaEmpresa(uid: String) {
+        try {
+            val doc = db.collection("empresas").document(empresaIdDoTrabalho).get().await()
+            val empresa = doc.toObject(com.example.plataformaremota.data.entity.Empresa::class.java)
+
+            if (empresa == null || uid !in empresa.membros) {
+                btnCandidatar.visibility = View.GONE
+
+                Toast.makeText(
+                    this@MainActivity2,
+                    "Este trabalho é privado da empresa. Só membros podem se candidatar.",
+                    Toast.LENGTH_LONG
+                ).show()
+                return
+            }
+
+            btnCandidatar.visibility = View.VISIBLE
+            verificarCandidatura(uid)
+        } catch (e: Exception) {
+            btnCandidatar.visibility = View.GONE
+        }
+    }
+
     private fun excluirTrabalho() {
         lifecycleScope.launch {
-            // ⭐ Busca candidatos ANTES de excluir
             val candidatos = buscarCandidatos()
 
             val sucesso = repository.excluir(trabalhoId)
 
             if (sucesso) {
-                // ⭐ Notifica todos os candidatos
                 notificarCandidatosExclusao(candidatos)
 
                 Toast.makeText(this@MainActivity2, "Trabalho excluído!", Toast.LENGTH_SHORT).show()
@@ -248,14 +329,12 @@ class MainActivity2 : BaseActivity() {
                     .set(candidatura)
                     .await()
 
-                // ⭐ Notifica o criador
                 NotificacaoHelper.enviar(
                     uidDestino = criadorId,
                     titulo = "Nova candidatura! 🎯",
                     mensagem = "$nomeUsuario se candidatou para '$tituloTrabalho'"
                 )
 
-                // ⭐ Notifica o próprio candidato (confirmação)
                 NotificacaoHelper.enviar(
                     uidDestino = uid,
                     titulo = "Candidatura enviada ✅",

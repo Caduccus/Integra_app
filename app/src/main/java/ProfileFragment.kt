@@ -38,14 +38,16 @@ class ProfileFragment : Fragment() {
     private lateinit var txtNomePerfil: TextView
     private lateinit var txtEmailPerfil: TextView
     private lateinit var txtProfissaoPerfil: TextView
+    private lateinit var txtBioPerfil: TextView
     private lateinit var txtStatusNotificacoes: TextView
-    private lateinit var btnLogoutPerfil: MaterialButton
-    private lateinit var btnExcluirConta: MaterialButton
+    private lateinit var btnLogoutPerfil: View
+    private lateinit var btnExcluirConta: View
 
     private var usuarioId: String = ""
     private var nomeUsuario: String = ""
     private var emailUsuario: String = ""
     private var profissaoUsuario: String = ""
+    private var bioUsuario: String = ""
     private var fotoUrlAtual: String = ""
 
     private val auth = FirebaseAuth.getInstance()
@@ -64,9 +66,7 @@ class ProfileFragment : Fragment() {
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
         return inflater.inflate(R.layout.fragment_profile, container, false)
     }
@@ -79,6 +79,7 @@ class ProfileFragment : Fragment() {
         txtNomePerfil = view.findViewById(R.id.txtNomePerfil)
         txtEmailPerfil = view.findViewById(R.id.txtEmailPerfil)
         txtProfissaoPerfil = view.findViewById(R.id.txtProfissaoPerfil)
+        txtBioPerfil = view.findViewById(R.id.txtBioPerfil)
         txtStatusNotificacoes = view.findViewById(R.id.txtStatusNotificacoes)
         btnLogoutPerfil = view.findViewById(R.id.btnLogoutPerfil)
         btnExcluirConta = view.findViewById(R.id.btnExcluirConta)
@@ -110,13 +111,11 @@ class ProfileFragment : Fragment() {
         btnLogoutPerfil.setOnClickListener { fazerLogout() }
         btnExcluirConta.setOnClickListener { confirmarExcluirConta() }
 
+
         ThemeManager.aplicarCores(requireContext(), view)
         ThemeManager.aplicarCoresTexto(requireContext(), view)
     }
 
-    // ─────────────────────────────────────────────
-    // CARREGAR DADOS (corrigido contra crash)
-    // ─────────────────────────────────────────────
     private fun carregarDadosUsuario() {
         val uid = auth.currentUser?.uid ?: usuarioId
         if (uid.isEmpty()) {
@@ -125,23 +124,23 @@ class ProfileFragment : Fragment() {
         }
         usuarioId = uid
 
-        // ⭐ viewLifecycleOwner.lifecycleScope — cancela automaticamente quando a view morre
         viewLifecycleOwner.lifecycleScope.launch {
             try {
                 val doc = db.collection("usuarios").document(uid).get().await()
 
-                // ⭐ Verifica se o Fragment ainda tá vivo ANTES de mexer na UI
                 if (!isAdded || view == null) return@launch
 
                 if (doc.exists()) {
                     nomeUsuario = doc.getString("nome") ?: "Usuário"
                     emailUsuario = doc.getString("email") ?: ""
                     profissaoUsuario = doc.getString("profissao") ?: ""
+                    bioUsuario = doc.getString("bio") ?: ""
                     fotoUrlAtual = doc.getString("fotoUrl") ?: ""
 
                     txtNomePerfil.text = nomeUsuario
                     txtEmailPerfil.text = emailUsuario.ifEmpty { "—" }
                     txtProfissaoPerfil.text = profissaoUsuario.ifEmpty { "—" }
+                    txtBioPerfil.text = if (bioUsuario.isEmpty()) "Sem bio ainda" else bioUsuario
 
                     if (fotoUrlAtual.isNotEmpty()) {
                         carregarFotoRemota(fotoUrlAtual)
@@ -150,9 +149,9 @@ class ProfileFragment : Fragment() {
                     txtNomePerfil.text = nomeUsuario.ifEmpty { "Usuário" }
                     txtEmailPerfil.text = auth.currentUser?.email ?: "—"
                     txtProfissaoPerfil.text = "—"
+                    txtBioPerfil.text = "Sem bio ainda"
                 }
             } catch (e: Exception) {
-                // ⭐ Não crasha se o Fragment morrer
                 if (isAdded) {
                     Toast.makeText(requireContext(), "Erro: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
@@ -173,9 +172,6 @@ class ProfileFragment : Fragment() {
         imgFotoPerfil.setPadding(0, 0, 0, 0)
     }
 
-    // ─────────────────────────────────────────────
-    // FOTO
-    // ─────────────────────────────────────────────
     private fun abrirBottomSheetFoto() {
         val dialog = BottomSheetDialog(requireContext())
         val sheetView = layoutInflater.inflate(R.layout.bottom_sheet_foto_perfil, null)
@@ -321,9 +317,6 @@ class ProfileFragment : Fragment() {
         }
     }
 
-    // ─────────────────────────────────────────────
-    // DIALOGS
-    // ─────────────────────────────────────────────
     private fun abrirDialogTemas() {
         if (!isAdded) return
         val dialogView = LayoutInflater.from(requireContext())
@@ -362,10 +355,12 @@ class ProfileFragment : Fragment() {
         val edtNome = dialogView.findViewById<EditText>(R.id.edtDialogNome)
         val edtEmail = dialogView.findViewById<EditText>(R.id.edtDialogEmail)
         val edtProfissao = dialogView.findViewById<EditText>(R.id.edtDialogProfissao)
+        val edtBio = dialogView.findViewById<EditText>(R.id.edtDialogBio)
 
         edtNome.setText(nomeUsuario)
         edtEmail.setText(emailUsuario)
         edtProfissao.setText(profissaoUsuario)
+        edtBio.setText(bioUsuario)
 
         AlertDialog.Builder(requireContext())
             .setTitle("Editar perfil")
@@ -374,14 +369,15 @@ class ProfileFragment : Fragment() {
                 salvarEdicao(
                     edtNome.text.toString().trim(),
                     edtEmail.text.toString().trim(),
-                    edtProfissao.text.toString().trim()
+                    edtProfissao.text.toString().trim(),
+                    edtBio.text.toString().trim()
                 )
             }
             .setNegativeButton("Cancelar", null)
             .show()
     }
 
-    private fun salvarEdicao(nome: String, email: String, profissao: String) {
+    private fun salvarEdicao(nome: String, email: String, profissao: String, bio: String) {
         if (nome.isEmpty() || email.isEmpty() || profissao.isEmpty()) {
             Toast.makeText(requireContext(), "Preencha todos os campos", Toast.LENGTH_SHORT).show()
             return
@@ -393,7 +389,8 @@ class ProfileFragment : Fragment() {
                     .update(mapOf(
                         "nome" to nome,
                         "email" to email,
-                        "profissao" to profissao
+                        "profissao" to profissao,
+                        "bio" to bio
                     ))
                     .await()
 
@@ -402,10 +399,12 @@ class ProfileFragment : Fragment() {
                 nomeUsuario = nome
                 emailUsuario = email
                 profissaoUsuario = profissao
+                bioUsuario = bio
 
                 txtNomePerfil.text = nome
                 txtEmailPerfil.text = email
                 txtProfissaoPerfil.text = profissao
+                txtBioPerfil.text = if (bio.isEmpty()) "Sem bio ainda" else bio
 
                 Toast.makeText(requireContext(), "Perfil atualizado!", Toast.LENGTH_SHORT).show()
             } catch (e: Exception) {
@@ -458,15 +457,28 @@ class ProfileFragment : Fragment() {
             .show()
     }
 
-    // ─────────────────────────────────────────────
-    // LOGOUT / EXCLUIR CONTA
-    // ─────────────────────────────────────────────
     private fun fazerLogout() {
         auth.signOut()
         val intent = Intent(requireContext(), LoginActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
         requireActivity().finish()
+    }
+
+    private fun trocarDeConta() {
+        if (!isAdded) return
+        AlertDialog.Builder(requireContext())
+            .setTitle("Trocar de conta")
+            .setMessage("Você vai sair da conta atual e voltar pra tela de login. Continuar?")
+            .setPositiveButton("Trocar") { _, _ ->
+                auth.signOut()
+                val intent = Intent(requireContext(), LoginActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(intent)
+                requireActivity().finish()
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
     }
 
     private fun confirmarExcluirConta() {

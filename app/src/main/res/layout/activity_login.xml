@@ -7,23 +7,6 @@
     android:layout_height="match_parent"
     android:background="@drawable/background_gradiente">
 
-    <!-- Botão de trocar tema -->
-    <ImageView
-        android:id="@+id/btnTemaLogin"
-        android:layout_width="44dp"
-        android:layout_height="44dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:padding="10dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:clickable="true"
-        android:contentDescription="Trocar tema"
-        android:focusable="true"
-        android:src="@drawable/ic_home"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:tint="@color/white" />
-
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -38,42 +21,51 @@
             android:layout_height="wrap_content"
             android:padding="24dp">
 
-            <!-- Logo -->
-            <ImageView
-                android:id="@+id/imageView4"
-                android:layout_width="140dp"
-                android:layout_height="140dp"
-                android:layout_marginTop="24dp"
-                android:contentDescription="Logo Integra"
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardLogoLogin"
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:layout_marginTop="16dp"
+                app:cardBackgroundColor="#000000"
+                app:cardCornerRadius="36dp"
+                app:cardElevation="10dp"
                 app:layout_constraintBottom_toTopOf="@+id/textView"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_chainStyle="packed"
-                app:srcCompat="@drawable/whatsapp_image_2026_08_21_at_10_39_46_removebg_preview" />
+                app:strokeWidth="0dp">
 
-            <!-- Título -->
+                <ImageView
+                    android:id="@+id/imageView4"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:contentDescription="Logo Integraa"
+                    android:padding="12dp"
+                    android:scaleType="fitCenter"
+                    app:srcCompat="@drawable/logo_integra" />
+            </com.google.android.material.card.MaterialCardView>
+
             <TextView
                 android:id="@+id/textView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="Plataforma Remota"
+                android:layout_marginTop="16dp"
+                android:text="Integra"
                 android:textColor="@android:color/white"
                 android:textSize="26sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toTopOf="@+id/txtSubtitulo"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/imageView4" />
+                app:layout_constraintTop_toBottomOf="@+id/cardLogoLogin" />
 
-            <!-- Subtítulo -->
             <TextView
                 android:id="@+id/txtSubtitulo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="Conecte-se a oportunidades remotas"
+                android:text="Trabalho remoto, sem limites"
                 android:textColor="#B3FFFFFF"
                 android:textSize="14sp"
                 app:layout_constraintBottom_toTopOf="@+id/tilEmail"
@@ -81,7 +73,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textView" />
 
-            <!-- Campo E-mail -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilEmail"
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
@@ -109,7 +100,6 @@
                     android:textColor="@color/white" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Campo Senha -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilSenha"
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
@@ -139,7 +129,6 @@
                     android:textColor="@color/white" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Esqueci a senha -->
             <TextView
                 android:id="@+id/txtEsqueciSenha"
                 android:layout_width="wrap_content"
@@ -153,7 +142,6 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/tilSenha" />
 
-            <!-- Botão Entrar -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnEntrar"
                 android:layout_width="0dp"
@@ -171,7 +159,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/txtEsqueciSenha" />
 
-            <!-- Divisor com "OU" -->
             <LinearLayout
                 android:id="@+id/linhaDivisoria"
                 android:layout_width="0dp"
@@ -206,7 +193,6 @@
                     android:background="#4DFFFFFF" />
             </LinearLayout>
 
-            <!-- Botão Cadastrar -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnCadastrar"
                 style="@style/Widget.MaterialComponents.Button.TextButton"
@@ -224,4 +210,23 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
+
+    <!-- ⭐ Botão de tema: declarado DEPOIS do ScrollView (fica por cima) -->
+    <ImageView
+        android:id="@+id/btnTemaLogin"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:padding="10dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:clickable="true"
+        android:contentDescription="Trocar tema"
+        android:focusable="true"
+        android:elevation="10dp"
+        android:src="@drawable/ic_theme"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@color/white" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

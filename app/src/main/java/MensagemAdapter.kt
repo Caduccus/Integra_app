@@ -1,5 +1,6 @@
 package com.example.plataformaremota.adapter
 
+import android.graphics.Typeface
 import android.media.MediaPlayer
 import android.os.Handler
 import android.os.Looper
@@ -61,26 +62,52 @@ class MensagemAdapter(
         val uidAtual = FirebaseAuth.getInstance().currentUser?.uid ?: ""
         val ehMinha = msg.remetenteId == uidAtual
 
+        // ⭐ MENSAGEM DE SISTEMA
+        if (msg.tipo == "sistema") {
+            holder.linha.gravity = Gravity.CENTER
+            holder.cardFoto.visibility = View.GONE
+            holder.bubble.setBackgroundColor(android.graphics.Color.TRANSPARENT)
+            holder.bubble.setPadding(16, 4, 16, 4)
+            holder.txtNome.visibility = View.GONE
+            holder.layoutReply.visibility = View.GONE
+            holder.imgMensagem.visibility = View.GONE
+            holder.layoutAudio.visibility = View.GONE
+            holder.txtEditada.visibility = View.GONE
+
+            holder.txtTexto.visibility = View.VISIBLE
+            holder.txtTexto.text = msg.texto
+            holder.txtTexto.setTextColor(0xFF888888.toInt())
+            holder.txtTexto.textSize = 12f
+            holder.txtTexto.gravity = Gravity.CENTER
+            holder.txtTexto.setTypeface(null, Typeface.ITALIC)
+
+            holder.txtHora.visibility = View.GONE
+            return
+        }
+
+        // Restaura estado normal (mensagens que não são de sistema)
+        holder.txtHora.visibility = View.VISIBLE
+        holder.txtTexto.textSize = 15f
+        holder.txtTexto.gravity = Gravity.START
+        holder.txtTexto.setTypeface(null, Typeface.NORMAL)
+
         val horaFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
         holder.txtHora.text = horaFormat.format(Date(msg.timestamp))
 
         val params = holder.bubble.layoutParams as LinearLayout.LayoutParams
 
-        // Reset
         holder.imgMensagem.visibility = View.GONE
         holder.layoutAudio.visibility = View.GONE
         holder.txtTexto.visibility = View.GONE
         holder.layoutReply.visibility = View.GONE
         holder.txtEditada.visibility = View.GONE
 
-        // ⭐ Reply preview
         if (msg.replyToId.isNotEmpty()) {
             holder.layoutReply.visibility = View.VISIBLE
             holder.txtReplyNome.text = msg.replyToNome
             holder.txtReplyTexto.text = msg.replyToTexto
         }
 
-        // ⭐ Conteúdo
         when (msg.tipo) {
             "imagem" -> {
                 holder.imgMensagem.visibility = View.VISIBLE
@@ -107,7 +134,6 @@ class MensagemAdapter(
             }
         }
 
-        // ⭐ Editada
         if (msg.editada) {
             holder.txtEditada.visibility = View.VISIBLE
         }
@@ -155,7 +181,6 @@ class MensagemAdapter(
 
         holder.bubble.layoutParams = params
 
-        // ⭐ Long press
         holder.bubble.setOnLongClickListener {
             onLongClick(msg)
             true

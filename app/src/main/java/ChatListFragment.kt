@@ -6,12 +6,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.plataformaremota.adapter.ChatAdapter
 import com.example.plataformaremota.data.entity.Chat
+import com.example.plataformaremota.data.repository.ChatRepository
 import com.google.android.material.button.MaterialButton
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -24,8 +26,10 @@ class ChatListFragment : Fragment() {
     private lateinit var layoutEstadoVazio: View
     private lateinit var layoutLoading: View
     private lateinit var btnNovoGrupo: MaterialButton
+    private lateinit var btnCriarGrupoVazio: MaterialButton
 
     private lateinit var adapter: ChatAdapter
+    private lateinit var repository: ChatRepository
 
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
@@ -55,10 +59,18 @@ class ChatListFragment : Fragment() {
         layoutEstadoVazio = view.findViewById(R.id.layoutEstadoVazio)
         layoutLoading = view.findViewById(R.id.layoutLoading)
         btnNovoGrupo = view.findViewById(R.id.btnNovoGrupo)
+        btnCriarGrupoVazio = view.findViewById(R.id.btnCriarGrupoVazio)
+
+        repository = ChatRepository()
 
         configurarRecyclerView()
 
         btnNovoGrupo.setOnClickListener {
+            val intent = Intent(requireContext(), NovoGrupoActivity::class.java)
+            novoGrupoLauncher.launch(intent)
+        }
+
+        btnCriarGrupoVazio.setOnClickListener {
             val intent = Intent(requireContext(), NovoGrupoActivity::class.java)
             novoGrupoLauncher.launch(intent)
         }
@@ -76,14 +88,15 @@ class ChatListFragment : Fragment() {
             fotoDoChat = { chat -> fotoDoChat(chat) },
             contextoDoChat = { chat -> contextoDoChat(chat) },
             onClick = { chat ->
-                // ⭐ Clique no card → abre conversa
                 val intent = Intent(requireContext(), ChatActivity::class.java)
                 intent.putExtra("chatId", chat.id)
                 startActivity(intent)
             },
             onProfileClick = { chat ->
-                // ⭐ Clique no avatar/nome → abre perfil ou info do grupo
                 abrirPerfilOuGrupo(chat)
+            },
+            onLongClick = { chat ->
+                abrirMenuConversa(chat)
             }
         )
 
@@ -91,22 +104,78 @@ class ChatListFragment : Fragment() {
         rvChats.adapter = adapter
     }
 
-    // ⭐ NOVO: abre o perfil do usuário ou Info do Grupo
+    // ⭐ Menu ao segurar a conversa
+    private fun abrirMenuConversa(chat: Chat) {
+        val opcoes = mutableListOf<String>()
+
+        // Só deixa excluir conversas pessoais (1:1)
+        if (!chat.ehGrupo) {
+            opcoes.add("Excluir conversa")
+        }
+
+        if (opcoes.isEmpty()) {
+            Toast.makeText(
+                requireContext(),
+                "Segure uma conversa pessoal para excluir",
+                Toast.LENGTH_SHORT
+            ).show()
+            return
+        }
+
+        AlertDialog.Builder(requireContext())
+            .setTitle(nomeDoChat(chat))
+            .setItems(opcoes.toTypedArray()) { _, which ->
+                when (opcoes[which]) {
+                    "Excluir conversa" -> confirmarExcluir(chat)
+                }
+            }
+            .show()
+    }
+
+    private fun confirmarExcluir(chat: Chat) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Excluir conversa")
+            .setMessage(
+                "A conversa com ${nomeDoChat(chat)} será removida da sua lista.\n\n" +
+                        "O outro participante ainda continuará vendo o histórico. " +
+                        "Se qualquer um de vocês mandar uma nova mensagem, a conversa volta a aparecer."
+            )
+            .setPositiveButton("Excluir") { _, _ ->
+                lifecycleScope.launch {
+                    val ok = repository.excluirConversa(chat.id)
+                    if (ok) {
+                        Toast.makeText(
+                            requireContext(),
+                            "Conversa excluída",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        carregarChats()
+                    } else {
+                        Toast.makeText(
+                            requireContext(),
+                            "Erro ao excluir",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+
     private fun abrirPerfilOuGrupo(chat: Chat) {
         if (chat.ehGrupo) {
-            // Grupo → Info do Grupo
             val intent = Intent(requireContext(), InfoGrupoActivity::class.java)
             intent.putExtra("chatId", chat.id)
             startActivity(intent)
         } else {
-            // 1:1 → Perfil do usuário
             val uidAtual = auth.currentUser?.uid
             if (uidAtual != null) {
                 val outroUid = chat.participantes.firstOrNull { it != uidAtual }
                 if (outroUid != null) {
                     val intent = Intent(requireContext(), PerfilUsuarioActivity::class.java)
                     intent.putExtra("uidUsuario", outroUid)
-                    intent.putExtra("chatId", "")  // Sem chatId = sem ações de grupo
+                    intent.putExtra("chatId", "")
                     startActivity(intent)
                 }
             }
@@ -148,9 +217,11 @@ class ChatListFragment : Fragment() {
                     .get()
                     .await()
 
-                val chats = snapshot.documents.mapNotNull {
-                    it.toObject(Chat::class.java)
-                }.sortedByDescending { it.timestamp }
+                // ⭐ Filtra chats que eu tenha deletado
+                val chats = snapshot.documents
+                    .mapNotNull { it.toObject(Chat::class.java) }
+                    .filter { uid !in it.deletadosPara }
+                    .sortedByDescending { it.timestamp }
 
                 val uidsOutros = chats
                     .filter { !it.ehGrupo }

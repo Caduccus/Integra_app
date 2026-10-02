@@ -69,7 +69,29 @@
             android:textStyle="bold" />
     </LinearLayout>
 
-    <!-- CHIPS DE FILTRO -->
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:hint="Buscar trabalho..."
+        android:textColorHint="#B3FFFFFF"
+        app:boxStrokeColor="@color/white"
+        app:boxStrokeWidth="1.5dp"
+        app:boxBackgroundColor="@android:color/transparent"
+        app:hintTextColor="@color/white"
+        app:startIconDrawable="@android:drawable/ic_menu_search"
+        app:startIconTint="@color/white">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edtBuscaHome"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text"
+            android:textColor="@color/white" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Filtros -->
     <com.google.android.material.button.MaterialButtonToggleGroup
         android:id="@+id/toggleGroupFiltro"
         android:layout_width="match_parent"
@@ -86,7 +108,7 @@
             android:layout_weight="1"
             android:text="Todos"
             android:textColor="@color/white"
-            android:textSize="11sp"
+            android:textSize="10sp"
             android:checked="true"
             app:cornerRadius="20dp"
             app:strokeColor="#66FFFFFF"
@@ -100,7 +122,7 @@
             android:layout_weight="1"
             android:text="Meus"
             android:textColor="@color/white"
-            android:textSize="11sp"
+            android:textSize="10sp"
             app:cornerRadius="20dp"
             app:strokeColor="#66FFFFFF"
             app:strokeWidth="1dp" />
@@ -113,7 +135,20 @@
             android:layout_weight="1"
             android:text="Inscritos"
             android:textColor="@color/white"
-            android:textSize="11sp"
+            android:textSize="10sp"
+            app:cornerRadius="20dp"
+            app:strokeColor="#66FFFFFF"
+            app:strokeWidth="1dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnEmpresaFiltro"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Empresas"
+            android:textColor="@color/white"
+            android:textSize="10sp"
             app:cornerRadius="20dp"
             app:strokeColor="#66FFFFFF"
             app:strokeWidth="1dp" />
@@ -142,32 +177,77 @@
                 android:visibility="gone"
                 tools:listitem="@layout/item_trabalho" />
 
+            <!-- Estado Vazio -->
             <LinearLayout
                 android:id="@+id/layoutEstadoVazio"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="center"
                 android:orientation="vertical"
-                android:padding="24dp"
+                android:padding="32dp"
                 android:visibility="gone">
 
-                <ImageView
-                    android:layout_width="64dp"
-                    android:layout_height="64dp"
-                    android:layout_marginBottom="16dp"
-                    android:src="@drawable/ic_inbox"
-                    app:tint="#80FFFFFF" />
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    android:layout_marginBottom="20dp"
+                    app:cardBackgroundColor="#1AFFFFFF"
+                    app:cardCornerRadius="60dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="2dp"
+                    app:strokeColor="#33FFFFFF">
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:padding="35dp"
+                        android:src="@drawable/ic_inbox"
+                        app:tint="#B3FFFFFF" />
+                </com.google.android.material.card.MaterialCardView>
+
+                <TextView
+                    android:id="@+id/txtEstadoVazioTitulo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Nada por aqui ainda"
+                    android:textAlignment="center"
+                    android:textColor="@color/white"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/txtEstadoVazio"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Nenhum trabalho disponível ainda"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="24dp"
+                    android:text="Seja o primeiro a publicar um trabalho!"
                     android:textAlignment="center"
-                    android:textColor="#80FFFFFF"
-                    android:textSize="16sp" />
+                    android:textColor="#B3FFFFFF"
+                    android:textSize="14sp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnPublicarVazio"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:paddingHorizontal="24dp"
+                    android:text="PUBLICAR PRIMEIRO"
+                    android:textColor="@color/white"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    app:backgroundTint="#0D226B"
+                    app:cornerRadius="24dp"
+                    app:icon="@drawable/ic_add"
+                    app:iconGravity="textStart"
+                    app:iconPadding="6dp"
+                    app:iconSize="18dp"
+                    app:iconTint="@color/white" />
+
             </LinearLayout>
 
+            <!-- Loading -->
             <LinearLayout
                 android:id="@+id/layoutLoading"
                 android:layout_width="match_parent"

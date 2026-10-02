@@ -77,5 +77,22 @@
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
 
+        <activity
+            android:name=".CadastroEmpresaActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".DetalhesEmpresaActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".GerenciarEmpresaActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".EditarTrabalhoActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
     </application>
 </manifest>

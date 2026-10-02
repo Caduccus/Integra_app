@@ -42,6 +42,19 @@
                 android:textColor="@color/white"
                 android:textSize="22sp"
                 android:textStyle="bold" />
+
+            <!-- ⭐ Compartilhar -->
+            <ImageView
+                android:id="@+id/btnCompartilhar"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:padding="8dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true"
+                android:contentDescription="Compartilhar"
+                android:src="@drawable/ic_share"
+                app:tint="@color/white" />
         </LinearLayout>
 
         <!-- Card semi-transparente com os detalhes -->
@@ -61,7 +74,6 @@
                 android:orientation="vertical"
                 android:padding="20dp">
 
-                <!-- Publicado por -->
                 <TextView
                     android:id="@+id/txtCriador"
                     android:layout_width="match_parent"
@@ -71,7 +83,6 @@
                     android:textColor="#CCFFFFFF"
                     android:textSize="13sp" />
 
-                <!-- Título -->
                 <TextView
                     android:id="@+id/txtTituloDetalhe"
                     android:layout_width="match_parent"
@@ -88,7 +99,6 @@
                     android:layout_marginBottom="16dp"
                     android:background="#66FFFFFF" />
 
-                <!-- Descrição -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -106,7 +116,6 @@
                     android:textColor="@color/white"
                     android:textSize="15sp" />
 
-                <!-- Categoria -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -124,14 +133,12 @@
                     android:textColor="@color/white"
                     android:textSize="15sp" />
 
-                <!-- Tipo de Contrato (escondido, mantido pra código não quebrar) -->
                 <TextView
                     android:id="@+id/txtTipoContratoDetalhe"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:visibility="gone" />
 
-                <!-- Nível -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -149,7 +156,6 @@
                     android:textColor="@color/white"
                     android:textSize="15sp" />
 
-                <!-- Prazo -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -168,7 +174,7 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- ═══ BOTÕES DO CRIADOR (só quem publicou vê) ═══ -->
+        <!-- BOTÕES DO CRIADOR -->
         <LinearLayout
             android:id="@+id/layoutBotoesCriador"
             android:layout_width="match_parent"
@@ -235,7 +241,7 @@
                 app:iconSize="18dp" />
         </LinearLayout>
 
-        <!-- ═══ BOTÃO DO CANDIDATO (só quem NÃO publicou vê) ═══ -->
+        <!-- BOTÃO DO CANDIDATO -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnCandidatar"
             android:layout_width="match_parent"

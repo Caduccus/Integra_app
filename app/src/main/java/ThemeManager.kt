@@ -136,6 +136,7 @@ object ThemeManager {
         }
     }
 
+    // ⭐ CORRIGIDO: aplica imediato + via post
     fun aplicarCoresTexto(context: Context, rootView: View) {
         val tema = getTemaAtual(context)
         if (tema != TEMA_BRANCO && tema != TEMA_AMARELO) return
@@ -143,30 +144,31 @@ object ThemeManager {
         val primaryText = getTextColor(tema)
         val secondaryText = getSecondaryTextColor(tema)
 
+        // Aplica já (para views que já estão infladas)
+        aplicarTextoForcado(rootView, primaryText, secondaryText)
+
+        // Reaplica depois do layout (caso alguma view tenha sido inflada depois)
         rootView.post {
             aplicarTextoForcado(rootView, primaryText, secondaryText)
         }
     }
 
     private fun aplicarTextoForcado(view: View, primaryText: Int, secondaryText: Int) {
-        // ⭐ NAVBAR: pinta de BRANCO e para de recursão aqui
+        // NAVBAR: pinta de BRANCO e para de recursão
         if (view is BottomNavigationView) {
             val states = arrayOf(
                 intArrayOf(android.R.attr.state_checked),
                 intArrayOf()
             )
-            // Ambos os estados (ativo e inativo) ficam BRANCOS
             val colors = intArrayOf(TEXTO_BRANCO, TEXTO_BRANCO)
             val colorStateList = ColorStateList(states, colors)
 
             view.itemIconTintList = colorStateList
             view.itemTextColor = colorStateList
-
-            // Não continua a recursão (não pinta os filhos da navbar)
             return
         }
 
-        // ⭐ TextInputLayout
+        // TextInputLayout
         if (view is TextInputLayout) {
             try {
                 val states = arrayOf(
@@ -193,14 +195,31 @@ object ThemeManager {
             }
         }
 
-        // TextView normal
-        if (view is TextView && view !is MaterialButton) {
-            view.setTextColor(primaryText)
+        // ⭐ MaterialButton: checa alpha do fundo pra decidir a cor do texto
+        if (view is MaterialButton) {
+            val corFundo = view.backgroundTintList?.defaultColor ?: Color.TRANSPARENT
+            val alpha = Color.alpha(corFundo)
+
+            if (alpha < 50) {
+                // TextButton (fundo transparente) → texto escuro/claro do tema
+                view.setTextColor(primaryText)
+            } else {
+                // Botão colorido → mantém texto branco
+                view.setTextColor(Color.WHITE)
+            }
+            return
         }
 
-        // ImageView
+        // ⭐ ImageView: só pinta se JÁ tiver tint (ícones). Logo/fotos ficam intocadas.
         if (view is ImageView) {
-            view.imageTintList = ColorStateList.valueOf(primaryText)
+            if (view.imageTintList != null) {
+                view.imageTintList = ColorStateList.valueOf(primaryText)
+            }
+        }
+
+        // TextView normal
+        if (view is TextView) {
+            view.setTextColor(primaryText)
         }
 
         // Recursão

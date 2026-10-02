@@ -64,6 +64,22 @@ class AdicionarMembrosActivity : BaseActivity() {
             return
         }
 
+        // ⭐ Bloqueia acesso se for grupo de empresa
+        lifecycleScope.launch {
+            try {
+                val doc = db.collection("chats").document(chatId).get().await()
+                val empresaId = doc.getString("empresaId") ?: ""
+                if (empresaId.isNotEmpty()) {
+                    Toast.makeText(
+                        this@AdicionarMembrosActivity,
+                        "Este grupo é privado da empresa. Só quem entra pela empresa pode participar.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    finish()
+                }
+            } catch (_: Exception) { }
+        }
+
         configurarRecyclerView()
         configurarBusca()
 
@@ -96,16 +112,13 @@ class AdicionarMembrosActivity : BaseActivity() {
 
         lifecycleScope.launch {
             try {
-                // 1. Carrega o chat pra saber quem já tá no grupo
                 val docChat = db.collection("chats").document(chatId).get().await()
                 participantesAtuais = (docChat.get("participantes") as? List<*>)?.filterIsInstance<String>() ?: emptyList()
 
-                // 2. Carrega todos os usuários
                 val snapshot = db.collection("usuarios").get().await()
 
                 todosUsuarios = snapshot.documents.mapNotNull { doc ->
                     val uid = doc.id
-                    // ⭐ Exclui eu mesmo E quem já tá no grupo
                     if (uid == meuUid || uid in participantesAtuais) return@mapNotNull null
 
                     UsuarioSelecionavel(
@@ -175,7 +188,6 @@ class AdicionarMembrosActivity : BaseActivity() {
             val ok = repository.adicionarMembros(chatId, uids)
 
             if (ok) {
-                // ⭐ Notifica os novos membros
                 val nomes = selecionados.map { it.nome }.joinToString(", ")
                 notificarNovosMembros(uids, nomes)
 
@@ -193,11 +205,9 @@ class AdicionarMembrosActivity : BaseActivity() {
     private fun notificarNovosMembros(uids: List<String>, nomes: String) {
         lifecycleScope.launch {
             try {
-                // Busca nome do grupo
                 val docChat = db.collection("chats").document(chatId).get().await()
                 val nomeGrupo = docChat.getString("nome") ?: "um grupo"
 
-                // Busca quem adicionou
                 val uidAtual = auth.currentUser?.uid ?: return@launch
                 val docMeu = db.collection("usuarios").document(uidAtual).get().await()
                 val meuNome = docMeu.getString("nome") ?: "Usuário"

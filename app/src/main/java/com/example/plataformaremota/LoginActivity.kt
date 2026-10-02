@@ -37,7 +37,6 @@ class LoginActivity : BaseActivity() {
         btnEntrar = findViewById(R.id.btnEntrar)
         btnCadastrar = findViewById(R.id.btnCadastrar)
 
-        // Botão de tema (canto superior direito)
         val btnTema: ImageView? = findViewById(R.id.btnTemaLogin)
         btnTema?.setOnClickListener { abrirDialogTemas() }
 
@@ -51,8 +50,12 @@ class LoginActivity : BaseActivity() {
         btnCadastrar.setOnClickListener {
             startActivity(Intent(this, CadastroActivity::class.java))
         }
+
+        // ⭐ Aplica tema nos textos (tema branco/amarelo)
+        ThemeManager.aplicarCoresTexto(this, findViewById(android.R.id.content))
     }
 
+    // ⭐ AGORA COM TODOS OS 7 TEMAS
     private fun abrirDialogTemas() {
         val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_temas, null)
 
@@ -60,25 +63,22 @@ class LoginActivity : BaseActivity() {
             .setView(dialogView)
             .create()
 
-        dialogView.findViewById<View>(R.id.temaPadrao).setOnClickListener {
-            ThemeManager.setTema(this, ThemeManager.TEMA_PADRAO)
-            dialog.dismiss()
-            recreate()
-        }
-        dialogView.findViewById<View>(R.id.temaVermelho).setOnClickListener {
-            ThemeManager.setTema(this, ThemeManager.TEMA_VERMELHO)
-            dialog.dismiss()
-            recreate()
-        }
-        dialogView.findViewById<View>(R.id.temaAzul).setOnClickListener {
-            ThemeManager.setTema(this, ThemeManager.TEMA_AZUL)
-            dialog.dismiss()
-            recreate()
-        }
-        dialogView.findViewById<View>(R.id.temaVerde).setOnClickListener {
-            ThemeManager.setTema(this, ThemeManager.TEMA_VERDE)
-            dialog.dismiss()
-            recreate()
+        val temas = mapOf(
+            R.id.temaPadrao to ThemeManager.TEMA_PADRAO,
+            R.id.temaVermelho to ThemeManager.TEMA_VERMELHO,
+            R.id.temaAzul to ThemeManager.TEMA_AZUL,
+            R.id.temaVerde to ThemeManager.TEMA_VERDE,
+            R.id.temaPreto to ThemeManager.TEMA_PRETO,
+            R.id.temaBranco to ThemeManager.TEMA_BRANCO,
+            R.id.temaAmarelo to ThemeManager.TEMA_AMARELO
+        )
+
+        for ((id, tema) in temas) {
+            dialogView.findViewById<View>(id).setOnClickListener {
+                ThemeManager.setTema(this, tema)
+                dialog.dismiss()
+                recreate()
+            }
         }
 
         dialog.show()

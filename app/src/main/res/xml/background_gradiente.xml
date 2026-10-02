@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <shape xmlns:android="http://android.com">
-        <gradient
-            android:startColor="#FF0000"
-            android:endColor="#0000FF"
-            android:angle="45"/>
-    </shape>
-
-
-</PreferenceScreen>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <gradient
+        android:startColor="#B300FF"
+        android:endColor="#0000FF"
+        android:angle="45"/>
+</shape>

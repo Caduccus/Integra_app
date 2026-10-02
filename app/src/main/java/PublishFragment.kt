@@ -6,10 +6,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
+import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import com.example.plataformaremota.data.entity.Empresa
 import com.example.plataformaremota.data.entity.Trabalho
+import com.example.plataformaremota.data.repository.EmpresaRepository
 import com.example.plataformaremota.data.repository.TrabalhoRepository
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
@@ -22,17 +26,26 @@ class PublishFragment : Fragment() {
 
     private lateinit var edtTitulo: TextInputEditText
     private lateinit var edtDescricao: TextInputEditText
-    private lateinit var edtCategoria: AutoCompleteTextView   // ⭐ MUDOU
+    private lateinit var edtCategoria: AutoCompleteTextView
     private lateinit var edtNivel: AutoCompleteTextView
     private lateinit var edtPrazo: TextInputEditText
+    private lateinit var edtPublicarComo: AutoCompleteTextView
     private lateinit var btnPublicar: MaterialButton
+    private lateinit var layoutInfoVisibilidade: View
+    private lateinit var imgIconeVisibilidade: ImageView
+    private lateinit var txtInfoVisibilidade: TextView
 
     private lateinit var repository: TrabalhoRepository
+    private lateinit var empresaRepository: EmpresaRepository
+
     private val auth = FirebaseAuth.getInstance()
     private val db = FirebaseFirestore.getInstance()
 
     private var usuarioId: String = ""
     private var nomeUsuario: String = ""
+
+    private var minhasEmpresas: List<Empresa> = emptyList()
+    private var empresaSelecionada: Empresa? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -48,51 +61,98 @@ class PublishFragment : Fragment() {
         edtCategoria = view.findViewById(R.id.edtCategoria)
         edtNivel = view.findViewById(R.id.edtNivel)
         edtPrazo = view.findViewById(R.id.edtPrazo)
+        edtPublicarComo = view.findViewById(R.id.edtPublicarComo)
         btnPublicar = view.findViewById(R.id.btnPublicar)
+        layoutInfoVisibilidade = view.findViewById(R.id.layoutInfoVisibilidade)
+        imgIconeVisibilidade = view.findViewById(R.id.imgIconeVisibilidade)
+        txtInfoVisibilidade = view.findViewById(R.id.txtInfoVisibilidade)
 
         repository = TrabalhoRepository(requireContext())
+        empresaRepository = EmpresaRepository()
+
         usuarioId = arguments?.getString("usuarioId") ?: ""
         nomeUsuario = arguments?.getString("nomeUsuario") ?: ""
 
-        configurarDropdowns()
+        configurarDropdownCategoria()
+        configurarDropdownNivel()
+        carregarEmpresas()
+
         btnPublicar.setOnClickListener { publicarTrabalho() }
 
         ThemeManager.aplicarCores(requireContext(), view)
         ThemeManager.aplicarCoresTexto(requireContext(), view)
     }
 
-    private fun configurarDropdowns() {
-        // ⭐ CATEGORIA (dropdown com opções)
-        val opcoesCategoria = arrayOf(
-            "Tecnologia",
-            "Design",
-            "Marketing",
-            "Vendas",
-            "Suporte",
-            "Educação",
-            "Saúde",
-            "Finanças",
-            "Recursos Humanos",
-            "Administrativo",
-            "Engenharia",
-            "Outros"
+    private fun configurarDropdownCategoria() {
+        val opcoes = arrayOf(
+            "Tecnologia", "Design", "Marketing", "Vendas",
+            "Suporte", "Educação", "Saúde", "Finanças",
+            "Recursos Humanos", "Administrativo", "Engenharia", "Outros"
         )
         edtCategoria.setAdapter(
-            ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, opcoesCategoria)
+            ArrayAdapter(
+                requireContext(),
+                android.R.layout.simple_dropdown_item_1line,
+                opcoes
+            )
         )
+    }
 
-        // NÍVEL (dropdown com texto livre)
-        val opcoesNivel = arrayOf("Júnior", "Pleno", "Sênior", "Especialista")
+    private fun configurarDropdownNivel() {
+        val opcoes = arrayOf("Júnior", "Pleno", "Sênior", "Especialista")
         edtNivel.setAdapter(
-            ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, opcoesNivel)
+            ArrayAdapter(
+                requireContext(),
+                android.R.layout.simple_dropdown_item_1line,
+                opcoes
+            )
         )
+    }
 
-        // Mostra a lista assim que clica
-        edtCategoria.setOnClickListener {
-            edtCategoria.showDropDown()
+    private fun carregarEmpresas() {
+        lifecycleScope.launch {
+            try {
+                edtPublicarComo.setText("Pessoal (sem empresa)", false)
+
+                minhasEmpresas = empresaRepository.listarMinhas()
+
+                val nomes = mutableListOf<String>()
+                nomes.add("Pessoal (sem empresa)")
+                minhasEmpresas.forEach { nomes.add(it.nome) }
+
+                val adapter = ArrayAdapter(
+                    requireContext(),
+                    android.R.layout.simple_dropdown_item_1line,
+                    nomes
+                )
+                edtPublicarComo.setAdapter(adapter)
+                edtPublicarComo.setText("Pessoal (sem empresa)", false)
+                empresaSelecionada = null
+                atualizarInfoVisibilidade()
+
+                edtPublicarComo.setOnItemClickListener { _, _, position, _ ->
+                    empresaSelecionada =
+                        if (position == 0) null else minhasEmpresas[position - 1]
+                    atualizarInfoVisibilidade()
+                }
+            } catch (e: Exception) {
+                edtPublicarComo.setText("Pessoal (sem empresa)", false)
+                empresaSelecionada = null
+                atualizarInfoVisibilidade()
+            }
         }
-        edtNivel.setOnClickListener {
-            edtNivel.showDropDown()
+    }
+
+    // ⭐ Atualiza a caixa de info baseada no que está selecionado
+    private fun atualizarInfoVisibilidade() {
+        if (empresaSelecionada == null) {
+            txtInfoVisibilidade.text =
+                "Trabalho público: qualquer pessoa pode ver e se candidatar."
+            imgIconeVisibilidade.setImageResource(android.R.drawable.ic_menu_info_details)
+        } else {
+            txtInfoVisibilidade.text =
+                "Trabalho privado: visível apenas para membros de ${empresaSelecionada!!.nome}. Ninguém de fora pode se candidatar."
+            imgIconeVisibilidade.setImageResource(android.R.drawable.ic_lock_lock)
         }
     }
 
@@ -127,11 +187,13 @@ class PublishFragment : Fragment() {
                 descricao = descricao,
                 categoria = categoria,
                 prazo = prazo,
-                tipoContrato = "",   // ⭐ Vazio (campo removido)
+                tipoContrato = "",
                 nivel = nivel,
                 criadorId = uid,
                 nomeCriador = nomeCriador,
-                timestamp = System.currentTimeMillis()
+                timestamp = System.currentTimeMillis(),
+                empresaId = empresaSelecionada?.id ?: "",
+                empresaNome = empresaSelecionada?.nome ?: ""
             )
 
             val sucesso = repository.publicar(trabalho)
@@ -139,7 +201,12 @@ class PublishFragment : Fragment() {
             btnPublicar.text = "PUBLICAR TRABALHO"
 
             if (sucesso) {
-                Toast.makeText(requireContext(), "Trabalho publicado!", Toast.LENGTH_SHORT).show()
+                val msg = if (empresaSelecionada != null) {
+                    "Trabalho privado publicado em ${empresaSelecionada!!.nome}!"
+                } else {
+                    "Trabalho publicado!"
+                }
+                Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
                 limparFormulario()
             } else {
                 Toast.makeText(requireContext(), "Erro ao publicar", Toast.LENGTH_LONG).show()
@@ -160,5 +227,8 @@ class PublishFragment : Fragment() {
         edtCategoria.text?.clear()
         edtNivel.text?.clear()
         edtPrazo.text?.clear()
+        edtPublicarComo.setText("Pessoal (sem empresa)", false)
+        empresaSelecionada = null
+        atualizarInfoVisibilidade()
     }
 }

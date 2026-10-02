@@ -7,6 +7,11 @@
         android:title="Início" />
 
     <item
+        android:id="@+id/nav_empresas"
+        android:icon="@drawable/ic_work_outline"
+        android:title="Empresas" />
+
+    <item
         android:id="@+id/nav_publicar"
         android:icon="@drawable/ic_add_circle"
         android:title="Publicar" />

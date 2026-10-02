@@ -32,15 +32,12 @@ class TrabalhoRepository(private val context: Context) {
 
             Log.d(TAG, "✅ ${trabalhos.size} trabalhos carregados do Firestore")
 
-            // Cacheia no Room pra offline
             roomDb.trabalhoDao().deletarTodos()
             roomDb.trabalhoDao().inserirTodos(trabalhos)
 
             trabalhos
         } catch (e: Exception) {
             Log.e(TAG, "❌ Erro ao buscar: ${e.message}")
-
-            // Fallback: usa o cache do Room se tiver internet ruim
             roomDb.trabalhoDao().listarTodos()
         }
     }
@@ -63,7 +60,7 @@ class TrabalhoRepository(private val context: Context) {
     // ─────────────────────────────────────────────
     suspend fun publicar(trabalho: Trabalho): Boolean {
         return try {
-            val docRef = db.collection("trabalhos").document() // ID automático
+            val docRef = db.collection("trabalhos").document()
             val trabalhoComId = trabalho.copy(id = docRef.id)
 
             docRef.set(trabalhoComId).await()
@@ -72,6 +69,20 @@ class TrabalhoRepository(private val context: Context) {
             true
         } catch (e: Exception) {
             Log.e(TAG, "❌ Erro ao publicar: ${e.message}")
+            false
+        }
+    }
+
+    // ─────────────────────────────────────────────
+    // ⭐ ATUALIZAR TRABALHO (edição)
+    // ─────────────────────────────────────────────
+    suspend fun atualizar(id: String, campos: Map<String, Any>): Boolean {
+        return try {
+            db.collection("trabalhos").document(id).update(campos).await()
+            Log.d(TAG, "✅ Trabalho atualizado: $id")
+            true
+        } catch (e: Exception) {
+            Log.e(TAG, "❌ Erro ao atualizar: ${e.message}")
             false
         }
     }

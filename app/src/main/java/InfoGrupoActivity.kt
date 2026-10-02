@@ -33,7 +33,6 @@ import kotlinx.coroutines.tasks.await
 
 class InfoGrupoActivity : BaseActivity() {
 
-
     private lateinit var btnApagarGrupo: MaterialButton
 
     private var souCriador: Boolean = false
@@ -155,9 +154,17 @@ class InfoGrupoActivity : BaseActivity() {
                     imgFotoGrupo.setPadding(0, 0, 0, 0)
                 }
 
-                badgeCamera.visibility = if (souAdmin) View.VISIBLE else View.GONE
-                btnAdicionarMembros.visibility = if (souAdmin) View.VISIBLE else View.GONE
-                btnApagarGrupo.visibility = if (souCriador) View.VISIBLE else View.GONE
+                // ⭐ Grupo de empresa é privado
+                val ehGrupoEmpresa = chat.empresaId.isNotEmpty()
+
+                badgeCamera.visibility =
+                    if (souAdmin && !ehGrupoEmpresa) View.VISIBLE else View.GONE
+                btnAdicionarMembros.visibility =
+                    if (souAdmin && !ehGrupoEmpresa) View.VISIBLE else View.GONE
+                btnApagarGrupo.visibility =
+                    if (souCriador && !ehGrupoEmpresa) View.VISIBLE else View.GONE
+                btnSair.visibility =
+                    if (ehGrupoEmpresa) View.GONE else View.VISIBLE
 
                 carregarMembros(chat)
 
@@ -275,6 +282,16 @@ class InfoGrupoActivity : BaseActivity() {
     }
 
     private fun confirmarSaida() {
+        // ⭐ Bloqueia saída de grupos de empresa
+        if (chatAtual?.empresaId?.isNotEmpty() == true) {
+            Toast.makeText(
+                this,
+                "Você só pode sair se um admin da empresa te remover",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+
         AlertDialog.Builder(this)
             .setTitle("Sair do grupo")
             .setMessage("Tem certeza que quer sair do grupo?")
@@ -292,6 +309,7 @@ class InfoGrupoActivity : BaseActivity() {
             .setNegativeButton("Cancelar", null)
             .show()
     }
+
     private fun confirmarApagarGrupo() {
         AlertDialog.Builder(this)
             .setTitle("⚠️ Apagar grupo")
@@ -317,7 +335,6 @@ class InfoGrupoActivity : BaseActivity() {
             val ok = repository.apagarGrupo(chatId)
 
             if (ok) {
-                // Notifica os outros membros
                 chatAtual?.participantes?.forEach { uid ->
                     if (uid != auth.currentUser?.uid) {
                         NotificacaoHelper.enviar(
@@ -336,7 +353,6 @@ class InfoGrupoActivity : BaseActivity() {
             }
         }
     }
-
 
     override fun onResume() {
         super.onResume()

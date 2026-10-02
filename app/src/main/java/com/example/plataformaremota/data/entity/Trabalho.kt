@@ -17,5 +17,7 @@ data class Trabalho(
     val nivel: String = "",
     val criadorId: String = "",
     val nomeCriador: String = "",
-    val timestamp: Long = 0L
+    val timestamp: Long = 0L,
+    val empresaId: String = "",       // vazio = trabalho pessoal
+    val empresaNome: String = ""      // pra exibir sem outra query
 )

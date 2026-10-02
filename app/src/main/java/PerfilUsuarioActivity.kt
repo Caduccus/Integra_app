@@ -24,6 +24,7 @@ class PerfilUsuarioActivity : BaseActivity() {
     private lateinit var txtUsername: TextView
     private lateinit var txtProfissao: TextView
     private lateinit var txtEmail: TextView
+    private lateinit var txtBioUsuarioPerfil: TextView      // ⭐ NOVO
 
     private lateinit var txtTituloGrupo: TextView
     private lateinit var layoutAcoesGrupo: View
@@ -58,6 +59,7 @@ class PerfilUsuarioActivity : BaseActivity() {
         txtUsername = findViewById(R.id.txtUsernameUsuarioPerfil)
         txtProfissao = findViewById(R.id.txtProfissaoUsuarioPerfil)
         txtEmail = findViewById(R.id.txtEmailUsuarioPerfil)
+        txtBioUsuarioPerfil = findViewById(R.id.txtBioUsuarioPerfil)   // ⭐ NOVO
 
         txtTituloGrupo = findViewById(R.id.txtTituloAcoes)
         layoutAcoesGrupo = findViewById(R.id.layoutAcoesGrupo)
@@ -93,11 +95,14 @@ class PerfilUsuarioActivity : BaseActivity() {
                 val profissao = docUser.getString("profissao") ?: ""
                 val email = docUser.getString("email") ?: ""
                 val fotoUrl = docUser.getString("fotoUrl") ?: ""
+                val bio = docUser.getString("bio") ?: ""               // ⭐ NOVO
 
                 txtNome.text = nome
                 txtUsername.text = if (username.isNotEmpty()) "@$username" else ""
                 txtProfissao.text = profissao.ifEmpty { "—" }
                 txtEmail.text = email
+                txtBioUsuarioPerfil.text =
+                    if (bio.isEmpty()) "Sem bio ainda" else bio       // ⭐ NOVO
 
                 if (fotoUrl.isNotEmpty()) {
                     Glide.with(this@PerfilUsuarioActivity)
@@ -118,7 +123,6 @@ class PerfilUsuarioActivity : BaseActivity() {
                         usuarioEhAdmin = c.admins.contains(uidUsuario) || c.criadorId == uidUsuario
 
                         if (uidUsuario == uidAtual) {
-                            // Não faz ações em si mesmo
                             txtTituloGrupo.visibility = View.GONE
                             layoutAcoesGrupo.visibility = View.GONE
                             txtTituloBloquear.visibility = View.GONE
@@ -129,7 +133,6 @@ class PerfilUsuarioActivity : BaseActivity() {
                         }
                     }
                 } else {
-                    // ⭐ 1:1 → só bloqueio
                     txtTituloGrupo.visibility = View.GONE
                     layoutAcoesGrupo.visibility = View.GONE
 
@@ -141,7 +144,11 @@ class PerfilUsuarioActivity : BaseActivity() {
                     }
                 }
             } catch (e: Exception) {
-                Toast.makeText(this@PerfilUsuarioActivity, "Erro: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this@PerfilUsuarioActivity,
+                    "Erro: ${e.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }
@@ -150,7 +157,6 @@ class PerfilUsuarioActivity : BaseActivity() {
         txtTituloGrupo.visibility = View.VISIBLE
         layoutAcoesGrupo.visibility = View.VISIBLE
 
-        // Promover / Rebaixar
         if (souAdmin && !usuarioEhAdmin) {
             btnPromover.visibility = View.VISIBLE
             btnPromover.text = "PROMOVER A ADMIN"
@@ -165,7 +171,6 @@ class PerfilUsuarioActivity : BaseActivity() {
             btnPromover.visibility = View.GONE
         }
 
-        // Remover do grupo
         if (souAdmin && uidUsuario != chat?.criadorId) {
             btnRemover.visibility = View.VISIBLE
             btnRemover.setOnClickListener { confirmarRemover() }

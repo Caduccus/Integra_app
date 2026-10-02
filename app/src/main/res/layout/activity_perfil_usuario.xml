@@ -119,6 +119,18 @@
                 </com.google.android.material.card.MaterialCardView>
 
                 <TextView
+                    android:id="@+id/txtBioUsuarioPerfil"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginHorizontal="16dp"
+                    android:text="Sem bio ainda"
+                    android:textAlignment="center"
+                    android:textColor="#B3FFFFFF"
+                    android:textSize="13sp"
+                    android:textStyle="italic" />
+
+                <TextView
                     android:id="@+id/txtEmailUsuarioPerfil"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
