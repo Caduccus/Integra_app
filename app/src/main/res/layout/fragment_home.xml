@@ -102,6 +102,17 @@
         app:selectionRequired="true">
 
         <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnVerHistoricoCandidaturas"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="📋  Ver histórico de candidaturas"
+            android:textColor="#B3FFFFFF"
+            android:textSize="13sp"
+            android:visibility="gone" />
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnTodos"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="0dp"

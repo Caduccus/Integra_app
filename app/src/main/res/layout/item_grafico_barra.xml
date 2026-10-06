@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="0dp"
+    android:layout_height="match_parent"
+    android:layout_weight="1"
+    android:orientation="vertical"
+    android:gravity="bottom|center_horizontal"
+    android:paddingHorizontal="2dp">
+
+    <TextView
+        android:id="@+id/txtValorBarra"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="2dp"
+        android:text="0"
+        android:textColor="#B3FFFFFF"
+        android:textSize="10sp"
+        android:textStyle="bold" />
+
+    <View
+        android:id="@+id/barra"
+        android:layout_width="20dp"
+        android:layout_height="10dp"
+        android:background="#43A047" />
+
+    <TextView
+        android:id="@+id/txtDiaBarra"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="seg"
+        android:textColor="#B3FFFFFF"
+        android:textSize="9sp" />
+</LinearLayout>

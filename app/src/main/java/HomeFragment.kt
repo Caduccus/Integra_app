@@ -46,7 +46,8 @@ class HomeFragment : Fragment() {
     private lateinit var btnMeus: MaterialButton
     private lateinit var btnInscritos: MaterialButton
     private lateinit var btnEmpresaFiltro: MaterialButton
-    private lateinit var btnFavoritos: MaterialButton   // ⭐ NOVO
+    private lateinit var btnFavoritos: MaterialButton
+    private lateinit var btnVerHistoricoCandidaturas: MaterialButton
 
     private var edtBuscaHome: EditText? = null
     private var termoBusca: String = ""
@@ -66,7 +67,7 @@ class HomeFragment : Fragment() {
     private var todosTrabalhos: List<Trabalho> = emptyList()
     private var idsCandidatados: Set<String> = emptySet()
     private var minhasEmpresaIds: Set<String> = emptySet()
-    private var meusFavoritos: Set<String> = emptySet()   // ⭐ NOVO
+    private var meusFavoritos: Set<String> = emptySet()
 
     private val skeletonHandler = Handler(Looper.getMainLooper())
     private var skeletonRunnable: Runnable? = null
@@ -94,7 +95,8 @@ class HomeFragment : Fragment() {
         btnMeus = view.findViewById(R.id.btnMeus)
         btnInscritos = view.findViewById(R.id.btnInscritos)
         btnEmpresaFiltro = view.findViewById(R.id.btnEmpresaFiltro)
-        btnFavoritos = view.findViewById(R.id.btnFavoritos)   // ⭐ NOVO
+        btnFavoritos = view.findViewById(R.id.btnFavoritos)
+        btnVerHistoricoCandidaturas = view.findViewById(R.id.btnVerHistoricoCandidaturas)
 
         edtBuscaHome = view.findViewById(R.id.edtBuscaHome)
         edtBuscaHome?.addTextChangedListener(object : TextWatcher {
@@ -120,6 +122,10 @@ class HomeFragment : Fragment() {
         btnLogout.setOnClickListener { fazerLogout() }
         btnPublicarVazio.setOnClickListener {
             (requireActivity() as? HomeActivity)?.abrirAbaPublicar()
+        }
+
+        btnVerHistoricoCandidaturas.setOnClickListener {
+            startActivity(Intent(requireContext(), MinhasCandidaturasActivity::class.java))
         }
 
         carregarTudo()
@@ -161,6 +167,10 @@ class HomeFragment : Fragment() {
         btnInscritos.isChecked = (btn == btnInscritos)
         btnEmpresaFiltro.isChecked = (btn == btnEmpresaFiltro)
         btnFavoritos.isChecked = (btn == btnFavoritos)
+
+        // Botão só aparece na aba Inscritos
+        btnVerHistoricoCandidaturas.visibility =
+            if (btn == btnInscritos) View.VISIBLE else View.GONE
     }
 
     private fun carregarTudo() {
@@ -178,7 +188,7 @@ class HomeFragment : Fragment() {
                     val trabalhosDeferred = async { repository.listarTodos() }
                     val empresasDeferred = async { empresaRepository.listarMinhas() }
                     val candidaturasDeferred = async { buscarMinhasCandidaturas() }
-                    val favoritosDeferred = async { buscarMeusFavoritos() }   // ⭐
+                    val favoritosDeferred = async { buscarMeusFavoritos() }
 
                     todosTrabalhos = trabalhosDeferred.await()
                     minhasEmpresaIds = empresasDeferred.await().map { it.id }.toSet()
@@ -194,7 +204,6 @@ class HomeFragment : Fragment() {
         }
     }
 
-    // ⭐ Busca os IDs favoritados
     private suspend fun buscarMeusFavoritos(): Set<String> {
         val uid = auth.currentUser?.uid ?: return emptySet()
         return try {
@@ -205,12 +214,10 @@ class HomeFragment : Fragment() {
         }
     }
 
-    // ⭐ Alterna favorito
     private fun toggleFavorito(trabalho: Trabalho) {
         val uid = auth.currentUser?.uid ?: return
         val jaFavorito = trabalho.id in meusFavoritos
 
-        // Atualiza local IMEDIATAMENTE (feedback instantâneo)
         meusFavoritos = if (jaFavorito) {
             meusFavoritos - trabalho.id
         } else {
@@ -218,12 +225,10 @@ class HomeFragment : Fragment() {
         }
         adapter.atualizarFavoritos(meusFavoritos)
 
-        // Se estiver na aba Favoritos, reaplica o filtro (o item desmarcado some)
         if (btnFavoritos.isChecked) {
             aplicarFiltro()
         }
 
-        // Persiste no Firestore
         lifecycleScope.launch {
             try {
                 val campo = if (jaFavorito) FieldValue.arrayRemove(trabalho.id)
@@ -231,7 +236,6 @@ class HomeFragment : Fragment() {
                 db.collection("usuarios").document(uid)
                     .update("favoritos", campo).await()
             } catch (e: Exception) {
-                // Reverte em caso de erro
                 meusFavoritos = if (jaFavorito) meusFavoritos + trabalho.id
                 else meusFavoritos - trabalho.id
                 adapter.atualizarFavoritos(meusFavoritos)
@@ -272,7 +276,7 @@ class HomeFragment : Fragment() {
             btnEmpresaFiltro.isChecked -> todosTrabalhos.filter {
                 it.empresaId.isNotEmpty() && it.empresaId in minhasEmpresaIds
             }
-            btnFavoritos.isChecked -> todosTrabalhos.filter { it.id in meusFavoritos }   // ⭐
+            btnFavoritos.isChecked -> todosTrabalhos.filter { it.id in meusFavoritos }
             else -> todosTrabalhos.filter {
                 it.empresaId.isEmpty() || it.empresaId in minhasEmpresaIds
             }
@@ -305,7 +309,7 @@ class HomeFragment : Fragment() {
                     txtEstadoVazio.text = "Nenhum trabalho das suas empresas por enquanto"
                     btnPublicarVazio.visibility = View.GONE
                 }
-                btnFavoritos.isChecked -> {   // ⭐
+                btnFavoritos.isChecked -> {
                     txtEstadoVazioTitulo.text = "Sem favoritos"
                     txtEstadoVazio.text = "Toque no coração de um trabalho para salvá-lo aqui"
                     btnPublicarVazio.visibility = View.GONE

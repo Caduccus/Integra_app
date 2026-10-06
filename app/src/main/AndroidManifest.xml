@@ -92,5 +92,9 @@
             android:name=".EditarTrabalhoActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".MinhasCandidaturasActivity"
+            android:exported="false" />
+
     </application>
 </manifest>
