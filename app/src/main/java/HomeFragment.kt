@@ -48,6 +48,8 @@ class HomeFragment : Fragment() {
     private lateinit var btnEmpresaFiltro: MaterialButton
     private lateinit var btnFavoritos: MaterialButton
     private lateinit var btnVerHistoricoCandidaturas: MaterialButton
+    private lateinit var btnSinoNotif: ImageView
+    private lateinit var badgeSino: TextView
 
     private var edtBuscaHome: EditText? = null
     private var termoBusca: String = ""
@@ -97,6 +99,8 @@ class HomeFragment : Fragment() {
         btnEmpresaFiltro = view.findViewById(R.id.btnEmpresaFiltro)
         btnFavoritos = view.findViewById(R.id.btnFavoritos)
         btnVerHistoricoCandidaturas = view.findViewById(R.id.btnVerHistoricoCandidaturas)
+        btnSinoNotif = view.findViewById(R.id.btnSinoNotif)
+        badgeSino = view.findViewById(R.id.badgeSino)
 
         edtBuscaHome = view.findViewById(R.id.edtBuscaHome)
         edtBuscaHome?.addTextChangedListener(object : TextWatcher {
@@ -123,15 +127,34 @@ class HomeFragment : Fragment() {
         btnPublicarVazio.setOnClickListener {
             (requireActivity() as? HomeActivity)?.abrirAbaPublicar()
         }
-
         btnVerHistoricoCandidaturas.setOnClickListener {
             startActivity(Intent(requireContext(), MinhasCandidaturasActivity::class.java))
         }
+        btnSinoNotif.setOnClickListener {
+            startActivity(Intent(requireContext(), NotificacoesActivity::class.java))
+        }
 
+        iniciarBadgeSino()
         carregarTudo()
 
         ThemeManager.aplicarCores(requireContext(), view)
         ThemeManager.aplicarCoresTexto(requireContext(), view)
+    }
+
+    private fun iniciarBadgeSino() {
+        val uid = auth.currentUser?.uid ?: return
+        db.collection("usuarios").document(uid).collection("notificacoes")
+            .whereEqualTo("lida", false)
+            .addSnapshotListener { snap, _ ->
+                if (!isAdded) return@addSnapshotListener
+                val qtd = snap?.size() ?: 0
+                if (qtd > 0) {
+                    badgeSino.visibility = View.VISIBLE
+                    badgeSino.text = if (qtd > 99) "99+" else qtd.toString()
+                } else {
+                    badgeSino.visibility = View.GONE
+                }
+            }
     }
 
     private fun configurarRecyclerView() {
@@ -168,7 +191,6 @@ class HomeFragment : Fragment() {
         btnEmpresaFiltro.isChecked = (btn == btnEmpresaFiltro)
         btnFavoritos.isChecked = (btn == btnFavoritos)
 
-        // Botão só aparece na aba Inscritos
         btnVerHistoricoCandidaturas.visibility =
             if (btn == btnInscritos) View.VISIBLE else View.GONE
     }
@@ -209,25 +231,17 @@ class HomeFragment : Fragment() {
         return try {
             val doc = db.collection("usuarios").document(uid).get().await()
             (doc.get("favoritos") as? List<*>)?.filterIsInstance<String>()?.toSet() ?: emptySet()
-        } catch (e: Exception) {
-            emptySet()
-        }
+        } catch (e: Exception) { emptySet() }
     }
 
     private fun toggleFavorito(trabalho: Trabalho) {
         val uid = auth.currentUser?.uid ?: return
         val jaFavorito = trabalho.id in meusFavoritos
 
-        meusFavoritos = if (jaFavorito) {
-            meusFavoritos - trabalho.id
-        } else {
-            meusFavoritos + trabalho.id
-        }
+        meusFavoritos = if (jaFavorito) meusFavoritos - trabalho.id else meusFavoritos + trabalho.id
         adapter.atualizarFavoritos(meusFavoritos)
 
-        if (btnFavoritos.isChecked) {
-            aplicarFiltro()
-        }
+        if (btnFavoritos.isChecked) aplicarFiltro()
 
         lifecycleScope.launch {
             try {
@@ -255,16 +269,13 @@ class HomeFragment : Fragment() {
                             val c = doc.reference
                                 .collection("candidaturas")
                                 .document(uid)
-                                .get()
-                                .await()
+                                .get().await()
                             if (c.exists()) doc.id else null
                         } catch (e: Exception) { null }
                     }
                 }.awaitAll().filterNotNull().toSet()
             }
-        } catch (e: Exception) {
-            emptySet()
-        }
+        } catch (e: Exception) { emptySet() }
     }
 
     private fun aplicarFiltro() {
@@ -370,9 +381,7 @@ class HomeFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        if (::adapter.isInitialized) {
-            carregarTudo()
-        }
+        if (::adapter.isInitialized) carregarTudo()
     }
 
     override fun onDestroyView() {

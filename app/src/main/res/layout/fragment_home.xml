@@ -7,7 +7,6 @@
     android:orientation="vertical"
     android:padding="24dp">
 
-    <!-- Cabeçalho -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -32,6 +31,37 @@
             android:textSize="26sp"
             android:textStyle="bold" />
 
+        <!-- ⭐ Sino de notificações -->
+        <FrameLayout
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="4dp">
+
+            <ImageView
+                android:id="@+id/btnSinoNotif"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:padding="8dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true"
+                android:src="@drawable/ic_message"
+                app:tint="@color/white" />
+
+            <TextView
+                android:id="@+id/badgeSino"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_gravity="top|end"
+                android:background="#F44336"
+                android:gravity="center"
+                android:text="0"
+                android:textColor="#FFFFFF"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
+        </FrameLayout>
+
         <ImageView
             android:id="@+id/btnLogout"
             android:layout_width="40dp"
@@ -45,7 +75,6 @@
             app:tint="@color/white" />
     </LinearLayout>
 
-    <!-- Título da seção -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -69,7 +98,6 @@
             android:textStyle="bold" />
     </LinearLayout>
 
-    <!-- ⭐ Campo de busca -->
     <com.google.android.material.textfield.TextInputLayout
         style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
@@ -92,7 +120,6 @@
             android:textColor="@color/white" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Toggle com 5 opções -->
     <com.google.android.material.button.MaterialButtonToggleGroup
         android:id="@+id/toggleGroupFiltro"
         android:layout_width="match_parent"
@@ -100,17 +127,6 @@
         android:layout_marginBottom="16dp"
         app:singleSelection="true"
         app:selectionRequired="true">
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnVerHistoricoCandidaturas"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:text="📋  Ver histórico de candidaturas"
-            android:textColor="#B3FFFFFF"
-            android:textSize="13sp"
-            android:visibility="gone" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnTodos"
@@ -184,7 +200,17 @@
             app:strokeWidth="1dp" />
     </com.google.android.material.button.MaterialButtonToggleGroup>
 
-    <!-- Container da lista -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnVerHistoricoCandidaturas"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:text="📋  Ver histórico de candidaturas"
+        android:textColor="#B3FFFFFF"
+        android:textSize="13sp"
+        android:visibility="gone" />
+
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="0dp"

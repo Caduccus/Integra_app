@@ -17,7 +17,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.PlataformaRemota">
 
-        <!-- ⭐ Splash é a nova LAUNCHER -->
         <activity
             android:name=".SplashActivity"
             android:exported="true"
@@ -28,73 +27,24 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".CadastroActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".LoginActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".MainActivity2"
-            android:exported="false" />
-
-        <activity
-            android:name=".HomeActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".ChatActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".CandidatosActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".PreviewImagemActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".PreviewAudioActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".NovoGrupoActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".InfoGrupoActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".PerfilUsuarioActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".AdicionarMembrosActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".CadastroEmpresaActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".DetalhesEmpresaActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".GerenciarEmpresaActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".EditarTrabalhoActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".MinhasCandidaturasActivity"
-            android:exported="false" />
+        <activity android:name=".CadastroActivity" android:exported="false" />
+        <activity android:name=".LoginActivity" android:exported="false" />
+        <activity android:name=".MainActivity2" android:exported="false" />
+        <activity android:name=".HomeActivity" android:exported="false" />
+        <activity android:name=".ChatActivity" android:exported="false" />
+        <activity android:name=".CandidatosActivity" android:exported="false" />
+        <activity android:name=".PreviewImagemActivity" android:exported="false" />
+        <activity android:name=".PreviewAudioActivity" android:exported="false" />
+        <activity android:name=".NovoGrupoActivity" android:exported="false" />
+        <activity android:name=".InfoGrupoActivity" android:exported="false" />
+        <activity android:name=".PerfilUsuarioActivity" android:exported="false" />
+        <activity android:name=".AdicionarMembrosActivity" android:exported="false" />
+        <activity android:name=".CadastroEmpresaActivity" android:exported="false" />
+        <activity android:name=".DetalhesEmpresaActivity" android:exported="false" />
+        <activity android:name=".GerenciarEmpresaActivity" android:exported="false" />
+        <activity android:name=".EditarTrabalhoActivity" android:exported="false" />
+        <activity android:name=".MinhasCandidaturasActivity" android:exported="false" />
+        <activity android:name=".NotificacoesActivity" android:exported="false" />
 
     </application>
 </manifest>

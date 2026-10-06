@@ -125,6 +125,15 @@ class EmpresaRepository {
                         titulo = "Novo pedido para entrar 🏢",
                         mensagem = "$nomeSolicitante quer entrar em ${empresa.nome}"
                     )
+                    for (admin in admins) {
+                        NotificacaoHelper.salvarInApp(
+                            uidDestino = admin,
+                            titulo = "Novo pedido para entrar 🏢",
+                            mensagem = "$nomeSolicitante quer entrar em ${empresa.nome}",
+                            tipo = "empresa",
+                            refId = empresaId
+                        )
+                    }
                 }
             }
             true
@@ -162,7 +171,13 @@ class EmpresaRepository {
 
             val grupoId = "empresa_${empresaId}_geral"
             enviarMensagemSistema(grupoId, "$nomeNovo entrou no grupo")
-
+            NotificacaoHelper.salvarInApp(
+                uidDestino = uidNovo,
+                titulo = "Bem-vindo à empresa! 🎉",
+                mensagem = "Você foi aprovado em ${empresa.nome}",
+                tipo = "empresa",
+                refId = empresaId
+            )
             true
         } catch (e: Exception) {
             Log.e(TAG, "❌ aprovarMembro: ${e.message}")

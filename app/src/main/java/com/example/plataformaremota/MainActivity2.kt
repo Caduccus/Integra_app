@@ -334,6 +334,13 @@ class MainActivity2 : BaseActivity() {
                     titulo = "Nova candidatura! 🎯",
                     mensagem = "$nomeUsuario se candidatou para '$tituloTrabalho'"
                 )
+                NotificacaoHelper.salvarInApp(
+                    uidDestino = criadorId,
+                    titulo = "Nova candidatura! 🎯",
+                    mensagem = "$nomeUsuario se candidatou para '$tituloTrabalho'",
+                    tipo = "candidatura",
+                    refId = trabalhoId
+                )
 
                 NotificacaoHelper.enviar(
                     uidDestino = uid,

@@ -72,13 +72,11 @@ class CandidatosActivity : BaseActivity() {
         mostrarLoading()
         lifecycleScope.launch {
             try {
-                // 1) Título do trabalho (pra notificação)
                 try {
                     val docTrabalho = db.collection("trabalhos").document(trabalhoId).get().await()
                     tituloTrabalho = docTrabalho.getString("titulo") ?: "um trabalho"
                 } catch (_: Exception) { }
 
-                // 2) Candidaturas
                 val snapshot = db.collection("trabalhos")
                     .document(trabalhoId)
                     .collection("candidaturas")
@@ -96,7 +94,6 @@ class CandidatosActivity : BaseActivity() {
                 adapter.atualizarLista(candidatos)
                 if (candidatos.isEmpty()) mostrarEstadoVazio() else mostrarLista()
 
-                // ⭐ Marca como "vista" todas que ainda estão pendentes
                 marcarComoTodasVistas(candidatos)
             } catch (e: Exception) {
                 Toast.makeText(this@CandidatosActivity, "Erro: ${e.message}", Toast.LENGTH_SHORT).show()
@@ -105,7 +102,6 @@ class CandidatosActivity : BaseActivity() {
         }
     }
 
-    // ⭐ Atualiza "pendente" → "vista" em todas em paralelo
     private suspend fun marcarComoTodasVistas(candidatos: List<Candidato>) {
         val pendentes = candidatos.filter { it.status == "pendente" }
         if (pendentes.isEmpty()) return
@@ -125,16 +121,12 @@ class CandidatosActivity : BaseActivity() {
             }.awaitAll()
         }
 
-        // Recarrega pra refletir na UI
         val atualizado = candidatos.map {
             if (it.status == "pendente") it.copy(status = "vista") else it
         }
         adapter.atualizarLista(atualizado)
     }
 
-    // ─────────────────────────────────────────────
-    // ACEITAR / REJEITAR
-    // ─────────────────────────────────────────────
     private fun confirmarAceitar(candidato: Candidato) {
         AlertDialog.Builder(this)
             .setTitle("Aceitar candidatura")
@@ -163,17 +155,26 @@ class CandidatosActivity : BaseActivity() {
                     .update("status", novoStatus)
                     .await()
 
-                // ⭐ Notifica o candidato
                 val titulo = if (novoStatus == "aceito") "Você foi aceito! 🎉" else "Candidatura rejeitada"
                 val msg = if (novoStatus == "aceito")
                     "Parabéns! Sua candidatura para '$tituloTrabalho' foi aceita."
                 else
                     "Sua candidatura para '$tituloTrabalho' não foi aceita dessa vez."
 
+                // Push
                 NotificacaoHelper.enviar(
                     uidDestino = candidato.uid,
                     titulo = titulo,
                     mensagem = msg
+                )
+
+                // ⭐ In-app
+                NotificacaoHelper.salvarInApp(
+                    uidDestino = candidato.uid,
+                    titulo = titulo,
+                    mensagem = msg,
+                    tipo = "candidatura",
+                    refId = trabalhoId
                 )
 
                 Toast.makeText(this@CandidatosActivity, "Atualizado!", Toast.LENGTH_SHORT).show()
