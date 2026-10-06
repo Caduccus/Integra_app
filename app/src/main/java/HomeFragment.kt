@@ -2,6 +2,8 @@ package com.example.plataformaremota
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
@@ -15,6 +17,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.plataformaremota.adapter.SkeletonAdapter
 import com.example.plataformaremota.adapter.TrabalhoAdapter
 import com.example.plataformaremota.data.entity.Trabalho
 import com.example.plataformaremota.data.repository.EmpresaRepository
@@ -22,6 +25,9 @@ import com.example.plataformaremota.data.repository.TrabalhoRepository
 import com.google.android.material.button.MaterialButton
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
@@ -40,11 +46,12 @@ class HomeFragment : Fragment() {
     private lateinit var btnInscritos: MaterialButton
     private lateinit var btnEmpresaFiltro: MaterialButton
 
-    // ⭐ Busca (só funciona se você adicionar edtBuscaHome no fragment_home.xml)
     private var edtBuscaHome: EditText? = null
     private var termoBusca: String = ""
 
     private lateinit var adapter: TrabalhoAdapter
+    private lateinit var skeletonAdapter: SkeletonAdapter
+
     private lateinit var repository: TrabalhoRepository
     private lateinit var empresaRepository: EmpresaRepository
 
@@ -57,6 +64,10 @@ class HomeFragment : Fragment() {
     private var todosTrabalhos: List<Trabalho> = emptyList()
     private var idsCandidatados: Set<String> = emptySet()
     private var minhasEmpresaIds: Set<String> = emptySet()
+
+    // ⭐ Skeleton só aparece se demorar
+    private val skeletonHandler = Handler(Looper.getMainLooper())
+    private var skeletonRunnable: Runnable? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -82,7 +93,6 @@ class HomeFragment : Fragment() {
         btnInscritos = view.findViewById(R.id.btnInscritos)
         btnEmpresaFiltro = view.findViewById(R.id.btnEmpresaFiltro)
 
-        // ⭐ Campo de busca (opcional — só se existir no layout)
         edtBuscaHome = view.findViewById(R.id.edtBuscaHome)
         edtBuscaHome?.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -105,7 +115,6 @@ class HomeFragment : Fragment() {
         configurarBotoes()
 
         btnLogout.setOnClickListener { fazerLogout() }
-
         btnPublicarVazio.setOnClickListener {
             (requireActivity() as? HomeActivity)?.abrirAbaPublicar()
         }
@@ -123,27 +132,17 @@ class HomeFragment : Fragment() {
             startActivity(intent)
         }
 
+        skeletonAdapter = SkeletonAdapter(R.layout.item_skeleton_trabalho, 5)
+
         recyclerTrabalhos.layoutManager = LinearLayoutManager(requireContext())
         recyclerTrabalhos.adapter = adapter
     }
 
     private fun configurarBotoes() {
-        btnTodos.setOnClickListener {
-            selecionarFiltro(btnTodos)
-            aplicarFiltro()
-        }
-        btnMeus.setOnClickListener {
-            selecionarFiltro(btnMeus)
-            aplicarFiltro()
-        }
-        btnInscritos.setOnClickListener {
-            selecionarFiltro(btnInscritos)
-            aplicarFiltro()
-        }
-        btnEmpresaFiltro.setOnClickListener {
-            selecionarFiltro(btnEmpresaFiltro)
-            aplicarFiltro()
-        }
+        btnTodos.setOnClickListener { selecionarFiltro(btnTodos); aplicarFiltro() }
+        btnMeus.setOnClickListener { selecionarFiltro(btnMeus); aplicarFiltro() }
+        btnInscritos.setOnClickListener { selecionarFiltro(btnInscritos); aplicarFiltro() }
+        btnEmpresaFiltro.setOnClickListener { selecionarFiltro(btnEmpresaFiltro); aplicarFiltro() }
     }
 
     private fun selecionarFiltro(btn: MaterialButton) {
@@ -154,55 +153,56 @@ class HomeFragment : Fragment() {
     }
 
     private fun carregarTudo() {
-        mostrarLoading()
-
         lifecycleScope.launch {
+            // ⭐ 1. Cache primeiro — instantâneo
+            val cache = repository.listarCache()
+            if (cache.isNotEmpty() && todosTrabalhos.isEmpty()) {
+                todosTrabalhos = cache
+                aplicarFiltro()
+            } else {
+                mostrarLoading()  // agenda skeleton pra 350ms
+            }
+
+            // ⭐ 2. Firestore em paralelo
             try {
-                todosTrabalhos = repository.listarTodos()
-                carregarCandidaturas()
-                carregarMinhasEmpresas()
+                coroutineScope {
+                    val trabalhosDeferred = async { repository.listarTodos() }
+                    val empresasDeferred = async { empresaRepository.listarMinhas() }
+                    val candidaturasDeferred = async { buscarMinhasCandidaturas() }
+
+                    todosTrabalhos = trabalhosDeferred.await()
+                    minhasEmpresaIds = empresasDeferred.await().map { it.id }.toSet()
+                    idsCandidatados = candidaturasDeferred.await()
+                }
                 aplicarFiltro()
             } catch (e: Exception) {
                 Log.e("HOME", "Erro: ${e.message}")
-                mostrarEstadoVazio()
+                if (todosTrabalhos.isEmpty()) mostrarEstadoVazio()
             }
         }
     }
 
-    private suspend fun carregarCandidaturas() {
-        val uid = auth.currentUser?.uid ?: return
-        try {
-            val trabalhosSnapshot = db.collection("trabalhos").get().await()
-            val set = mutableSetOf<String>()
-
-            for (doc in trabalhosSnapshot.documents) {
-                val candidatura = doc.reference
-                    .collection("candidaturas")
-                    .document(uid)
-                    .get()
-                    .await()
-
-                if (candidatura.exists()) {
-                    set.add(doc.id)
-                }
+    // ⭐ Busca candidaturas EM PARALELO (antes era loop sequencial)
+    private suspend fun buscarMinhasCandidaturas(): Set<String> {
+        val uid = auth.currentUser?.uid ?: return emptySet()
+        return try {
+            val trabalhos = db.collection("trabalhos").get().await()
+            coroutineScope {
+                trabalhos.documents.map { doc ->
+                    async {
+                        try {
+                            val c = doc.reference
+                                .collection("candidaturas")
+                                .document(uid)
+                                .get()
+                                .await()
+                            if (c.exists()) doc.id else null
+                        } catch (e: Exception) { null }
+                    }
+                }.awaitAll().filterNotNull().toSet()
             }
-
-            idsCandidatados = set
-            Log.d("HOME", "✅ ${idsCandidatados.size} candidaturas encontradas")
         } catch (e: Exception) {
-            Log.e("HOME", "❌ Erro candidaturas: ${e.message}")
-            idsCandidatados = emptySet()
-        }
-    }
-
-    private suspend fun carregarMinhasEmpresas() {
-        try {
-            val minhasEmpresas = empresaRepository.listarMinhas()
-            minhasEmpresaIds = minhasEmpresas.map { it.id }.toSet()
-            Log.d("HOME", "✅ ${minhasEmpresaIds.size} empresas do usuário")
-        } catch (e: Exception) {
-            Log.e("HOME", "❌ Erro empresas: ${e.message}")
-            minhasEmpresaIds = emptySet()
+            emptySet()
         }
     }
 
@@ -211,23 +211,15 @@ class HomeFragment : Fragment() {
 
         var filtrados = when {
             btnMeus.isChecked -> todosTrabalhos.filter { it.criadorId == uid }
-
             btnInscritos.isChecked -> todosTrabalhos.filter { it.id in idsCandidatados }
-
-            btnEmpresaFiltro.isChecked -> {
-                todosTrabalhos.filter {
-                    it.empresaId.isNotEmpty() && it.empresaId in minhasEmpresaIds
-                }
+            btnEmpresaFiltro.isChecked -> todosTrabalhos.filter {
+                it.empresaId.isNotEmpty() && it.empresaId in minhasEmpresaIds
             }
-
-            else -> {
-                todosTrabalhos.filter {
-                    it.empresaId.isEmpty() || it.empresaId in minhasEmpresaIds
-                }
+            else -> todosTrabalhos.filter {
+                it.empresaId.isEmpty() || it.empresaId in minhasEmpresaIds
             }
         }
 
-        // ⭐ Filtro de busca textual (só aplica se tiver texto)
         if (termoBusca.isNotEmpty()) {
             filtrados = filtrados.filter {
                 it.titulo.lowercase().contains(termoBusca) ||
@@ -261,26 +253,41 @@ class HomeFragment : Fragment() {
                     btnPublicarVazio.visibility = View.VISIBLE
                 }
             }
-
             mostrarEstadoVazio()
         } else {
             mostrarLista()
         }
     }
 
+    // ⭐ Skeleton só aparece se demorar > 350ms
     private fun mostrarLoading() {
-        layoutLoading.visibility = View.VISIBLE
         recyclerTrabalhos.visibility = View.GONE
         layoutEstadoVazio.visibility = View.GONE
+        layoutLoading.visibility = View.GONE
+
+        skeletonRunnable = Runnable {
+            if (!isAdded) return@Runnable
+            recyclerTrabalhos.adapter = skeletonAdapter
+            recyclerTrabalhos.visibility = View.VISIBLE
+        }
+        skeletonHandler.postDelayed(skeletonRunnable!!, 350)
+    }
+
+    private fun cancelarSkeleton() {
+        skeletonRunnable?.let { skeletonHandler.removeCallbacks(it) }
+        skeletonRunnable = null
     }
 
     private fun mostrarLista() {
+        cancelarSkeleton()
         layoutLoading.visibility = View.GONE
-        recyclerTrabalhos.visibility = View.VISIBLE
         layoutEstadoVazio.visibility = View.GONE
+        recyclerTrabalhos.adapter = adapter
+        recyclerTrabalhos.visibility = View.VISIBLE
     }
 
     private fun mostrarEstadoVazio() {
+        cancelarSkeleton()
         layoutLoading.visibility = View.GONE
         recyclerTrabalhos.visibility = View.GONE
         layoutEstadoVazio.visibility = View.VISIBLE
@@ -299,5 +306,10 @@ class HomeFragment : Fragment() {
         if (::adapter.isInitialized) {
             carregarTudo()
         }
+    }
+
+    override fun onDestroyView() {
+        cancelarSkeleton()
+        super.onDestroyView()
     }
 }

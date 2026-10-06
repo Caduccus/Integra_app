@@ -101,6 +101,14 @@ class TrabalhoRepository(private val context: Context) {
         }
     }
 
+    suspend fun listarCache(): List<Trabalho> {
+        return try {
+            roomDb.trabalhoDao().listarTodos()
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
     // ─────────────────────────────────────────────
     // VERIFICAR SE O USUÁRIO LOGADO É O CRIADOR
     // ─────────────────────────────────────────────

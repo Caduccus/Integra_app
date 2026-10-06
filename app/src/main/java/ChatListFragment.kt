@@ -2,6 +2,9 @@ package com.example.plataformaremota
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,13 +15,20 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.plataformaremota.adapter.ChatAdapter
+import com.example.plataformaremota.adapter.SkeletonAdapter
 import com.example.plataformaremota.data.entity.Chat
 import com.example.plataformaremota.data.repository.ChatRepository
 import com.google.android.material.button.MaterialButton
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 
 class ChatListFragment : Fragment() {
 
@@ -29,6 +39,7 @@ class ChatListFragment : Fragment() {
     private lateinit var btnCriarGrupoVazio: MaterialButton
 
     private lateinit var adapter: ChatAdapter
+    private lateinit var skeletonAdapter: SkeletonAdapter
     private lateinit var repository: ChatRepository
 
     private val db = FirebaseFirestore.getInstance()
@@ -37,7 +48,12 @@ class ChatListFragment : Fragment() {
     private var nomesUsuarios: Map<String, String> = emptyMap()
     private var fotosUsuarios: Map<String, String> = emptyMap()
     private var titulosTrabalhos: Map<String, String> = emptyMap()
-    private var statusUsuarios: Map<String, String> = emptyMap()   // ⭐ NOVO
+    private var statusUsuarios: Map<String, String> = emptyMap()
+
+    private val skeletonHandler = Handler(Looper.getMainLooper())
+    private var skeletonRunnable: Runnable? = null
+
+    private val TAG = "CHAT_LIST"
 
     private val novoGrupoLauncher = registerForActivityResult(
         androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult()
@@ -88,19 +104,17 @@ class ChatListFragment : Fragment() {
             nomeDoChat = { chat -> nomeDoChat(chat) },
             fotoDoChat = { chat -> fotoDoChat(chat) },
             contextoDoChat = { chat -> contextoDoChat(chat) },
-            statusDoChat = { chat -> statusDoChat(chat) },   // ⭐ NOVO
+            statusDoChat = { chat -> statusDoChat(chat) },
             onClick = { chat ->
                 val intent = Intent(requireContext(), ChatActivity::class.java)
                 intent.putExtra("chatId", chat.id)
                 startActivity(intent)
             },
-            onProfileClick = { chat ->
-                abrirPerfilOuGrupo(chat)
-            },
-            onLongClick = { chat ->
-                abrirMenuConversa(chat)
-            }
+            onProfileClick = { chat -> abrirPerfilOuGrupo(chat) },
+            onLongClick = { chat -> abrirMenuConversa(chat) }
         )
+
+        skeletonAdapter = SkeletonAdapter(R.layout.item_skeleton_chat, 6)
 
         rvChats.layoutManager = LinearLayoutManager(requireContext())
         rvChats.adapter = adapter
@@ -108,17 +122,10 @@ class ChatListFragment : Fragment() {
 
     private fun abrirMenuConversa(chat: Chat) {
         val opcoes = mutableListOf<String>()
-
-        if (!chat.ehGrupo) {
-            opcoes.add("Excluir conversa")
-        }
+        if (!chat.ehGrupo) opcoes.add("Excluir conversa")
 
         if (opcoes.isEmpty()) {
-            Toast.makeText(
-                requireContext(),
-                "Segure uma conversa pessoal para excluir",
-                Toast.LENGTH_SHORT
-            ).show()
+            Toast.makeText(requireContext(), "Segure uma conversa pessoal para excluir", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -144,18 +151,10 @@ class ChatListFragment : Fragment() {
                 lifecycleScope.launch {
                     val ok = repository.excluirConversa(chat.id)
                     if (ok) {
-                        Toast.makeText(
-                            requireContext(),
-                            "Conversa excluída",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        Toast.makeText(requireContext(), "Conversa excluída", Toast.LENGTH_SHORT).show()
                         carregarChats()
                     } else {
-                        Toast.makeText(
-                            requireContext(),
-                            "Erro ao excluir",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        Toast.makeText(requireContext(), "Erro ao excluir", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -202,7 +201,6 @@ class ChatListFragment : Fragment() {
         return "Sobre: $titulo"
     }
 
-    // ⭐ NOVO
     private fun statusDoChat(chat: Chat): String {
         if (chat.ehGrupo) return ThemeManager.STATUS_ONLINE
         val uidAtual = auth.currentUser?.uid ?: return ThemeManager.STATUS_ONLINE
@@ -211,93 +209,162 @@ class ChatListFragment : Fragment() {
         return statusUsuarios[outroUid] ?: ThemeManager.STATUS_ONLINE
     }
 
+    // ⭐ Carregamento com timeout TOTAL e logs
     private fun carregarChats() {
         mostrarLoading()
 
         lifecycleScope.launch {
             try {
-                val uid = auth.currentUser?.uid ?: run {
+                val uid = auth.currentUser?.uid
+                if (uid == null) {
                     mostrarEstadoVazio()
                     return@launch
                 }
 
-                val snapshot = db.collection("chats")
-                    .whereArrayContains("participantes", uid)
-                    .get()
-                    .await()
+                Log.d(TAG, "🔄 Iniciando carregamento...")
 
-                val chats = snapshot.documents
-                    .mapNotNull { it.toObject(Chat::class.java) }
-                    .filter { uid !in it.deletadosPara }
-                    .sortedByDescending { it.timestamp }
+                val sucesso = withTimeoutOrNull(8000L) {
+                    try {
+                        executarCarregamento(uid)
+                        true
+                    } catch (e: Throwable) {
+                        Log.e(TAG, "❌ Erro interno: ${e.message}", e)
+                        false
+                    }
+                }
 
-                val uidsOutros = chats
-                    .filter { !it.ehGrupo }
-                    .flatMap { it.participantes }
-                    .filter { it != uid }
-                    .distinct()
-
-                val idsTrabalhos = chats
-                    .map { it.trabalhoId }
-                    .filter { it.isNotEmpty() }
-                    .distinct()
-
-                buscarDadosUsuarios(uidsOutros)
-                buscarTitulosTrabalhos(idsTrabalhos)
-
-                adapter.atualizarLista(chats)
-
-                if (chats.isEmpty()) mostrarEstadoVazio() else mostrarLista()
-            } catch (e: Exception) {
-                Toast.makeText(requireContext(), "Erro: ${e.message}", Toast.LENGTH_SHORT).show()
+                if (sucesso == null) {
+                    Log.w(TAG, "⏱ Timeout ao carregar chats")
+                    Toast.makeText(requireContext(), "Tempo esgotado — tente novamente", Toast.LENGTH_SHORT).show()
+                    mostrarEstadoVazio()
+                }
+            } catch (e: Throwable) {
+                Log.e(TAG, "❌ Erro geral: ${e.message}", e)
                 mostrarEstadoVazio()
             }
         }
     }
 
-    private suspend fun buscarDadosUsuarios(uids: List<String>) {
+    private suspend fun executarCarregamento(uid: String) = coroutineScope {
+        // 1) Busca os chats
+        val snapshot = db.collection("chats")
+            .whereArrayContains("participantes", uid)
+            .get()
+            .await()
+
+        val chats = snapshot.documents
+            .mapNotNull { it.toObject(Chat::class.java) }
+            .filter { uid !in it.deletadosPara }
+            .sortedByDescending { it.timestamp }
+
+        Log.d(TAG, "✅ ${chats.size} chats encontrados")
+
+        val uidsOutros = chats
+            .filter { !it.ehGrupo }
+            .flatMap { it.participantes }
+            .filter { it != uid }
+            .distinct()
+
+        val idsTrabalhos = chats
+            .map { it.trabalhoId }
+            .filter { it.isNotEmpty() }
+            .distinct()
+
+        // 2) Carrega dados auxiliares EM PARALELO, cada um com try/catch interno
+        val jobU = async { carregarUsuarios(uidsOutros) }
+        val jobT = async { carregarTitulos(idsTrabalhos) }
+
+        try { jobU.await() } catch (e: Throwable) { Log.e(TAG, "Erro usuários: ${e.message}") }
+        try { jobT.await() } catch (e: Throwable) { Log.e(TAG, "Erro títulos: ${e.message}") }
+
+        Log.d(TAG, "✅ Dados auxiliares OK")
+
+        // 3) Atualiza a UI — sempre, mesmo se algo falhou em cima
+        withContext(Dispatchers.Main) {
+            adapter.atualizarLista(chats)
+            if (chats.isEmpty()) mostrarEstadoVazio() else mostrarLista()
+        }
+    }
+
+    private suspend fun carregarUsuarios(uids: List<String>) = coroutineScope {
+        if (uids.isEmpty()) return@coroutineScope
+
+        val resultados = uids.map { uid ->
+            async {
+                try {
+                    val doc = db.collection("usuarios").document(uid).get().await()
+                    uid to Triple(
+                        doc.getString("nome") ?: "Usuário",
+                        doc.getString("fotoUrl") ?: "",
+                        doc.getString("status") ?: ThemeManager.STATUS_ONLINE
+                    )
+                } catch (e: Throwable) {
+                    uid to Triple("Usuário", "", ThemeManager.STATUS_ONLINE)
+                }
+            }
+        }.awaitAll()
+
         val mapaNomes = mutableMapOf<String, String>()
         val mapaFotos = mutableMapOf<String, String>()
         val mapaStatus = mutableMapOf<String, String>()
-
-        for (uid in uids) {
-            try {
-                val doc = db.collection("usuarios").document(uid).get().await()
-                mapaNomes[uid] = doc.getString("nome") ?: "Usuário"
-                mapaFotos[uid] = doc.getString("fotoUrl") ?: ""
-                mapaStatus[uid] = doc.getString("status") ?: ThemeManager.STATUS_ONLINE
-            } catch (_: Exception) { }
+        resultados.forEach { (uid, t) ->
+            mapaNomes[uid] = t.first
+            mapaFotos[uid] = t.second
+            mapaStatus[uid] = t.third
         }
-
         nomesUsuarios = mapaNomes
         fotosUsuarios = mapaFotos
         statusUsuarios = mapaStatus
     }
 
-    private suspend fun buscarTitulosTrabalhos(ids: List<String>) {
-        val mapa = mutableMapOf<String, String>()
-        for (id in ids) {
-            try {
-                val doc = db.collection("trabalhos").document(id).get().await()
-                mapa[id] = doc.getString("titulo") ?: ""
-            } catch (_: Exception) { }
-        }
-        titulosTrabalhos = mapa
+    private suspend fun carregarTitulos(ids: List<String>) = coroutineScope {
+        if (ids.isEmpty()) return@coroutineScope
+
+        val resultados = ids.map { id ->
+            async {
+                try {
+                    val doc = db.collection("trabalhos").document(id).get().await()
+                    id to (doc.getString("titulo") ?: "")
+                } catch (e: Throwable) {
+                    id to ""
+                }
+            }
+        }.awaitAll()
+
+        titulosTrabalhos = resultados.toMap()
     }
 
     private fun mostrarLoading() {
-        layoutLoading.visibility = View.VISIBLE
         rvChats.visibility = View.GONE
         layoutEstadoVazio.visibility = View.GONE
+        layoutLoading.visibility = View.GONE
+
+        // Cancela runnable anterior, se houver
+        skeletonRunnable?.let { skeletonHandler.removeCallbacks(it) }
+
+        skeletonRunnable = Runnable {
+            if (!isAdded) return@Runnable
+            rvChats.adapter = skeletonAdapter
+            rvChats.visibility = View.VISIBLE
+        }
+        skeletonHandler.postDelayed(skeletonRunnable!!, 350)
+    }
+
+    private fun cancelarSkeleton() {
+        skeletonRunnable?.let { skeletonHandler.removeCallbacks(it) }
+        skeletonRunnable = null
     }
 
     private fun mostrarLista() {
+        cancelarSkeleton()
         layoutLoading.visibility = View.GONE
-        rvChats.visibility = View.VISIBLE
         layoutEstadoVazio.visibility = View.GONE
+        rvChats.adapter = adapter
+        rvChats.visibility = View.VISIBLE
     }
 
     private fun mostrarEstadoVazio() {
+        cancelarSkeleton()
         layoutLoading.visibility = View.GONE
         rvChats.visibility = View.GONE
         layoutEstadoVazio.visibility = View.VISIBLE
@@ -305,8 +372,11 @@ class ChatListFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        if (::adapter.isInitialized) {
-            carregarChats()
-        }
+        if (::adapter.isInitialized) carregarChats()
+    }
+
+    override fun onDestroyView() {
+        cancelarSkeleton()
+        super.onDestroyView()
     }
 }

@@ -30,6 +30,14 @@ class HomeActivity : BaseActivity() {
         usuarioId = intent.getStringExtra("usuarioId") ?: ""
         nomeUsuario = intent.getStringExtra("nomeUsuario") ?: ""
 
+        // ⭐ Se não recebeu o nome, busca do Firestore
+        if (nomeUsuario.isEmpty() && usuarioId.isNotEmpty()) {
+            db.collection("usuarios").document(usuarioId).get()
+                .addOnSuccessListener { doc ->
+                    nomeUsuario = doc.getString("nome") ?: ""
+                }
+        }
+
         bottomNav = findViewById(R.id.bottomNav)
 
         val tema = ThemeManager.getTemaAtual(this)

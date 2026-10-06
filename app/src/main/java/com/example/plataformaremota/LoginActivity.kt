@@ -2,6 +2,9 @@ package com.example.plataformaremota
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Button
@@ -9,11 +12,8 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.lifecycle.lifecycleScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 
 class LoginActivity : BaseActivity() {
 
@@ -24,6 +24,9 @@ class LoginActivity : BaseActivity() {
 
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
+
+    private val handler = Handler(Looper.getMainLooper())
+    private var timeoutRunnable: Runnable? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,10 +43,10 @@ class LoginActivity : BaseActivity() {
         val btnTema: ImageView? = findViewById(R.id.btnTemaLogin)
         btnTema?.setOnClickListener { abrirDialogTemas() }
 
-        // ⭐ Esqueci minha senha
         val txtEsqueci: View? = findViewById(R.id.txtEsqueciSenha)
         txtEsqueci?.setOnClickListener { abrirDialogEsqueciSenha() }
 
+        // Se já tem usuário logado, vai direto
         val usuarioAtual = auth.currentUser
         if (usuarioAtual != null) {
             irParaHome(usuarioAtual.uid)
@@ -58,12 +61,10 @@ class LoginActivity : BaseActivity() {
         ThemeManager.aplicarCoresTexto(this, findViewById(android.R.id.content))
     }
 
-    // ⭐ NOVO
     private fun abrirDialogEsqueciSenha() {
         val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_esqueci_senha, null)
         val edtEmailReset = dialogView.findViewById<EditText>(R.id.edtEmailReset)
 
-        // Pré-preenche com o que o usuário já digitou
         val emailDigitado = edtEmail.text.toString().trim()
         if (emailDigitado.isNotEmpty()) {
             edtEmailReset.setText(emailDigitado)
@@ -75,12 +76,10 @@ class LoginActivity : BaseActivity() {
             .setView(dialogView)
             .setPositiveButton("Enviar") { _, _ ->
                 val email = edtEmailReset.text.toString().trim()
-
                 if (email.isEmpty() || !email.contains("@")) {
                     Toast.makeText(this, "Digite um e-mail válido", Toast.LENGTH_SHORT).show()
                     return@setPositiveButton
                 }
-
                 enviarEmailReset(email)
             }
             .setNegativeButton("Cancelar", null)
@@ -102,21 +101,14 @@ class LoginActivity : BaseActivity() {
                         .show()
                 } else {
                     val msg = task.exception?.message ?: "Erro desconhecido"
-                    Toast.makeText(
-                        this,
-                        "Não foi possível enviar: $msg",
-                        Toast.LENGTH_LONG
-                    ).show()
+                    Toast.makeText(this, "Não foi possível enviar: $msg", Toast.LENGTH_LONG).show()
                 }
             }
     }
 
     private fun abrirDialogTemas() {
         val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_temas, null)
-
-        val dialog = AlertDialog.Builder(this)
-            .setView(dialogView)
-            .create()
+        val dialog = AlertDialog.Builder(this).setView(dialogView).create()
 
         val temas = mapOf(
             R.id.temaPadrao to ThemeManager.TEMA_PADRAO,
@@ -151,33 +143,61 @@ class LoginActivity : BaseActivity() {
         btnEntrar.isEnabled = false
         btnEntrar.text = "ENTRANDO..."
 
-        auth.signInWithEmailAndPassword(email, senha)
-            .addOnCompleteListener { task ->
-                btnEntrar.isEnabled = true
-                btnEntrar.text = "ENTRAR"
+        // ⭐ Timeout de 20s — evita ficar travado pra sempre
+        timeoutRunnable = Runnable {
+            if (!isFinishing) {
+                resetarBotao()
+                Toast.makeText(
+                    this,
+                    "Tempo esgotado. Verifique sua internet e tente novamente.",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+        handler.postDelayed(timeoutRunnable!!, 20000)
 
-                if (task.isSuccessful) {
-                    val uid = auth.currentUser?.uid
-                    if (uid != null) irParaHome(uid)
+        auth.signInWithEmailAndPassword(email, senha)
+            .addOnSuccessListener {
+                Log.d("LOGIN", "✅ Login bem-sucedido")
+                cancelarTimeout()
+                val uid = auth.currentUser?.uid
+                if (uid != null) {
+                    irParaHome(uid)
                 } else {
-                    Toast.makeText(this, "E-mail ou senha incorretos", Toast.LENGTH_SHORT).show()
+                    resetarBotao()
+                    Toast.makeText(this, "Erro: usuário não identificado", Toast.LENGTH_SHORT).show()
                 }
+            }
+            .addOnFailureListener { e ->
+                Log.e("LOGIN", "❌ Falha no login: ${e.message}", e)
+                cancelarTimeout()
+                resetarBotao()
+                Toast.makeText(this, "Erro: ${e.message}", Toast.LENGTH_LONG).show()
             }
     }
 
-    private fun irParaHome(uid: String) {
-        lifecycleScope.launch {
-            val nome = try {
-                val doc = db.collection("usuarios").document(uid).get().await()
-                doc.getString("nome") ?: "Usuário"
-            } catch (e: Exception) { "Usuário" }
+    private fun resetarBotao() {
+        btnEntrar.isEnabled = true
+        btnEntrar.text = "ENTRAR"
+    }
 
-            val intent = Intent(this@LoginActivity, HomeActivity::class.java)
-            intent.putExtra("usuarioId", uid)
-            intent.putExtra("nomeUsuario", nome)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            startActivity(intent)
-            finish()
-        }
+    private fun cancelarTimeout() {
+        timeoutRunnable?.let { handler.removeCallbacks(it) }
+        timeoutRunnable = null
+    }
+
+    // ⭐ SEM await() — não depende do Firestore pra navegar
+    private fun irParaHome(uid: String) {
+        val intent = Intent(this@LoginActivity, HomeActivity::class.java)
+        intent.putExtra("usuarioId", uid)
+        intent.putExtra("nomeUsuario", "")
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+        finish()
+    }
+
+    override fun onDestroy() {
+        cancelarTimeout()
+        super.onDestroy()
     }
 }

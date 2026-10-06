@@ -17,18 +17,24 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.PlataformaRemota">
 
+        <!-- ⭐ Splash é a nova LAUNCHER -->
+        <activity
+            android:name=".SplashActivity"
+            android:exported="true"
+            android:theme="@style/Theme.PlataformaRemota">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
         <activity
             android:name=".CadastroActivity"
             android:exported="false" />
 
         <activity
             android:name=".LoginActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:exported="false" />
 
         <activity
             android:name=".MainActivity2"
