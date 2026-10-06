@@ -19,7 +19,7 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Linha do Título + Chip -->
+        <!-- Linha do Título + Chip + Coração -->
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -35,36 +35,59 @@
                 android:src="@drawable/ic_work_outline"
                 app:tint="#0D226B" />
 
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardTipoContrato"
+            <LinearLayout
+                android:id="@+id/containerDireita"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
-                app:cardBackgroundColor="#1E88E5"
-                app:cardCornerRadius="6dp"
-                app:cardElevation="0dp"
-                app:strokeWidth="0dp">
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
-                <TextView
-                    android:id="@+id/txtTipoContrato"
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardTipoContrato"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingHorizontal="8dp"
-                    android:paddingVertical="4dp"
-                    android:text="CLT"
-                    android:textColor="@color/white"
-                    android:textSize="11sp"
-                    android:textStyle="bold"
-                    tools:ignore="SmallSp" />
-            </com.google.android.material.card.MaterialCardView>
+                    app:cardBackgroundColor="#1E88E5"
+                    app:cardCornerRadius="6dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="0dp">
+
+                    <TextView
+                        android:id="@+id/txtTipoContrato"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingHorizontal="8dp"
+                        android:paddingVertical="4dp"
+                        android:text="CLT"
+                        android:textColor="@color/white"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        tools:ignore="SmallSp" />
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- ⭐ Coração -->
+                <ImageView
+                    android:id="@+id/btnFavorito"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_marginStart="4dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:contentDescription="Favoritar"
+                    android:padding="6dp"
+                    android:src="@drawable/ic_heart_outline"
+                    app:tint="#B0B0B0"
+                    android:visibility="gone" />
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/txtTitulo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_toEndOf="@id/imgWorkIcon"
-                android:layout_toStartOf="@id/cardTipoContrato"
+                android:layout_toStartOf="@id/containerDireita"
                 android:layout_centerVertical="true"
                 android:ellipsize="end"
                 android:maxLines="1"
@@ -75,14 +98,12 @@
 
         </RelativeLayout>
 
-        <!-- Divisor Sutil -->
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="#1A000000"
             android:layout_marginBottom="12dp" />
 
-        <!-- Descrição Breve -->
         <TextView
             android:id="@+id/txtDescricao"
             android:layout_width="match_parent"
@@ -94,13 +115,11 @@
             android:textColor="#555555"
             android:textSize="14sp" />
 
-        <!-- Grid de Detalhes -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Categoria -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -132,7 +151,6 @@
                     android:textSize="13sp" />
             </LinearLayout>
 
-            <!-- Nível -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -165,7 +183,6 @@
                     android:textStyle="bold" />
             </LinearLayout>
 
-            <!-- Prazo -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -197,6 +214,5 @@
             </LinearLayout>
 
         </LinearLayout>
-
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

@@ -147,11 +147,15 @@ class DetalhesEmpresaActivity : BaseActivity() {
         rvMembros.layoutManager = LinearLayoutManager(this)
         rvMembros.adapter = membroAdapter
 
-        trabalhoAdapter = TrabalhoAdapter(emptyList()) { trabalho ->
-            val intent = Intent(this, MainActivity2::class.java)
-            intent.putExtra("trabalhoId", trabalho.id)
-            startActivity(intent)
-        }
+        // ⭐ onClick como argumento nomeado (não é mais o último parâmetro)
+        trabalhoAdapter = TrabalhoAdapter(
+            trabalhos = emptyList(),
+            onClick = { trabalho ->
+                val intent = Intent(this, MainActivity2::class.java)
+                intent.putExtra("trabalhoId", trabalho.id)
+                startActivity(intent)
+            }
+        )
         rvTrabalhos.layoutManager = LinearLayoutManager(this)
         rvTrabalhos.adapter = trabalhoAdapter
     }

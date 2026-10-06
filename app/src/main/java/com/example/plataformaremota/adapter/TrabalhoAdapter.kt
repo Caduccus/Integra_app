@@ -1,9 +1,12 @@
 package com.example.plataformaremota.adapter
 
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.OvershootInterpolator
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.plataformaremota.R
@@ -12,7 +15,10 @@ import com.google.android.material.card.MaterialCardView
 
 class TrabalhoAdapter(
     private var trabalhos: List<Trabalho>,
-    private val onClick: (Trabalho) -> Unit
+    private val onClick: (Trabalho) -> Unit,
+    private val mostrarFavorito: Boolean = false,
+    private var favoritos: Set<String> = emptySet(),
+    private val onFavoritarClick: (Trabalho) -> Unit = {}
 ) : RecyclerView.Adapter<TrabalhoAdapter.TrabalhoViewHolder>() {
 
     class TrabalhoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -24,6 +30,7 @@ class TrabalhoAdapter(
         val txtNivel: TextView = itemView.findViewById(R.id.txtNivel)
         val txtTipoContrato: TextView = itemView.findViewById(R.id.txtTipoContrato)
         val cardTipoContrato: MaterialCardView = itemView.findViewById(R.id.cardTipoContrato)
+        val btnFavorito: ImageView = itemView.findViewById(R.id.btnFavorito)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrabalhoViewHolder {
@@ -42,7 +49,6 @@ class TrabalhoAdapter(
         holder.txtPrazo.text = trabalho.prazo
         holder.txtNivel.text = trabalho.nivel
 
-        // ⭐ Chip tipo contrato (SÓ aparece se tiver valor)
         if (trabalho.tipoContrato.isNotEmpty()) {
             holder.cardTipoContrato.visibility = View.VISIBLE
             holder.txtTipoContrato.text = trabalho.tipoContrato
@@ -57,11 +63,9 @@ class TrabalhoAdapter(
             }
             holder.cardTipoContrato.setCardBackgroundColor(corChip)
         } else {
-            // ⭐ Esconde o chip
             holder.cardTipoContrato.visibility = View.GONE
         }
 
-        // Cor do nível
         val corNivel = when (trabalho.nivel.lowercase()) {
             "júnior", "junior" -> "#1E88E5"
             "pleno" -> "#8E24AA"
@@ -71,15 +75,64 @@ class TrabalhoAdapter(
         }
         holder.txtNivel.setTextColor(Color.parseColor(corNivel))
 
+        // ⭐ Favorito
+        if (mostrarFavorito) {
+            holder.btnFavorito.visibility = View.VISIBLE
+            val ehFavorito = trabalho.id in favoritos
+
+            if (ehFavorito) {
+                holder.btnFavorito.setImageResource(R.drawable.ic_heart_filled)
+                holder.btnFavorito.imageTintList = ColorStateList.valueOf(
+                    Color.parseColor("#E53935")
+                )
+            } else {
+                holder.btnFavorito.setImageResource(R.drawable.ic_heart_outline)
+                holder.btnFavorito.imageTintList = ColorStateList.valueOf(
+                    Color.parseColor("#B0B0B0")
+                )
+            }
+
+            holder.btnFavorito.setOnClickListener {
+                animarCoracao(it)
+                onFavoritarClick(trabalho)
+            }
+        } else {
+            holder.btnFavorito.visibility = View.GONE
+        }
+
         holder.card.setOnClickListener {
             onClick(trabalho)
         }
+    }
+
+    private fun animarCoracao(view: View) {
+        view.animate().cancel()
+        view.scaleX = 0.7f
+        view.scaleY = 0.7f
+        view.animate()
+            .scaleX(1.15f)
+            .scaleY(1.15f)
+            .setDuration(150)
+            .withEndAction {
+                view.animate()
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .setDuration(120)
+                    .setInterpolator(OvershootInterpolator())
+                    .start()
+            }
+            .start()
     }
 
     override fun getItemCount(): Int = trabalhos.size
 
     fun atualizarLista(novaLista: List<Trabalho>) {
         trabalhos = novaLista
+        notifyDataSetChanged()
+    }
+
+    fun atualizarFavoritos(novosFavoritos: Set<String>) {
+        favoritos = novosFavoritos
         notifyDataSetChanged()
     }
 }

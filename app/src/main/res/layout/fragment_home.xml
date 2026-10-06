@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:layout_marginBottom="24dp">
+        android:layout_marginBottom="16dp">
 
         <ImageView
             android:layout_width="40dp"
@@ -45,7 +45,7 @@
             app:tint="@color/white" />
     </LinearLayout>
 
-    <!-- Título da Seção -->
+    <!-- Título da seção -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -69,6 +69,7 @@
             android:textStyle="bold" />
     </LinearLayout>
 
+    <!-- ⭐ Campo de busca -->
     <com.google.android.material.textfield.TextInputLayout
         style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
@@ -91,7 +92,7 @@
             android:textColor="@color/white" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Filtros -->
+    <!-- Toggle com 5 opções -->
     <com.google.android.material.button.MaterialButtonToggleGroup
         android:id="@+id/toggleGroupFiltro"
         android:layout_width="match_parent"
@@ -106,9 +107,10 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:paddingHorizontal="2dp"
             android:text="Todos"
             android:textColor="@color/white"
-            android:textSize="10sp"
+            android:textSize="9sp"
             android:checked="true"
             app:cornerRadius="20dp"
             app:strokeColor="#66FFFFFF"
@@ -120,9 +122,10 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:paddingHorizontal="2dp"
             android:text="Meus"
             android:textColor="@color/white"
-            android:textSize="10sp"
+            android:textSize="9sp"
             app:cornerRadius="20dp"
             app:strokeColor="#66FFFFFF"
             app:strokeWidth="1dp" />
@@ -133,9 +136,10 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Inscritos"
+            android:paddingHorizontal="2dp"
+            android:text="Insc."
             android:textColor="@color/white"
-            android:textSize="10sp"
+            android:textSize="9sp"
             app:cornerRadius="20dp"
             app:strokeColor="#66FFFFFF"
             app:strokeWidth="1dp" />
@@ -146,15 +150,30 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Empresas"
+            android:paddingHorizontal="2dp"
+            android:text="Empr."
             android:textColor="@color/white"
-            android:textSize="10sp"
+            android:textSize="9sp"
+            app:cornerRadius="20dp"
+            app:strokeColor="#66FFFFFF"
+            app:strokeWidth="1dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnFavoritos"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:paddingHorizontal="2dp"
+            android:text="Fav."
+            android:textColor="@color/white"
+            android:textSize="9sp"
             app:cornerRadius="20dp"
             app:strokeColor="#66FFFFFF"
             app:strokeWidth="1dp" />
     </com.google.android.material.button.MaterialButtonToggleGroup>
 
-    <!-- Container da Lista -->
+    <!-- Container da lista -->
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -177,7 +196,6 @@
                 android:visibility="gone"
                 tools:listitem="@layout/item_trabalho" />
 
-            <!-- Estado Vazio -->
             <LinearLayout
                 android:id="@+id/layoutEstadoVazio"
                 android:layout_width="match_parent"
@@ -247,7 +265,6 @@
 
             </LinearLayout>
 
-            <!-- Loading -->
             <LinearLayout
                 android:id="@+id/layoutLoading"
                 android:layout_width="match_parent"

@@ -24,6 +24,7 @@ import com.example.plataformaremota.data.repository.EmpresaRepository
 import com.example.plataformaremota.data.repository.TrabalhoRepository
 import com.google.android.material.button.MaterialButton
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -45,6 +46,7 @@ class HomeFragment : Fragment() {
     private lateinit var btnMeus: MaterialButton
     private lateinit var btnInscritos: MaterialButton
     private lateinit var btnEmpresaFiltro: MaterialButton
+    private lateinit var btnFavoritos: MaterialButton   // ⭐ NOVO
 
     private var edtBuscaHome: EditText? = null
     private var termoBusca: String = ""
@@ -64,8 +66,8 @@ class HomeFragment : Fragment() {
     private var todosTrabalhos: List<Trabalho> = emptyList()
     private var idsCandidatados: Set<String> = emptySet()
     private var minhasEmpresaIds: Set<String> = emptySet()
+    private var meusFavoritos: Set<String> = emptySet()   // ⭐ NOVO
 
-    // ⭐ Skeleton só aparece se demorar
     private val skeletonHandler = Handler(Looper.getMainLooper())
     private var skeletonRunnable: Runnable? = null
 
@@ -92,6 +94,7 @@ class HomeFragment : Fragment() {
         btnMeus = view.findViewById(R.id.btnMeus)
         btnInscritos = view.findViewById(R.id.btnInscritos)
         btnEmpresaFiltro = view.findViewById(R.id.btnEmpresaFiltro)
+        btnFavoritos = view.findViewById(R.id.btnFavoritos)   // ⭐ NOVO
 
         edtBuscaHome = view.findViewById(R.id.edtBuscaHome)
         edtBuscaHome?.addTextChangedListener(object : TextWatcher {
@@ -126,11 +129,17 @@ class HomeFragment : Fragment() {
     }
 
     private fun configurarRecyclerView() {
-        adapter = TrabalhoAdapter(emptyList()) { trabalho ->
-            val intent = Intent(requireContext(), MainActivity2::class.java)
-            intent.putExtra("trabalhoId", trabalho.id)
-            startActivity(intent)
-        }
+        adapter = TrabalhoAdapter(
+            trabalhos = emptyList(),
+            onClick = { trabalho ->
+                val intent = Intent(requireContext(), MainActivity2::class.java)
+                intent.putExtra("trabalhoId", trabalho.id)
+                startActivity(intent)
+            },
+            mostrarFavorito = true,
+            favoritos = emptySet(),
+            onFavoritarClick = { trabalho -> toggleFavorito(trabalho) }
+        )
 
         skeletonAdapter = SkeletonAdapter(R.layout.item_skeleton_trabalho, 5)
 
@@ -143,6 +152,7 @@ class HomeFragment : Fragment() {
         btnMeus.setOnClickListener { selecionarFiltro(btnMeus); aplicarFiltro() }
         btnInscritos.setOnClickListener { selecionarFiltro(btnInscritos); aplicarFiltro() }
         btnEmpresaFiltro.setOnClickListener { selecionarFiltro(btnEmpresaFiltro); aplicarFiltro() }
+        btnFavoritos.setOnClickListener { selecionarFiltro(btnFavoritos); aplicarFiltro() }
     }
 
     private fun selecionarFiltro(btn: MaterialButton) {
@@ -150,30 +160,32 @@ class HomeFragment : Fragment() {
         btnMeus.isChecked = (btn == btnMeus)
         btnInscritos.isChecked = (btn == btnInscritos)
         btnEmpresaFiltro.isChecked = (btn == btnEmpresaFiltro)
+        btnFavoritos.isChecked = (btn == btnFavoritos)
     }
 
     private fun carregarTudo() {
         lifecycleScope.launch {
-            // ⭐ 1. Cache primeiro — instantâneo
             val cache = repository.listarCache()
             if (cache.isNotEmpty() && todosTrabalhos.isEmpty()) {
                 todosTrabalhos = cache
                 aplicarFiltro()
             } else {
-                mostrarLoading()  // agenda skeleton pra 350ms
+                mostrarLoading()
             }
 
-            // ⭐ 2. Firestore em paralelo
             try {
                 coroutineScope {
                     val trabalhosDeferred = async { repository.listarTodos() }
                     val empresasDeferred = async { empresaRepository.listarMinhas() }
                     val candidaturasDeferred = async { buscarMinhasCandidaturas() }
+                    val favoritosDeferred = async { buscarMeusFavoritos() }   // ⭐
 
                     todosTrabalhos = trabalhosDeferred.await()
                     minhasEmpresaIds = empresasDeferred.await().map { it.id }.toSet()
                     idsCandidatados = candidaturasDeferred.await()
+                    meusFavoritos = favoritosDeferred.await()
                 }
+                adapter.atualizarFavoritos(meusFavoritos)
                 aplicarFiltro()
             } catch (e: Exception) {
                 Log.e("HOME", "Erro: ${e.message}")
@@ -182,7 +194,52 @@ class HomeFragment : Fragment() {
         }
     }
 
-    // ⭐ Busca candidaturas EM PARALELO (antes era loop sequencial)
+    // ⭐ Busca os IDs favoritados
+    private suspend fun buscarMeusFavoritos(): Set<String> {
+        val uid = auth.currentUser?.uid ?: return emptySet()
+        return try {
+            val doc = db.collection("usuarios").document(uid).get().await()
+            (doc.get("favoritos") as? List<*>)?.filterIsInstance<String>()?.toSet() ?: emptySet()
+        } catch (e: Exception) {
+            emptySet()
+        }
+    }
+
+    // ⭐ Alterna favorito
+    private fun toggleFavorito(trabalho: Trabalho) {
+        val uid = auth.currentUser?.uid ?: return
+        val jaFavorito = trabalho.id in meusFavoritos
+
+        // Atualiza local IMEDIATAMENTE (feedback instantâneo)
+        meusFavoritos = if (jaFavorito) {
+            meusFavoritos - trabalho.id
+        } else {
+            meusFavoritos + trabalho.id
+        }
+        adapter.atualizarFavoritos(meusFavoritos)
+
+        // Se estiver na aba Favoritos, reaplica o filtro (o item desmarcado some)
+        if (btnFavoritos.isChecked) {
+            aplicarFiltro()
+        }
+
+        // Persiste no Firestore
+        lifecycleScope.launch {
+            try {
+                val campo = if (jaFavorito) FieldValue.arrayRemove(trabalho.id)
+                else FieldValue.arrayUnion(trabalho.id)
+                db.collection("usuarios").document(uid)
+                    .update("favoritos", campo).await()
+            } catch (e: Exception) {
+                // Reverte em caso de erro
+                meusFavoritos = if (jaFavorito) meusFavoritos + trabalho.id
+                else meusFavoritos - trabalho.id
+                adapter.atualizarFavoritos(meusFavoritos)
+                Log.e("HOME", "Erro ao favoritar: ${e.message}")
+            }
+        }
+    }
+
     private suspend fun buscarMinhasCandidaturas(): Set<String> {
         val uid = auth.currentUser?.uid ?: return emptySet()
         return try {
@@ -215,6 +272,7 @@ class HomeFragment : Fragment() {
             btnEmpresaFiltro.isChecked -> todosTrabalhos.filter {
                 it.empresaId.isNotEmpty() && it.empresaId in minhasEmpresaIds
             }
+            btnFavoritos.isChecked -> todosTrabalhos.filter { it.id in meusFavoritos }   // ⭐
             else -> todosTrabalhos.filter {
                 it.empresaId.isEmpty() || it.empresaId in minhasEmpresaIds
             }
@@ -247,6 +305,11 @@ class HomeFragment : Fragment() {
                     txtEstadoVazio.text = "Nenhum trabalho das suas empresas por enquanto"
                     btnPublicarVazio.visibility = View.GONE
                 }
+                btnFavoritos.isChecked -> {   // ⭐
+                    txtEstadoVazioTitulo.text = "Sem favoritos"
+                    txtEstadoVazio.text = "Toque no coração de um trabalho para salvá-lo aqui"
+                    btnPublicarVazio.visibility = View.GONE
+                }
                 else -> {
                     txtEstadoVazioTitulo.text = "Nada por aqui ainda"
                     txtEstadoVazio.text = "Seja o primeiro a publicar um trabalho!"
@@ -259,12 +322,12 @@ class HomeFragment : Fragment() {
         }
     }
 
-    // ⭐ Skeleton só aparece se demorar > 350ms
     private fun mostrarLoading() {
         recyclerTrabalhos.visibility = View.GONE
         layoutEstadoVazio.visibility = View.GONE
         layoutLoading.visibility = View.GONE
 
+        skeletonRunnable?.let { skeletonHandler.removeCallbacks(it) }
         skeletonRunnable = Runnable {
             if (!isAdded) return@Runnable
             recyclerTrabalhos.adapter = skeletonAdapter
