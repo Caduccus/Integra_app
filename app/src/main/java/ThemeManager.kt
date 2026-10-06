@@ -229,4 +229,27 @@ object ThemeManager {
             }
         }
     }
+    // ─────────────────────────────────────────────
+    // ⭐ STATUS
+    // ─────────────────────────────────────────────
+    const val STATUS_ONLINE = "online"
+    const val STATUS_AUSENTE = "ausente"
+    const val STATUS_NAO_PERTUBE = "nao_pertube"
+    const val STATUS_INVISIVEL = "invisivel"
+
+    fun getStatusColor(status: String): Int = when (status) {
+        STATUS_ONLINE      -> 0xFF4CAF50.toInt()
+        STATUS_AUSENTE     -> 0xFFFFC107.toInt()
+        STATUS_NAO_PERTUBE -> 0xFFF44336.toInt()
+        STATUS_INVISIVEL   -> 0xFF9E9E9E.toInt()
+        else               -> 0xFF9E9E9E.toInt()
+    }
+
+    fun getStatusNomeAmigavel(status: String): String = when (status) {
+        STATUS_ONLINE      -> "Online"
+        STATUS_AUSENTE     -> "Ausente"
+        STATUS_NAO_PERTUBE -> "Não perturbe"
+        STATUS_INVISIVEL   -> "Invisível"
+        else               -> "Online"
+    }
 }

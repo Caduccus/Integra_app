@@ -37,6 +37,7 @@ class ChatListFragment : Fragment() {
     private var nomesUsuarios: Map<String, String> = emptyMap()
     private var fotosUsuarios: Map<String, String> = emptyMap()
     private var titulosTrabalhos: Map<String, String> = emptyMap()
+    private var statusUsuarios: Map<String, String> = emptyMap()   // ⭐ NOVO
 
     private val novoGrupoLauncher = registerForActivityResult(
         androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult()
@@ -87,6 +88,7 @@ class ChatListFragment : Fragment() {
             nomeDoChat = { chat -> nomeDoChat(chat) },
             fotoDoChat = { chat -> fotoDoChat(chat) },
             contextoDoChat = { chat -> contextoDoChat(chat) },
+            statusDoChat = { chat -> statusDoChat(chat) },   // ⭐ NOVO
             onClick = { chat ->
                 val intent = Intent(requireContext(), ChatActivity::class.java)
                 intent.putExtra("chatId", chat.id)
@@ -104,11 +106,9 @@ class ChatListFragment : Fragment() {
         rvChats.adapter = adapter
     }
 
-    // ⭐ Menu ao segurar a conversa
     private fun abrirMenuConversa(chat: Chat) {
         val opcoes = mutableListOf<String>()
 
-        // Só deixa excluir conversas pessoais (1:1)
         if (!chat.ehGrupo) {
             opcoes.add("Excluir conversa")
         }
@@ -202,6 +202,15 @@ class ChatListFragment : Fragment() {
         return "Sobre: $titulo"
     }
 
+    // ⭐ NOVO
+    private fun statusDoChat(chat: Chat): String {
+        if (chat.ehGrupo) return ThemeManager.STATUS_ONLINE
+        val uidAtual = auth.currentUser?.uid ?: return ThemeManager.STATUS_ONLINE
+        val outroUid = chat.participantes.firstOrNull { it != uidAtual }
+            ?: return ThemeManager.STATUS_ONLINE
+        return statusUsuarios[outroUid] ?: ThemeManager.STATUS_ONLINE
+    }
+
     private fun carregarChats() {
         mostrarLoading()
 
@@ -217,7 +226,6 @@ class ChatListFragment : Fragment() {
                     .get()
                     .await()
 
-                // ⭐ Filtra chats que eu tenha deletado
                 val chats = snapshot.documents
                     .mapNotNull { it.toObject(Chat::class.java) }
                     .filter { uid !in it.deletadosPara }
@@ -250,17 +258,20 @@ class ChatListFragment : Fragment() {
     private suspend fun buscarDadosUsuarios(uids: List<String>) {
         val mapaNomes = mutableMapOf<String, String>()
         val mapaFotos = mutableMapOf<String, String>()
+        val mapaStatus = mutableMapOf<String, String>()
 
         for (uid in uids) {
             try {
                 val doc = db.collection("usuarios").document(uid).get().await()
                 mapaNomes[uid] = doc.getString("nome") ?: "Usuário"
                 mapaFotos[uid] = doc.getString("fotoUrl") ?: ""
+                mapaStatus[uid] = doc.getString("status") ?: ThemeManager.STATUS_ONLINE
             } catch (_: Exception) { }
         }
 
         nomesUsuarios = mapaNomes
         fotosUsuarios = mapaFotos
+        statusUsuarios = mapaStatus
     }
 
     private suspend fun buscarTitulosTrabalhos(ids: List<String>) {

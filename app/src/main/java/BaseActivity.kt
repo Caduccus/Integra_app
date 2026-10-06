@@ -1,9 +1,7 @@
 package com.example.plataformaremota
 
 import android.graphics.Color
-import android.os.Build
 import android.os.Bundle
-import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -11,14 +9,18 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import com.cloudinary.android.MediaManager
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.onesignal.OneSignal
 
 open class BaseActivity : AppCompatActivity() {
 
+    private val db = FirebaseFirestore.getInstance()
+    private val auth = FirebaseAuth.getInstance()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // ⭐ Edge-to-edge + insets manuais (Android 15+)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         window.statusBarColor = Color.BLACK
 
@@ -29,9 +31,7 @@ open class BaseActivity : AppCompatActivity() {
             CloudinaryManager.iniciado = true
         }
 
-        com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid?.let { uid ->
-            OneSignal.login(uid)
-        }
+        auth.currentUser?.uid?.let { uid -> OneSignal.login(uid) }
     }
 
     override fun onContentChanged() {
@@ -40,8 +40,37 @@ open class BaseActivity : AppCompatActivity() {
         aplicarInsets()
     }
 
+    override fun onResume() {
+        super.onResume()
+        atualizarStatusAutomatico(online = true)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        atualizarStatusAutomatico(online = false)
+    }
+
+    private fun atualizarStatusAutomatico(online: Boolean) {
+        val uid = auth.currentUser?.uid ?: return
+        val novoStatus = if (online) ThemeManager.STATUS_ONLINE else ThemeManager.STATUS_AUSENTE
+
+        db.collection("usuarios").document(uid).get()
+            .addOnSuccessListener { doc ->
+                val statusAtual = doc.getString("status") ?: ThemeManager.STATUS_ONLINE
+                val podeAtualizar = statusAtual == ThemeManager.STATUS_ONLINE ||
+                        statusAtual == ThemeManager.STATUS_AUSENTE
+                if (podeAtualizar && statusAtual != novoStatus) {
+                    db.collection("usuarios").document(uid).update("status", novoStatus)
+                }
+            }
+    }
+
     private fun aplicarTema() {
         val root = findViewById<ViewGroup>(android.R.id.content)
+
+        // ⭐ Aplica fundo no ROOT também (cobre a área do IME quando teclado abre)
+        ThemeManager.aplicarBackground(this, root)
+
         if (root.childCount > 0) {
             val firstChild = root.getChildAt(0)
             ThemeManager.aplicarBackground(this, firstChild)
@@ -50,7 +79,6 @@ open class BaseActivity : AppCompatActivity() {
         }
     }
 
-    // ⭐ Aplica padding de status bar + nav bar + IME (teclado)
     private fun aplicarInsets() {
         val root = findViewById<ViewGroup>(android.R.id.content)
         ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->
@@ -63,7 +91,9 @@ open class BaseActivity : AppCompatActivity() {
                 right = sysBars.right,
                 bottom = maxOf(sysBars.bottom, ime.bottom)
             )
-            insets
+
+            // ⭐ Marca como consumido — impede os filhos de aplicarem de novo
+            WindowInsetsCompat.CONSUMED
         }
         ViewCompat.requestApplyInsets(root)
     }

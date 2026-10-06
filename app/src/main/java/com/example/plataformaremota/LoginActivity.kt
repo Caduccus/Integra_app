@@ -40,6 +40,10 @@ class LoginActivity : BaseActivity() {
         val btnTema: ImageView? = findViewById(R.id.btnTemaLogin)
         btnTema?.setOnClickListener { abrirDialogTemas() }
 
+        // ⭐ Esqueci minha senha
+        val txtEsqueci: View? = findViewById(R.id.txtEsqueciSenha)
+        txtEsqueci?.setOnClickListener { abrirDialogEsqueciSenha() }
+
         val usuarioAtual = auth.currentUser
         if (usuarioAtual != null) {
             irParaHome(usuarioAtual.uid)
@@ -51,11 +55,62 @@ class LoginActivity : BaseActivity() {
             startActivity(Intent(this, CadastroActivity::class.java))
         }
 
-        // ⭐ Aplica tema nos textos (tema branco/amarelo)
         ThemeManager.aplicarCoresTexto(this, findViewById(android.R.id.content))
     }
 
-    // ⭐ AGORA COM TODOS OS 7 TEMAS
+    // ⭐ NOVO
+    private fun abrirDialogEsqueciSenha() {
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_esqueci_senha, null)
+        val edtEmailReset = dialogView.findViewById<EditText>(R.id.edtEmailReset)
+
+        // Pré-preenche com o que o usuário já digitou
+        val emailDigitado = edtEmail.text.toString().trim()
+        if (emailDigitado.isNotEmpty()) {
+            edtEmailReset.setText(emailDigitado)
+        }
+
+        AlertDialog.Builder(this)
+            .setTitle("Recuperar senha")
+            .setMessage("Informe o e-mail cadastrado. Vamos enviar um link para você redefinir a senha.")
+            .setView(dialogView)
+            .setPositiveButton("Enviar") { _, _ ->
+                val email = edtEmailReset.text.toString().trim()
+
+                if (email.isEmpty() || !email.contains("@")) {
+                    Toast.makeText(this, "Digite um e-mail válido", Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+
+                enviarEmailReset(email)
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+
+    private fun enviarEmailReset(email: String) {
+        auth.sendPasswordResetEmail(email)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    AlertDialog.Builder(this)
+                        .setTitle("E-mail enviado ✅")
+                        .setMessage(
+                            "Enviamos um link de recuperação para:\n\n" +
+                                    "$email\n\n" +
+                                    "Verifique sua caixa de entrada e a pasta de spam."
+                        )
+                        .setPositiveButton("OK", null)
+                        .show()
+                } else {
+                    val msg = task.exception?.message ?: "Erro desconhecido"
+                    Toast.makeText(
+                        this,
+                        "Não foi possível enviar: $msg",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+    }
+
     private fun abrirDialogTemas() {
         val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_temas, null)
 

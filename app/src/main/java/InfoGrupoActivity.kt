@@ -154,7 +154,6 @@ class InfoGrupoActivity : BaseActivity() {
                     imgFotoGrupo.setPadding(0, 0, 0, 0)
                 }
 
-                // ⭐ Grupo de empresa é privado
                 val ehGrupoEmpresa = chat.empresaId.isNotEmpty()
 
                 badgeCamera.visibility =
@@ -187,7 +186,8 @@ class InfoGrupoActivity : BaseActivity() {
                         nome = doc.getString("nome") ?: "Usuário",
                         username = doc.getString("username") ?: "",
                         fotoUrl = doc.getString("fotoUrl") ?: "",
-                        ehAdmin = chat.admins.contains(uid) || chat.criadorId == uid
+                        ehAdmin = chat.admins.contains(uid) || chat.criadorId == uid,
+                        status = doc.getString("status") ?: ThemeManager.STATUS_ONLINE
                     )
                 )
             } catch (_: Exception) { }
@@ -282,7 +282,6 @@ class InfoGrupoActivity : BaseActivity() {
     }
 
     private fun confirmarSaida() {
-        // ⭐ Bloqueia saída de grupos de empresa
         if (chatAtual?.empresaId?.isNotEmpty() == true) {
             Toast.makeText(
                 this,

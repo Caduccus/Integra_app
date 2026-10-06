@@ -32,8 +32,7 @@
 
         <activity
             android:name=".MainActivity2"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
+            android:exported="false" />
 
         <activity
             android:name=".HomeActivity"
@@ -41,18 +40,15 @@
 
         <activity
             android:name=".ChatActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
+            android:exported="false" />
 
         <activity
             android:name=".CandidatosActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
+            android:exported="false" />
 
         <activity
             android:name=".PreviewImagemActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
+            android:exported="false" />
 
         <activity
             android:name=".PreviewAudioActivity"
@@ -60,8 +56,7 @@
 
         <activity
             android:name=".NovoGrupoActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
+            android:exported="false" />
 
         <activity
             android:name=".InfoGrupoActivity"
@@ -69,13 +64,11 @@
 
         <activity
             android:name=".PerfilUsuarioActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
+            android:exported="false" />
 
         <activity
             android:name=".AdicionarMembrosActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
+            android:exported="false" />
 
         <activity
             android:name=".CadastroEmpresaActivity"
@@ -91,8 +84,7 @@
 
         <activity
             android:name=".EditarTrabalhoActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
+            android:exported="false" />
 
     </application>
 </manifest>

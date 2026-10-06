@@ -1,5 +1,6 @@
 package com.example.plataformaremota.adapter
 
+import android.content.res.ColorStateList
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,6 +9,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.plataformaremota.R
+import com.example.plataformaremota.ThemeManager
 import com.google.android.material.card.MaterialCardView
 
 data class Membro(
@@ -15,7 +17,8 @@ data class Membro(
     val nome: String,
     val username: String,
     val fotoUrl: String = "",
-    val ehAdmin: Boolean = false
+    val ehAdmin: Boolean = false,
+    val status: String = "online"
 )
 
 class MembroGrupoAdapter(
@@ -29,6 +32,7 @@ class MembroGrupoAdapter(
         val txtNome: TextView = itemView.findViewById(R.id.txtNomeMembro)
         val txtUsername: TextView = itemView.findViewById(R.id.txtUsernameMembro)
         val txtAdmin: TextView = itemView.findViewById(R.id.txtAdminBadge)
+        val dotStatus: View = itemView.findViewById(R.id.dotStatusMembro)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MembroViewHolder {
@@ -44,6 +48,9 @@ class MembroGrupoAdapter(
         holder.txtNome.text = m.nome
         holder.txtUsername.text = if (m.username.isNotEmpty()) "@${m.username}" else ""
         holder.txtAdmin.visibility = if (m.ehAdmin) View.VISIBLE else View.GONE
+
+        val cor = ThemeManager.getStatusColor(m.status)
+        holder.dotStatus.backgroundTintList = ColorStateList.valueOf(cor)
 
         if (m.fotoUrl.isNotEmpty()) {
             Glide.with(holder.itemView.context)

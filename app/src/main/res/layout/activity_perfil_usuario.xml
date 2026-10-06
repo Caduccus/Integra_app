@@ -78,14 +78,28 @@
                         app:tint="@color/white" />
                 </com.google.android.material.card.MaterialCardView>
 
-                <TextView
-                    android:id="@+id/txtNomeUsuarioPerfil"
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Nome do Usuário"
-                    android:textColor="@color/white"
-                    android:textSize="22sp"
-                    android:textStyle="bold" />
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/txtNomeUsuarioPerfil"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Nome do Usuário"
+                        android:textColor="@color/white"
+                        android:textSize="22sp"
+                        android:textStyle="bold" />
+
+                    <View
+                        android:id="@+id/dotStatusUsuario"
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/bg_status_dot" />
+                </LinearLayout>
 
                 <TextView
                     android:id="@+id/txtUsernameUsuarioPerfil"
@@ -141,7 +155,54 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- ⭐ Ações do GRUPO (promover/remover) -->
+        <!-- ⭐ Links do usuário -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginBottom="8dp"
+            android:text="LINKS"
+            android:textColor="#B3FFFFFF"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginBottom="16dp"
+            app:cardBackgroundColor="#33FFFFFF"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="#66FFFFFF">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="8dp">
+
+                <LinearLayout
+                    android:id="@+id/containerLinksUsuario"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+
+                <TextView
+                    android:id="@+id/txtSemLinksUsuario"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp"
+                    android:text="Nenhum link adicionado"
+                    android:textAlignment="center"
+                    android:textColor="#80FFFFFF"
+                    android:textSize="13sp"
+                    android:textStyle="italic" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Ações do GRUPO -->
         <TextView
             android:id="@+id/txtTituloAcoes"
             android:layout_width="wrap_content"
@@ -199,7 +260,7 @@
                 app:iconTint="@color/white" />
         </LinearLayout>
 
-        <!-- ⭐ Ação de BLOQUEAR (sempre visível) -->
+        <!-- Bloquear -->
         <TextView
             android:id="@+id/txtTituloBloquear"
             android:layout_width="wrap_content"

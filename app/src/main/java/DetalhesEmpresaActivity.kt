@@ -116,7 +116,6 @@ class DetalhesEmpresaActivity : BaseActivity() {
 
         btnVoltar.setOnClickListener { finish() }
 
-        // ⭐ Toque no logo → abre galeria (se for dono)
         cardLogo.setOnClickListener {
             if (!souDono) {
                 Toast.makeText(
@@ -200,7 +199,6 @@ class DetalhesEmpresaActivity : BaseActivity() {
             imgLogo.setPadding(0, 0, 0, 0)
         }
 
-        // ⭐ Badge de câmera só pro dono
         badgeCamera.visibility = if (souDono) View.VISIBLE else View.GONE
 
         if (empresa.cnpj.isNotEmpty()) {
@@ -240,7 +238,8 @@ class DetalhesEmpresaActivity : BaseActivity() {
                         nome = doc.getString("nome") ?: "Usuário",
                         username = doc.getString("username") ?: "",
                         fotoUrl = doc.getString("fotoUrl") ?: "",
-                        ehAdmin = empresa.admins.contains(uid) || empresa.criadorId == uid
+                        ehAdmin = empresa.admins.contains(uid) || empresa.criadorId == uid,
+                        status = doc.getString("status") ?: ThemeManager.STATUS_ONLINE
                     )
                 )
             } catch (_: Exception) { }
@@ -369,7 +368,6 @@ class DetalhesEmpresaActivity : BaseActivity() {
         startActivity(intent)
     }
 
-    // ⭐ Upload da logo
     private fun uploadLogo(uri: Uri) {
         uploadingLogo = true
         Toast.makeText(this, "Enviando foto...", Toast.LENGTH_SHORT).show()

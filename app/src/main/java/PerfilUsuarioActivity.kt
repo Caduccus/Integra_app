@@ -3,6 +3,7 @@ package com.example.plataformaremota
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -24,7 +25,8 @@ class PerfilUsuarioActivity : BaseActivity() {
     private lateinit var txtUsername: TextView
     private lateinit var txtProfissao: TextView
     private lateinit var txtEmail: TextView
-    private lateinit var txtBioUsuarioPerfil: TextView      // ⭐ NOVO
+    private lateinit var txtBioUsuarioPerfil: TextView
+    private lateinit var dotStatusUsuario: View   // ⭐ NOVO
 
     private lateinit var txtTituloGrupo: TextView
     private lateinit var layoutAcoesGrupo: View
@@ -33,6 +35,10 @@ class PerfilUsuarioActivity : BaseActivity() {
 
     private lateinit var txtTituloBloquear: TextView
     private lateinit var btnBloquear: MaterialButton
+
+    // ⭐ Links
+    private lateinit var containerLinksUsuario: LinearLayout
+    private lateinit var txtSemLinksUsuario: TextView
 
     private lateinit var repository: ChatRepository
 
@@ -59,7 +65,8 @@ class PerfilUsuarioActivity : BaseActivity() {
         txtUsername = findViewById(R.id.txtUsernameUsuarioPerfil)
         txtProfissao = findViewById(R.id.txtProfissaoUsuarioPerfil)
         txtEmail = findViewById(R.id.txtEmailUsuarioPerfil)
-        txtBioUsuarioPerfil = findViewById(R.id.txtBioUsuarioPerfil)   // ⭐ NOVO
+        txtBioUsuarioPerfil = findViewById(R.id.txtBioUsuarioPerfil)
+        dotStatusUsuario = findViewById(R.id.dotStatusUsuario)
 
         txtTituloGrupo = findViewById(R.id.txtTituloAcoes)
         layoutAcoesGrupo = findViewById(R.id.layoutAcoesGrupo)
@@ -68,6 +75,9 @@ class PerfilUsuarioActivity : BaseActivity() {
 
         txtTituloBloquear = findViewById(R.id.txtTituloBloquear)
         btnBloquear = findViewById(R.id.btnBloquearUsuario)
+
+        containerLinksUsuario = findViewById(R.id.containerLinksUsuario)
+        txtSemLinksUsuario = findViewById(R.id.txtSemLinksUsuario)
 
         uidUsuario = intent.getStringExtra("uidUsuario") ?: ""
         chatId = intent.getStringExtra("chatId") ?: ""
@@ -88,21 +98,23 @@ class PerfilUsuarioActivity : BaseActivity() {
 
         lifecycleScope.launch {
             try {
-                // ─── Carrega dados do usuário ───
                 val docUser = db.collection("usuarios").document(uidUsuario).get().await()
                 val nome = docUser.getString("nome") ?: "Usuário"
                 val username = docUser.getString("username") ?: ""
                 val profissao = docUser.getString("profissao") ?: ""
                 val email = docUser.getString("email") ?: ""
                 val fotoUrl = docUser.getString("fotoUrl") ?: ""
-                val bio = docUser.getString("bio") ?: ""               // ⭐ NOVO
+                val bio = docUser.getString("bio") ?: ""
+                val status = docUser.getString("status") ?: ThemeManager.STATUS_ONLINE
 
                 txtNome.text = nome
                 txtUsername.text = if (username.isNotEmpty()) "@$username" else ""
                 txtProfissao.text = profissao.ifEmpty { "—" }
                 txtEmail.text = email
-                txtBioUsuarioPerfil.text =
-                    if (bio.isEmpty()) "Sem bio ainda" else bio       // ⭐ NOVO
+                txtBioUsuarioPerfil.text = if (bio.isEmpty()) "Sem bio ainda" else bio
+
+                dotStatusUsuario.backgroundTintList =
+                    android.content.res.ColorStateList.valueOf(ThemeManager.getStatusColor(status))
 
                 if (fotoUrl.isNotEmpty()) {
                     Glide.with(this@PerfilUsuarioActivity)
@@ -111,7 +123,8 @@ class PerfilUsuarioActivity : BaseActivity() {
                     imgFoto.setPadding(0, 0, 0, 0)
                 }
 
-                // ─── Carrega dados do grupo (se tiver chatId) ───
+                carregarLinksUsuario(docUser)
+
                 if (chatId.isNotEmpty()) {
                     val docChat = db.collection("chats").document(chatId).get().await()
                     val c = docChat.toObject(Chat::class.java)
@@ -150,6 +163,54 @@ class PerfilUsuarioActivity : BaseActivity() {
                     Toast.LENGTH_SHORT
                 ).show()
             }
+        }
+    }
+
+    private fun carregarLinksUsuario(doc: com.google.firebase.firestore.DocumentSnapshot) {
+        containerLinksUsuario.removeAllViews()
+
+        val listaRaw = doc.get("links") as? List<*> ?: emptyList<Any>()
+        if (listaRaw.isEmpty()) {
+            txtSemLinksUsuario.visibility = View.VISIBLE
+            return
+        }
+        txtSemLinksUsuario.visibility = View.GONE
+
+        for (item in listaRaw) {
+            @Suppress("UNCHECKED_CAST")
+            val map = item as? Map<String, Any?> ?: continue
+            val tipo = map["tipo"] as? String ?: continue
+            val valor = map["valor"] as? String ?: continue
+
+            val itemView = layoutInflater.inflate(R.layout.item_link_contato, containerLinksUsuario, false)
+            val txtTipo = itemView.findViewById<TextView>(R.id.txtLinkTipo)
+            val txtValor = itemView.findViewById<TextView>(R.id.txtLinkValor)
+            val btnRemover = itemView.findViewById<ImageView>(R.id.btnRemoverLink)
+
+            txtTipo.text = tipo.replaceFirstChar { it.uppercase() }
+            txtValor.text = valor
+            btnRemover.visibility = View.GONE
+
+            itemView.setOnClickListener {
+                val url = when (tipo.lowercase()) {
+                    "whatsapp"  -> "https://wa.me/${valor.filter { it.isDigit() }}"
+                    "linkedin"  -> if (valor.startsWith("http")) valor else "https://linkedin.com/in/$valor"
+                    "github"    -> if (valor.startsWith("http")) valor else "https://github.com/$valor"
+                    "instagram" -> if (valor.startsWith("http")) valor else "https://instagram.com/$valor"
+                    "email"     -> "mailto:$valor"
+                    else        -> if (valor.startsWith("http")) valor else "https://$valor"
+                }
+                try {
+                    startActivity(
+                        android.content.Intent(
+                            android.content.Intent.ACTION_VIEW,
+                            android.net.Uri.parse(url)
+                        )
+                    )
+                } catch (_: Exception) { }
+            }
+
+            containerLinksUsuario.addView(itemView)
         }
     }
 

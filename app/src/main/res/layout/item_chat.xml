@@ -18,7 +18,6 @@
         android:orientation="horizontal"
         android:padding="16dp">
 
-        <!-- ⭐ Avatar clicável -->
         <FrameLayout
             android:id="@+id/containerAvatarChat"
             android:layout_width="52dp"
@@ -48,22 +47,35 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
-                <!-- ⭐ Nome clicável -->
-                <TextView
-                    android:id="@+id/txtNomeChat"
+                <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:background="?attr/selectableItemBackground"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:ellipsize="end"
-                    android:maxLines="1"
-                    android:padding="2dp"
-                    android:text="Nome do Chat"
-                    android:textColor="#0D226B"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/txtNomeChat"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:padding="2dp"
+                        android:text="Nome do Chat"
+                        android:textColor="#0D226B"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <View
+                        android:id="@+id/dotStatusChat"
+                        android:layout_width="10dp"
+                        android:layout_height="10dp"
+                        android:layout_marginStart="6dp"
+                        android:background="@drawable/bg_status_dot" />
+                </LinearLayout>
 
                 <TextView
                     android:id="@+id/txtHoraChat"

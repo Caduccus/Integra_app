@@ -1,5 +1,6 @@
 package com.example.plataformaremota.adapter
 
+import android.content.res.ColorStateList
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,6 +10,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.plataformaremota.R
+import com.example.plataformaremota.ThemeManager
 import com.example.plataformaremota.data.entity.Chat
 import com.google.android.material.card.MaterialCardView
 import java.text.SimpleDateFormat
@@ -21,9 +23,10 @@ class ChatAdapter(
     private val nomeDoChat: (Chat) -> String,
     private val fotoDoChat: (Chat) -> String,
     private val contextoDoChat: (Chat) -> String,
+    private val statusDoChat: (Chat) -> String = { ThemeManager.STATUS_ONLINE },
     private val onClick: (Chat) -> Unit,
     private val onProfileClick: (Chat) -> Unit = {},
-    private val onLongClick: (Chat) -> Unit = {}    // ⭐ NOVO
+    private val onLongClick: (Chat) -> Unit = {}
 ) : RecyclerView.Adapter<ChatAdapter.ChatViewHolder>() {
 
     class ChatViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -31,6 +34,7 @@ class ChatAdapter(
         val containerAvatar: FrameLayout = itemView.findViewById(R.id.containerAvatarChat)
         val imgFoto: ImageView = itemView.findViewById(R.id.imgFotoChat)
         val txtNome: TextView = itemView.findViewById(R.id.txtNomeChat)
+        val dotStatus: View = itemView.findViewById(R.id.dotStatusChat)
         val txtHora: TextView = itemView.findViewById(R.id.txtHoraChat)
         val txtContexto: TextView = itemView.findViewById(R.id.txtContextoChat)
         val txtUltima: TextView = itemView.findViewById(R.id.txtUltimaMensagem)
@@ -48,6 +52,14 @@ class ChatAdapter(
 
         holder.txtNome.text = nomeDoChat(chat)
         holder.txtHora.text = formatarHora(chat.timestamp)
+
+        if (!chat.ehGrupo) {
+            holder.dotStatus.visibility = View.VISIBLE
+            val cor = ThemeManager.getStatusColor(statusDoChat(chat))
+            holder.dotStatus.backgroundTintList = ColorStateList.valueOf(cor)
+        } else {
+            holder.dotStatus.visibility = View.GONE
+        }
 
         val contexto = contextoDoChat(chat)
         if (contexto.isNotEmpty()) {
@@ -75,19 +87,14 @@ class ChatAdapter(
             holder.imgFoto.setPadding(0, 0, 0, 0)
         } else {
             holder.imgFoto.setImageResource(R.drawable.ic_person)
-            holder.imgFoto.imageTintList = android.content.res.ColorStateList.valueOf(0xFF0D226B.toInt())
+            holder.imgFoto.imageTintList = ColorStateList.valueOf(0xFF0D226B.toInt())
             val pad = (10 * holder.itemView.resources.displayMetrics.density).toInt()
             holder.imgFoto.setPadding(pad, pad, pad, pad)
         }
 
-        // Clique normal → abre conversa
         holder.card.setOnClickListener { onClick(chat) }
-
-        // Clique no avatar/nome → abre perfil
         holder.containerAvatar.setOnClickListener { onProfileClick(chat) }
         holder.txtNome.setOnClickListener { onProfileClick(chat) }
-
-        // ⭐ Long press → menu de opções (excluir)
         holder.card.setOnLongClickListener {
             onLongClick(chat)
             true
