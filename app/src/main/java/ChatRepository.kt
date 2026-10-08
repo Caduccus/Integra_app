@@ -1,14 +1,15 @@
 package com.example.plataformaremota.data.repository
 
 import android.util.Log
+import com.example.plataformaremota.NotificacaoHelper
 import com.example.plataformaremota.data.entity.Chat
 import com.example.plataformaremota.data.entity.Mensagem
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.tasks.await
-import com.example.plataformaremota.NotificacaoHelper
 
 class ChatRepository {
 
@@ -51,7 +52,6 @@ class ChatRepository {
                 )
                 docRef.set(chat).await()
             } else {
-                // ⭐ Se eu tinha deletado essa conversa, restauro pra mim
                 docRef.update("deletadosPara", FieldValue.arrayRemove(meuUid)).await()
             }
             chatId
@@ -70,22 +70,21 @@ class ChatRepository {
         }
     }
 
-    // ⭐ Excluir conversa (soft delete — só pra mim)
     suspend fun excluirConversa(chatId: String): Boolean {
         val uid = auth.currentUser?.uid ?: return false
         return try {
             db.collection("chats").document(chatId)
                 .update("deletadosPara", FieldValue.arrayUnion(uid))
                 .await()
-            Log.d(TAG, "✅ Conversa escondida pra $uid")
             true
         } catch (e: Exception) {
-            Log.e(TAG, "❌ Erro excluir: ${e.message}")
             false
         }
     }
 
-    // ⭐ Enviar mensagem de TEXTO
+    // ─────────────────────────────────────────────
+    // ENVIAR TEXTO
+    // ─────────────────────────────────────────────
     suspend fun enviarMensagem(chatId: String, texto: String): Boolean {
         val uid = auth.currentUser?.uid ?: return false
         if (texto.isBlank()) return false
@@ -113,9 +112,8 @@ class ChatRepository {
                 )
             ).await()
 
-            // ⭐ Ao enviar, restaura a conversa pra quem havia deletado
             restaurarParaTodos(chatId)
-
+            notificarParticipantes(chatId, texto.trim())
             true
         } catch (e: Exception) {
             Log.e(TAG, "❌ Erro ao enviar: ${e.message}")
@@ -123,7 +121,9 @@ class ChatRepository {
         }
     }
 
-    // ⭐ Enviar mensagem de ÁUDIO
+    // ─────────────────────────────────────────────
+    // ENVIAR ÁUDIO
+    // ─────────────────────────────────────────────
     suspend fun enviarAudio(chatId: String, urlAudio: String, duracaoMs: Long): Boolean {
         val uid = auth.currentUser?.uid ?: return false
 
@@ -152,7 +152,7 @@ class ChatRepository {
             ).await()
 
             restaurarParaTodos(chatId)
-
+            notificarParticipantes(chatId, "🎤 Áudio")
             true
         } catch (e: Exception) {
             Log.e(TAG, "❌ Erro ao enviar áudio: ${e.message}")
@@ -160,7 +160,9 @@ class ChatRepository {
         }
     }
 
-    // ⭐ Enviar mensagem de IMAGEM
+    // ─────────────────────────────────────────────
+    // ENVIAR IMAGEM
+    // ─────────────────────────────────────────────
     suspend fun enviarImagem(chatId: String, urlImagem: String, legenda: String = ""): Boolean {
         val uid = auth.currentUser?.uid ?: return false
 
@@ -190,7 +192,7 @@ class ChatRepository {
             ).await()
 
             restaurarParaTodos(chatId)
-
+            notificarParticipantes(chatId, if (legenda.isBlank()) "📷 Imagem" else "📷 $legenda")
             true
         } catch (e: Exception) {
             Log.e(TAG, "❌ Erro ao enviar imagem: ${e.message}")
@@ -198,7 +200,138 @@ class ChatRepository {
         }
     }
 
-    // ⭐ Restaura a conversa pra todos (limpa a lista de deletados)
+    // ─────────────────────────────────────────────
+    // ⭐ ENVIAR ARQUIVO
+    // ─────────────────────────────────────────────
+    suspend fun enviarArquivo(
+        chatId: String,
+        url: String,
+        nome: String,
+        tamanho: Long,
+        mime: String
+    ): Boolean {
+        val uid = auth.currentUser?.uid ?: return false
+        if (nome.isBlank()) return false
+
+        // ⭐ Garante extensão no nome
+        val nomeComExtensao = if (!nome.contains(".")) {
+            val ext = mimeParaExtensao(mime)
+            if (ext.isNotEmpty()) "$nome.$ext" else nome
+        } else nome
+
+        return try {
+            val nomeUser = buscarNomeUsuario(uid) ?: "Usuário"
+
+            val msg = Mensagem(
+                remetenteId = uid,
+                nomeRemetente = nomeUser,
+                texto = "",
+                tipo = "arquivo",
+                urlMidia = url,
+                timestamp = System.currentTimeMillis(),
+                nomeArquivo = nomeComExtensao,
+                tamanhoArquivo = tamanho,
+                mimeType = mime
+            )
+
+            db.collection("chats").document(chatId)
+                .collection("mensagens").add(msg).await()
+
+            db.collection("chats").document(chatId).update(
+                mapOf(
+                    "ultimaMensagem" to "📎 $nomeComExtensao",
+                    "ultimaMensagemRemetente" to nomeUser,
+                    "timestamp" to System.currentTimeMillis()
+                )
+            ).await()
+
+            restaurarParaTodos(chatId)
+            notificarParticipantes(chatId, "📎 $nomeComExtensao")
+            true
+        } catch (e: Exception) {
+            Log.e(TAG, "❌ Erro ao enviar arquivo: ${e.message}")
+            false
+        }
+    }
+
+    private fun mimeParaExtensao(mime: String): String {
+        return when (mime.lowercase()) {
+            "application/pdf" -> "pdf"
+            "application/msword" -> "doc"
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document" -> "docx"
+            "application/vnd.ms-excel" -> "xls"
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" -> "xlsx"
+            "application/vnd.ms-powerpoint" -> "ppt"
+            "application/vnd.openxmlformats-officedocument.presentationml.presentation" -> "pptx"
+            "application/zip" -> "zip"
+            "application/x-rar-compressed" -> "rar"
+            "application/x-7z-compressed" -> "7z"
+            "application/x-tar" -> "tar"
+            "text/plain" -> "txt"
+            "text/csv" -> "csv"
+            "text/html" -> "html"
+            "application/json" -> "json"
+            "application/xml" -> "xml"
+            "image/jpeg" -> "jpg"
+            "image/png" -> "png"
+            "image/gif" -> "gif"
+            "image/webp" -> "webp"
+            "video/mp4" -> "mp4"
+            "video/webm" -> "webm"
+            "audio/mpeg" -> "mp3"
+            "audio/mp4" -> "m4a"
+            "audio/wav" -> "wav"
+            "audio/ogg" -> "ogg"
+            else -> ""
+        }
+    }
+
+    suspend fun enviarMensagemComReply(
+        chatId: String,
+        texto: String,
+        replyTo: Mensagem? = null
+    ): Boolean {
+        val uid = auth.currentUser?.uid ?: return false
+        if (texto.isBlank()) return false
+
+        return try {
+            val nome = buscarNomeUsuario(uid) ?: "Usuário"
+
+            val msg = Mensagem(
+                remetenteId = uid,
+                nomeRemetente = nome,
+                texto = texto.trim(),
+                tipo = "texto",
+                urlMidia = "",
+                timestamp = System.currentTimeMillis(),
+                replyToId = replyTo?.id ?: "",
+                replyToNome = replyTo?.nomeRemetente ?: "",
+                replyToTexto = if (replyTo?.tipo == "imagem") "📷 Imagem"
+                else if (replyTo?.tipo == "audio") "🎤 Áudio"
+                else if (replyTo?.tipo == "arquivo") "📎 ${replyTo.nomeArquivo}"
+                else replyTo?.texto ?: ""
+            )
+
+            db.collection("chats").document(chatId)
+                .collection("mensagens").add(msg).await()
+
+            db.collection("chats").document(chatId).update(
+                mapOf(
+                    "ultimaMensagem" to texto.trim(),
+                    "ultimaMensagemRemetente" to nome,
+                    "timestamp" to System.currentTimeMillis()
+                )
+            ).await()
+
+            restaurarParaTodos(chatId)
+            notificarParticipantes(chatId, texto.trim())
+            true
+        } catch (e: Exception) {
+            Log.e(TAG, "❌ Erro: ${e.message}")
+            false
+        }
+    }
+
     private suspend fun restaurarParaTodos(chatId: String) {
         try {
             db.collection("chats").document(chatId)
@@ -233,7 +366,6 @@ class ChatRepository {
                 ).await()
             true
         } catch (e: Exception) {
-            Log.e(TAG, "❌ Erro ao editar: ${e.message}")
             false
         }
     }
@@ -245,7 +377,6 @@ class ChatRepository {
                 .delete().await()
             true
         } catch (e: Exception) {
-            Log.e(TAG, "❌ Erro ao deletar: ${e.message}")
             false
         }
     }
@@ -274,56 +405,9 @@ class ChatRepository {
             )
 
             docRef.set(chat).await()
-            Log.d(TAG, "✅ Grupo criado: ${docRef.id}")
             docRef.id
         } catch (e: Exception) {
-            Log.e(TAG, "❌ Erro ao criar grupo: ${e.message}")
             null
-        }
-    }
-
-    suspend fun enviarMensagemComReply(
-        chatId: String,
-        texto: String,
-        replyTo: Mensagem? = null
-    ): Boolean {
-        val uid = auth.currentUser?.uid ?: return false
-        if (texto.isBlank()) return false
-
-        return try {
-            val nome = buscarNomeUsuario(uid) ?: "Usuário"
-
-            val msg = Mensagem(
-                remetenteId = uid,
-                nomeRemetente = nome,
-                texto = texto.trim(),
-                tipo = "texto",
-                urlMidia = "",
-                timestamp = System.currentTimeMillis(),
-                replyToId = replyTo?.id ?: "",
-                replyToNome = replyTo?.nomeRemetente ?: "",
-                replyToTexto = if (replyTo?.tipo == "imagem") "📷 Imagem"
-                else if (replyTo?.tipo == "audio") "🎤 Áudio"
-                else replyTo?.texto ?: ""
-            )
-
-            db.collection("chats").document(chatId)
-                .collection("mensagens").add(msg).await()
-
-            db.collection("chats").document(chatId).update(
-                mapOf(
-                    "ultimaMensagem" to texto.trim(),
-                    "ultimaMensagemRemetente" to nome,
-                    "timestamp" to System.currentTimeMillis()
-                )
-            ).await()
-
-            restaurarParaTodos(chatId)
-
-            true
-        } catch (e: Exception) {
-            Log.e(TAG, "❌ Erro: ${e.message}")
-            false
         }
     }
 
@@ -358,7 +442,6 @@ class ChatRepository {
                 )
             ).await()
 
-            // ⭐ Se for grupo de empresa, remove TAMBÉM da empresa
             if (chat.empresaId.isNotEmpty()) {
                 try {
                     db.collection("empresas").document(chat.empresaId).update(
@@ -367,17 +450,13 @@ class ChatRepository {
                             "admins" to FieldValue.arrayRemove(uidRemover)
                         )
                     ).await()
-                    Log.d(TAG, "✅ Removido também da empresa ${chat.empresaId}")
                 } catch (e: Exception) {
-                    Log.e(TAG, "❌ Erro ao remover da empresa: ${e.message}")
+                    Log.e(TAG, "❌ Erro cascade empresa: ${e.message}")
                 }
             }
 
             true
-        } catch (e: Exception) {
-            Log.e(TAG, "❌ Erro ao remover membro: ${e.message}")
-            false
-        }
+        } catch (e: Exception) { false }
     }
 
     suspend fun sairDoGrupo(chatId: String): Boolean {
@@ -386,7 +465,6 @@ class ChatRepository {
         try {
             val chat = buscarChat(chatId)
             if (chat != null && chat.empresaId.isNotEmpty()) {
-                Log.d(TAG, "⛔ Saída bloqueada: grupo de empresa")
                 return false
             }
         } catch (_: Exception) { }
@@ -493,7 +571,6 @@ class ChatRepository {
             val chat = chatDoc.toObject(Chat::class.java)
 
             if (chat != null && chat.empresaId.isNotEmpty()) {
-                Log.d(TAG, "⛔ Adição bloqueada: grupo de empresa")
                 return false
             }
 
@@ -506,7 +583,6 @@ class ChatRepository {
 
             true
         } catch (e: Exception) {
-            Log.e(TAG, "❌ Erro ao adicionar membros: ${e.message}")
             false
         }
     }
@@ -533,18 +609,6 @@ class ChatRepository {
 
             true
         } catch (e: Exception) {
-            Log.e(TAG, "❌ Erro ao apagar grupo: ${e.message}")
-            false
-        }
-    }
-
-    suspend fun atualizar(id: String, campos: Map<String, Any>): Boolean {
-        return try {
-            db.collection("trabalhos").document(id).update(campos).await()
-            Log.d(TAG, "✅ Trabalho atualizado: $id")
-            true
-        } catch (e: Exception) {
-            Log.e(TAG, "❌ Erro ao atualizar: ${e.message}")
             false
         }
     }
@@ -574,7 +638,7 @@ class ChatRepository {
                         "unreadCount" to (unreadCount + 1),
                         "ultimaVez" to System.currentTimeMillis()
                     ),
-                    com.google.firebase.firestore.SetOptions.merge()
+                    SetOptions.merge()
                 ).await()
 
                 if (unreadCount < 3L) {

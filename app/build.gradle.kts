@@ -66,6 +66,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.constraintlayout)
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
 
     // Room
     implementation(libs.room.runtime)

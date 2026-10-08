@@ -27,7 +27,8 @@ class MensagemAdapter(
     private var mensagens: List<Mensagem>,
     private val fotosUsuarios: Map<String, String> = emptyMap(),
     private val onImagemClick: (String) -> Unit = {},
-    private val onLongClick: (Mensagem) -> Unit = {}
+    private val onLongClick: (Mensagem) -> Unit = {},
+    private val onArquivoClick: (Mensagem) -> Unit = {}   // ⭐ NOVO
 ) : RecyclerView.Adapter<MensagemAdapter.MensagemViewHolder>() {
 
     class MensagemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -45,6 +46,10 @@ class MensagemAdapter(
         val btnPlayAudio: ImageView = itemView.findViewById(R.id.btnPlayAudio)
         val progressAudio: ProgressBar = itemView.findViewById(R.id.progressAudio)
         val txtDuracaoAudio: TextView = itemView.findViewById(R.id.txtDuracaoAudio)
+        val layoutArquivo: LinearLayout = itemView.findViewById(R.id.layoutArquivo)
+        val imgIconeArquivo: ImageView = itemView.findViewById(R.id.imgIconeArquivo)
+        val txtNomeArquivo: TextView = itemView.findViewById(R.id.txtNomeArquivo)
+        val txtTamanhoArquivo: TextView = itemView.findViewById(R.id.txtTamanhoArquivo)
         val txtTexto: TextView = itemView.findViewById(R.id.txtTextoMensagem)
         val txtEditada: TextView = itemView.findViewById(R.id.txtEditada)
         val txtHora: TextView = itemView.findViewById(R.id.txtHora)
@@ -62,7 +67,6 @@ class MensagemAdapter(
         val uidAtual = FirebaseAuth.getInstance().currentUser?.uid ?: ""
         val ehMinha = msg.remetenteId == uidAtual
 
-        // ⭐ MENSAGEM DE SISTEMA
         if (msg.tipo == "sistema") {
             holder.linha.gravity = Gravity.CENTER
             holder.cardFoto.visibility = View.GONE
@@ -72,6 +76,7 @@ class MensagemAdapter(
             holder.layoutReply.visibility = View.GONE
             holder.imgMensagem.visibility = View.GONE
             holder.layoutAudio.visibility = View.GONE
+            holder.layoutArquivo.visibility = View.GONE
             holder.txtEditada.visibility = View.GONE
 
             holder.txtTexto.visibility = View.VISIBLE
@@ -80,12 +85,10 @@ class MensagemAdapter(
             holder.txtTexto.textSize = 12f
             holder.txtTexto.gravity = Gravity.CENTER
             holder.txtTexto.setTypeface(null, Typeface.ITALIC)
-
             holder.txtHora.visibility = View.GONE
             return
         }
 
-        // Restaura estado normal (mensagens que não são de sistema)
         holder.txtHora.visibility = View.VISIBLE
         holder.txtTexto.textSize = 15f
         holder.txtTexto.gravity = Gravity.START
@@ -98,6 +101,7 @@ class MensagemAdapter(
 
         holder.imgMensagem.visibility = View.GONE
         holder.layoutAudio.visibility = View.GONE
+        holder.layoutArquivo.visibility = View.GONE
         holder.txtTexto.visibility = View.GONE
         holder.layoutReply.visibility = View.GONE
         holder.txtEditada.visibility = View.GONE
@@ -128,15 +132,23 @@ class MensagemAdapter(
                     tocarAudio(holder, msg.urlMidia)
                 }
             }
+            "arquivo" -> {
+                holder.layoutArquivo.visibility = View.VISIBLE
+                holder.txtNomeArquivo.text = msg.nomeArquivo.ifEmpty { "arquivo" }
+                holder.txtTamanhoArquivo.text = formatarTamanho(msg.tamanhoArquivo)
+
+                // ⭐ Delega pro ChatActivity (que baixa e abre local)
+                holder.layoutArquivo.setOnClickListener {
+                    onArquivoClick(msg)
+                }
+            }
             else -> {
                 holder.txtTexto.visibility = View.VISIBLE
                 holder.txtTexto.text = msg.texto
             }
         }
 
-        if (msg.editada) {
-            holder.txtEditada.visibility = View.VISIBLE
-        }
+        if (msg.editada) holder.txtEditada.visibility = View.VISIBLE
 
         if (ehMinha) {
             holder.linha.gravity = Gravity.END
@@ -148,6 +160,10 @@ class MensagemAdapter(
             holder.txtDuracaoAudio.setTextColor(android.graphics.Color.WHITE)
             holder.txtReplyNome.setTextColor(android.graphics.Color.WHITE)
             holder.txtReplyTexto.setTextColor(0xCCFFFFFF.toInt())
+            holder.txtNomeArquivo.setTextColor(android.graphics.Color.WHITE)
+            holder.txtTamanhoArquivo.setTextColor(0xCCFFFFFF.toInt())
+            holder.imgIconeArquivo.imageTintList =
+                android.content.res.ColorStateList.valueOf(android.graphics.Color.WHITE)
             params.marginStart = 40
             params.marginEnd = 0
         } else {
@@ -158,6 +174,10 @@ class MensagemAdapter(
             holder.txtDuracaoAudio.setTextColor(0xFF333333.toInt())
             holder.txtReplyNome.setTextColor(0xFF0D226B.toInt())
             holder.txtReplyTexto.setTextColor(0xFF666666.toInt())
+            holder.txtNomeArquivo.setTextColor(0xFF0D226B.toInt())
+            holder.txtTamanhoArquivo.setTextColor(0xFF666666.toInt())
+            holder.imgIconeArquivo.imageTintList =
+                android.content.res.ColorStateList.valueOf(0xFF0D226B.toInt())
 
             holder.cardFoto.visibility = View.VISIBLE
             val fotoUrl = fotosUsuarios[msg.remetenteId] ?: ""
@@ -184,6 +204,17 @@ class MensagemAdapter(
         holder.bubble.setOnLongClickListener {
             onLongClick(msg)
             true
+        }
+    }
+
+    private fun formatarTamanho(bytes: Long): String {
+        if (bytes <= 0) return "arquivo"
+        val kb = bytes / 1024.0
+        val mb = kb / 1024.0
+        return when {
+            mb >= 1 -> String.format("%.1f MB", mb)
+            kb >= 1 -> String.format("%.0f KB", kb)
+            else -> "$bytes B"
         }
     }
 

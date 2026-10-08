@@ -17,14 +17,15 @@ data class Candidato(
     val uid: String,
     val nome: String,
     val timestamp: Long,
-    val status: String = "pendente"   // ⭐ NOVO
+    val status: String = "pendente"
 )
 
 class CandidatoAdapter(
     private var candidatos: List<Candidato>,
     private val onChatClick: (Candidato) -> Unit,
-    private val onAceitar: (Candidato) -> Unit = {},   // ⭐ NOVO
-    private val onRejeitar: (Candidato) -> Unit = {}   // ⭐ NOVO
+    private val onAceitar: (Candidato) -> Unit = {},
+    private val onRejeitar: (Candidato) -> Unit = {},
+    private val onAvaliar: (Candidato) -> Unit = {}   // ⭐ NOVO
 ) : RecyclerView.Adapter<CandidatoAdapter.CandidatoViewHolder>() {
 
     class CandidatoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -35,6 +36,7 @@ class CandidatoAdapter(
         val txtStatus: TextView = itemView.findViewById(R.id.txtStatusCandidato)
         val btnAceitar: MaterialButton = itemView.findViewById(R.id.btnAceitarCandidato)
         val btnRejeitar: MaterialButton = itemView.findViewById(R.id.btnRejeitarCandidato)
+        val btnAvaliar: MaterialButton = itemView.findViewById(R.id.btnAvaliarCandidato)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CandidatoViewHolder {
@@ -52,7 +54,6 @@ class CandidatoAdapter(
         val formato = SimpleDateFormat("dd/MM 'às' HH:mm", Locale.getDefault())
         holder.txtData.text = "Candidatou-se em ${formato.format(Date(candidato.timestamp))}"
 
-        // ⭐ Chip de status
         val (textoChip, corChip) = when (candidato.status.lowercase()) {
             "aceito", "aceita" -> "Aceito" to Color.parseColor("#43A047")
             "rejeitado", "rejeitada" -> "Rejeitado" to Color.parseColor("#D32F2F")
@@ -62,11 +63,12 @@ class CandidatoAdapter(
         holder.cardStatus.setCardBackgroundColor(corChip)
         holder.txtStatus.text = textoChip
 
-        // ⭐ Esconde botões se já decidido
         val decidido = candidato.status.lowercase() in listOf(
             "aceito", "aceita", "rejeitado", "rejeitada"
         )
+        val aceito = candidato.status.lowercase() in listOf("aceito", "aceita")
 
+        // Botões aceitar/rejeitar somem se já decidido
         if (decidido) {
             holder.btnAceitar.visibility = View.GONE
             holder.btnRejeitar.visibility = View.GONE
@@ -75,9 +77,13 @@ class CandidatoAdapter(
             holder.btnRejeitar.visibility = View.VISIBLE
         }
 
+        // ⭐ Botão Avaliar só aparece se aceito
+        holder.btnAvaliar.visibility = if (aceito) View.VISIBLE else View.GONE
+
         holder.btnChat.setOnClickListener { onChatClick(candidato) }
         holder.btnAceitar.setOnClickListener { onAceitar(candidato) }
         holder.btnRejeitar.setOnClickListener { onRejeitar(candidato) }
+        holder.btnAvaliar.setOnClickListener { onAvaliar(candidato) }
     }
 
     override fun getItemCount(): Int = candidatos.size

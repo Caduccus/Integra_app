@@ -179,5 +179,23 @@
             android:text="Enviada em 05/10 às 14:32"
             android:textColor="#888888"
             android:textSize="11sp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAvaliarEmpresa"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginTop="10dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:text="AVALIAR EMPRESA"
+            android:textColor="#FFC107"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            app:cornerRadius="20dp"
+            app:strokeColor="#FFC107"
+            app:strokeWidth="1.5dp" />
+
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

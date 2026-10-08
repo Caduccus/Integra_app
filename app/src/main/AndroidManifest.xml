@@ -46,6 +46,18 @@
         <activity android:name=".MinhasCandidaturasActivity" android:exported="false" />
         <activity android:name=".NotificacoesActivity" android:exported="false" />
         <activity android:name=".VisualizacoesActivity" android:exported="false" />
+        <activity android:name=".EstatisticasEmpresaActivity" android:exported="false" />
+
+        <!-- ⭐ FileProvider pro compartilhamento de arquivos baixados -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
 
     </application>
 </manifest>

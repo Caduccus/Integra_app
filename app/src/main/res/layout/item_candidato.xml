@@ -141,6 +141,26 @@
                 app:cornerRadius="18dp"
                 app:strokeColor="#D32F2F"
                 app:strokeWidth="1.5dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnAvaliarCandidato"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:layout_marginStart="6dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:minWidth="0dp"
+                android:paddingHorizontal="14dp"
+                android:text="AVALIAR"
+                android:textColor="#FFC107"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:visibility="gone"
+                app:cornerRadius="18dp"
+                app:strokeColor="#FFC107"
+                app:strokeWidth="1.5dp" />
+
         </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

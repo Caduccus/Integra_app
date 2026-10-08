@@ -60,9 +60,10 @@ class CandidatosActivity : BaseActivity() {
     private fun configurarRecyclerView() {
         adapter = CandidatoAdapter(
             candidatos = emptyList(),
-            onChatClick = { candidato -> abrirChatComCandidato(candidato) },
-            onAceitar = { candidato -> confirmarAceitar(candidato) },
-            onRejeitar = { candidato -> confirmarRejeitar(candidato) }
+            onChatClick = { c -> abrirChatComCandidato(c) },
+            onAceitar = { c -> confirmarAceitar(c) },
+            onRejeitar = { c -> confirmarRejeitar(c) },
+            onAvaliar = { c -> avaliarCandidato(c) }
         )
         rvCandidatos.layoutManager = LinearLayoutManager(this)
         rvCandidatos.adapter = adapter
@@ -161,14 +162,11 @@ class CandidatosActivity : BaseActivity() {
                 else
                     "Sua candidatura para '$tituloTrabalho' não foi aceita dessa vez."
 
-                // Push
                 NotificacaoHelper.enviar(
                     uidDestino = candidato.uid,
                     titulo = titulo,
                     mensagem = msg
                 )
-
-                // ⭐ In-app
                 NotificacaoHelper.salvarInApp(
                     uidDestino = candidato.uid,
                     titulo = titulo,
@@ -183,6 +181,18 @@ class CandidatosActivity : BaseActivity() {
                 Toast.makeText(this@CandidatosActivity, "Erro: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    // ⭐ Avaliar candidato
+    private fun avaliarCandidato(candidato: Candidato) {
+        AvaliarHelper.abrirDialog(
+            context = this,
+            alvoId = candidato.uid,
+            alvoTipo = "usuario",
+            alvoNome = candidato.nome,
+            trabalhoId = trabalhoId,
+            trabalhoTitulo = tituloTrabalho
+        )
     }
 
     private fun abrirChatComCandidato(candidato: Candidato) {

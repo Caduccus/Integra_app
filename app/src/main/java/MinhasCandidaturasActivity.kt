@@ -39,11 +39,15 @@ class MinhasCandidaturasActivity : BaseActivity() {
         layoutVazio = findViewById(R.id.layoutVazioCandidaturas)
         layoutLoading = findViewById(R.id.layoutLoadingCandidaturas)
 
-        adapter = CandidaturaAdapter(emptyList()) { item ->
-            val intent = Intent(this, MainActivity2::class.java)
-            intent.putExtra("trabalhoId", item.trabalhoId)
-            startActivity(intent)
-        }
+        adapter = CandidaturaAdapter(
+            itens = emptyList(),
+            onClick = { item ->
+                val intent = Intent(this, MainActivity2::class.java)
+                intent.putExtra("trabalhoId", item.trabalhoId)
+                startActivity(intent)
+            },
+            onAvaliar = { item -> avaliarEmpresa(item) }
+        )
 
         rvCandidaturas.layoutManager = LinearLayoutManager(this)
         rvCandidaturas.adapter = adapter
@@ -56,6 +60,17 @@ class MinhasCandidaturasActivity : BaseActivity() {
         ThemeManager.aplicarCoresTexto(this, findViewById(android.R.id.content))
     }
 
+    private fun avaliarEmpresa(item: CandidaturaItem) {
+        AvaliarHelper.abrirDialog(
+            context = this,
+            alvoId = item.empresaId,
+            alvoTipo = "empresa",
+            alvoNome = item.empresaNome.ifEmpty { "a empresa" },
+            trabalhoId = item.trabalhoId,
+            trabalhoTitulo = item.tituloTrabalho
+        )
+    }
+
     private fun carregar() {
         val uid = auth.currentUser?.uid ?: return
 
@@ -63,7 +78,6 @@ class MinhasCandidaturasActivity : BaseActivity() {
             try {
                 val trabalhosSnap = db.collection("trabalhos").get().await()
 
-                // Busca candidaturas EM PARALELO
                 val itens = coroutineScope {
                     trabalhosSnap.documents.map { trabalhoDoc ->
                         async {
@@ -83,6 +97,7 @@ class MinhasCandidaturasActivity : BaseActivity() {
                                     trabalhoId = trabalhoDoc.id,
                                     tituloTrabalho = trabalhoDoc.getString("titulo") ?: "Sem título",
                                     empresaNome = trabalhoDoc.getString("empresaNome") ?: "",
+                                    empresaId = trabalhoDoc.getString("empresaId") ?: "",
                                     statusCandidatura = status,
                                     timestamp = ts
                                 )

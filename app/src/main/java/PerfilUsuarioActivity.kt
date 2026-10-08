@@ -19,7 +19,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-
+import kotlin.math.roundToInt
 class PerfilUsuarioActivity : BaseActivity() {
 
     private lateinit var btnVoltar: ImageView
@@ -43,11 +43,19 @@ class PerfilUsuarioActivity : BaseActivity() {
     private lateinit var containerLinksUsuario: LinearLayout
     private lateinit var txtSemLinksUsuario: TextView
 
-    // ⭐ Currículo
+    // Currículo
     private lateinit var txtTituloCurriculo: TextView
     private lateinit var cardCurriculoUsuario: MaterialCardView
     private lateinit var txtNomeCurriculoUsuario: TextView
     private var curriculoUrlUsuario: String = ""
+
+    // ⭐ Avaliações
+    private lateinit var txtTituloAvaliacoes: TextView
+    private lateinit var cardAvaliacoesUsuario: MaterialCardView
+    private lateinit var txtMediaAvaliacoes: TextView
+    private lateinit var linhaEstrelasMedia: LinearLayout
+    private lateinit var txtTotalAvaliacoes: TextView
+    private lateinit var containerAvaliacoesUsuario: LinearLayout
 
     private lateinit var repository: ChatRepository
 
@@ -88,10 +96,16 @@ class PerfilUsuarioActivity : BaseActivity() {
         containerLinksUsuario = findViewById(R.id.containerLinksUsuario)
         txtSemLinksUsuario = findViewById(R.id.txtSemLinksUsuario)
 
-        // ⭐ Currículo
         txtTituloCurriculo = findViewById(R.id.txtTituloCurriculo)
         cardCurriculoUsuario = findViewById(R.id.cardCurriculoUsuario)
         txtNomeCurriculoUsuario = findViewById(R.id.txtNomeCurriculoUsuario)
+
+        txtTituloAvaliacoes = findViewById(R.id.txtTituloAvaliacoes)
+        cardAvaliacoesUsuario = findViewById(R.id.cardAvaliacoesUsuario)
+        txtMediaAvaliacoes = findViewById(R.id.txtMediaAvaliacoes)
+        linhaEstrelasMedia = findViewById(R.id.linhaEstrelasMedia)
+        txtTotalAvaliacoes = findViewById(R.id.txtTotalAvaliacoes)
+        containerAvaliacoesUsuario = findViewById(R.id.containerAvaliacoesUsuario)
 
         uidUsuario = intent.getStringExtra("uidUsuario") ?: ""
         chatId = intent.getStringExtra("chatId") ?: ""
@@ -156,6 +170,7 @@ class PerfilUsuarioActivity : BaseActivity() {
 
                 carregarLinksUsuario(docUser)
                 carregarCurriculo(docUser)
+                carregarAvaliacoesUsuario()
 
                 if (chatId.isNotEmpty()) {
                     val docChat = db.collection("chats").document(chatId).get().await()
@@ -198,7 +213,90 @@ class PerfilUsuarioActivity : BaseActivity() {
         }
     }
 
-    // ⭐ Currículo
+    private fun carregarAvaliacoesUsuario() {
+        lifecycleScope.launch {
+            try {
+                val snap = db.collection("avaliacoes")
+                    .whereEqualTo("alvoId", uidUsuario)
+                    .whereEqualTo("alvoTipo", "usuario")
+                    .get().await()
+
+                val avaliacoes = snap.documents.mapNotNull {
+                    it.toObject(com.example.plataformaremota.data.entity.Avaliacao::class.java)
+                }.sortedByDescending { it.timestamp }
+
+                if (avaliacoes.isEmpty()) {
+                    txtTituloAvaliacoes.visibility = View.GONE
+                    cardAvaliacoesUsuario.visibility = View.GONE
+                    return@launch
+                }
+
+                txtTituloAvaliacoes.visibility = View.VISIBLE
+                cardAvaliacoesUsuario.visibility = View.VISIBLE
+
+                val media = avaliacoes.map { it.estrelas }.average()
+                txtMediaAvaliacoes.text = String.format("%.1f", media)
+                txtTotalAvaliacoes.text =
+                    "(${avaliacoes.size} ${if (avaliacoes.size == 1) "avaliação" else "avaliações"})"
+
+                linhaEstrelasMedia.removeAllViews()
+                for (i in 1..5) {
+                    val iv = ImageView(this@PerfilUsuarioActivity)
+                    val size = (18 * resources.displayMetrics.density).toInt()
+                    val params = LinearLayout.LayoutParams(size, size)
+                    params.marginEnd = (2 * resources.displayMetrics.density).toInt()
+                    iv.layoutParams = params
+                    if (i <= media.roundToInt()) {
+                        iv.setImageResource(R.drawable.ic_star_filled)
+                        iv.imageTintList =
+                            android.content.res.ColorStateList.valueOf(0xFFFFC107.toInt())
+                    } else {
+                        iv.setImageResource(R.drawable.ic_star_outline)
+                        iv.imageTintList =
+                            android.content.res.ColorStateList.valueOf(0xFFBDBDBD.toInt())
+                    }
+                    linhaEstrelasMedia.addView(iv)
+                }
+
+                containerAvaliacoesUsuario.removeAllViews()
+                for (av in avaliacoes.take(5)) {
+                    val itemView = layoutInflater.inflate(
+                        R.layout.item_avaliacao, containerAvaliacoesUsuario, false
+                    )
+                    itemView.findViewById<TextView>(R.id.txtAutorAvaliacao).text = av.autorNome
+                    itemView.findViewById<TextView>(R.id.txtComentarioAvaliacao).text =
+                        if (av.comentario.isEmpty()) "(sem comentário)" else av.comentario
+
+                    val ctx = itemView.findViewById<TextView>(R.id.txtContextoAvaliacao)
+                    if (av.trabalhoTitulo.isNotEmpty()) {
+                        ctx.visibility = View.VISIBLE
+                        ctx.text = "Sobre: ${av.trabalhoTitulo}"
+                    }
+
+                    val linha = itemView.findViewById<LinearLayout>(R.id.linhaEstrelasItem)
+                    for (i in 1..5) {
+                        val iv = ImageView(this@PerfilUsuarioActivity)
+                        val size = (14 * resources.displayMetrics.density).toInt()
+                        val params = LinearLayout.LayoutParams(size, size)
+                        iv.layoutParams = params
+                        if (i <= av.estrelas) {
+                            iv.setImageResource(R.drawable.ic_star_filled)
+                            iv.imageTintList =
+                                android.content.res.ColorStateList.valueOf(0xFFFFC107.toInt())
+                        } else {
+                            iv.setImageResource(R.drawable.ic_star_outline)
+                            iv.imageTintList =
+                                android.content.res.ColorStateList.valueOf(0xFFBDBDBD.toInt())
+                        }
+                        linha.addView(iv)
+                    }
+
+                    containerAvaliacoesUsuario.addView(itemView)
+                }
+            } catch (_: Exception) { }
+        }
+    }
+
     private fun carregarCurriculo(doc: com.google.firebase.firestore.DocumentSnapshot) {
         val url = doc.getString("curriculoUrl") ?: ""
         val nome = doc.getString("curriculoNome") ?: "curriculo.pdf"
