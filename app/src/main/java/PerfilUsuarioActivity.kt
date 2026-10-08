@@ -1,5 +1,7 @@
 package com.example.plataformaremota
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
@@ -12,6 +14,7 @@ import com.bumptech.glide.Glide
 import com.example.plataformaremota.data.entity.Chat
 import com.example.plataformaremota.data.repository.ChatRepository
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.card.MaterialCardView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
@@ -26,7 +29,7 @@ class PerfilUsuarioActivity : BaseActivity() {
     private lateinit var txtProfissao: TextView
     private lateinit var txtEmail: TextView
     private lateinit var txtBioUsuarioPerfil: TextView
-    private lateinit var dotStatusUsuario: View   // ⭐ NOVO
+    private lateinit var dotStatusUsuario: View
 
     private lateinit var txtTituloGrupo: TextView
     private lateinit var layoutAcoesGrupo: View
@@ -36,9 +39,15 @@ class PerfilUsuarioActivity : BaseActivity() {
     private lateinit var txtTituloBloquear: TextView
     private lateinit var btnBloquear: MaterialButton
 
-    // ⭐ Links
+    // Links
     private lateinit var containerLinksUsuario: LinearLayout
     private lateinit var txtSemLinksUsuario: TextView
+
+    // ⭐ Currículo
+    private lateinit var txtTituloCurriculo: TextView
+    private lateinit var cardCurriculoUsuario: MaterialCardView
+    private lateinit var txtNomeCurriculoUsuario: TextView
+    private var curriculoUrlUsuario: String = ""
 
     private lateinit var repository: ChatRepository
 
@@ -79,6 +88,11 @@ class PerfilUsuarioActivity : BaseActivity() {
         containerLinksUsuario = findViewById(R.id.containerLinksUsuario)
         txtSemLinksUsuario = findViewById(R.id.txtSemLinksUsuario)
 
+        // ⭐ Currículo
+        txtTituloCurriculo = findViewById(R.id.txtTituloCurriculo)
+        cardCurriculoUsuario = findViewById(R.id.cardCurriculoUsuario)
+        txtNomeCurriculoUsuario = findViewById(R.id.txtNomeCurriculoUsuario)
+
         uidUsuario = intent.getStringExtra("uidUsuario") ?: ""
         chatId = intent.getStringExtra("chatId") ?: ""
 
@@ -90,7 +104,22 @@ class PerfilUsuarioActivity : BaseActivity() {
 
         btnVoltar.setOnClickListener { finish() }
 
+        registrarVisualizacao()
         carregarDados()
+    }
+
+    private fun registrarVisualizacao() {
+        val uidAtual = auth.currentUser?.uid ?: return
+        if (uidAtual == uidUsuario) return
+
+        lifecycleScope.launch {
+            try {
+                db.collection("usuarios").document(uidUsuario)
+                    .collection("visualizacoes").document(uidAtual)
+                    .set(mapOf("timestamp" to System.currentTimeMillis()))
+                    .await()
+            } catch (_: Exception) { }
+        }
     }
 
     private fun carregarDados() {
@@ -114,7 +143,9 @@ class PerfilUsuarioActivity : BaseActivity() {
                 txtBioUsuarioPerfil.text = if (bio.isEmpty()) "Sem bio ainda" else bio
 
                 dotStatusUsuario.backgroundTintList =
-                    android.content.res.ColorStateList.valueOf(ThemeManager.getStatusColor(status))
+                    android.content.res.ColorStateList.valueOf(
+                        ThemeManager.getStatusColor(status)
+                    )
 
                 if (fotoUrl.isNotEmpty()) {
                     Glide.with(this@PerfilUsuarioActivity)
@@ -124,6 +155,7 @@ class PerfilUsuarioActivity : BaseActivity() {
                 }
 
                 carregarLinksUsuario(docUser)
+                carregarCurriculo(docUser)
 
                 if (chatId.isNotEmpty()) {
                     val docChat = db.collection("chats").document(chatId).get().await()
@@ -166,6 +198,35 @@ class PerfilUsuarioActivity : BaseActivity() {
         }
     }
 
+    // ⭐ Currículo
+    private fun carregarCurriculo(doc: com.google.firebase.firestore.DocumentSnapshot) {
+        val url = doc.getString("curriculoUrl") ?: ""
+        val nome = doc.getString("curriculoNome") ?: "curriculo.pdf"
+
+        if (url.isEmpty()) {
+            txtTituloCurriculo.visibility = View.GONE
+            cardCurriculoUsuario.visibility = View.GONE
+            return
+        }
+
+        curriculoUrlUsuario = url
+        txtTituloCurriculo.visibility = View.VISIBLE
+        cardCurriculoUsuario.visibility = View.VISIBLE
+        txtNomeCurriculoUsuario.text = nome
+
+        cardCurriculoUsuario.setOnClickListener {
+            try {
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(curriculoUrlUsuario)))
+            } catch (_: Exception) {
+                Toast.makeText(
+                    this@PerfilUsuarioActivity,
+                    "Nenhum app pra abrir PDF",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+
     private fun carregarLinksUsuario(doc: com.google.firebase.firestore.DocumentSnapshot) {
         containerLinksUsuario.removeAllViews()
 
@@ -182,7 +243,9 @@ class PerfilUsuarioActivity : BaseActivity() {
             val tipo = map["tipo"] as? String ?: continue
             val valor = map["valor"] as? String ?: continue
 
-            val itemView = layoutInflater.inflate(R.layout.item_link_contato, containerLinksUsuario, false)
+            val itemView = layoutInflater.inflate(
+                R.layout.item_link_contato, containerLinksUsuario, false
+            )
             val txtTipo = itemView.findViewById<TextView>(R.id.txtLinkTipo)
             val txtValor = itemView.findViewById<TextView>(R.id.txtLinkValor)
             val btnRemover = itemView.findViewById<ImageView>(R.id.btnRemoverLink)
@@ -201,12 +264,7 @@ class PerfilUsuarioActivity : BaseActivity() {
                     else        -> if (valor.startsWith("http")) valor else "https://$valor"
                 }
                 try {
-                    startActivity(
-                        android.content.Intent(
-                            android.content.Intent.ACTION_VIEW,
-                            android.net.Uri.parse(url)
-                        )
-                    )
+                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
                 } catch (_: Exception) { }
             }
 
@@ -247,7 +305,8 @@ class PerfilUsuarioActivity : BaseActivity() {
         lifecycleScope.launch {
             try {
                 val docMeu = db.collection("usuarios").document(uidAtual).get().await()
-                val meusBloqueados = (docMeu.get("bloqueados") as? List<*>)?.filterIsInstance<String>() ?: emptyList()
+                val meusBloqueados = (docMeu.get("bloqueados") as? List<*>)
+                    ?.filterIsInstance<String>() ?: emptyList()
                 usuarioEstaBloqueado = meusBloqueados.contains(uidUsuario)
 
                 atualizarBotaoBloquear()
@@ -274,7 +333,11 @@ class PerfilUsuarioActivity : BaseActivity() {
                 lifecycleScope.launch {
                     val ok = repository.promoverAdmin(chatId, uidUsuario)
                     if (ok) {
-                        Toast.makeText(this@PerfilUsuarioActivity, "Promovido!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            this@PerfilUsuarioActivity,
+                            "Promovido!",
+                            Toast.LENGTH_SHORT
+                        ).show()
                         finish()
                     }
                 }
@@ -291,7 +354,11 @@ class PerfilUsuarioActivity : BaseActivity() {
                 lifecycleScope.launch {
                     val ok = repository.rebaixarAdmin(chatId, uidUsuario)
                     if (ok) {
-                        Toast.makeText(this@PerfilUsuarioActivity, "Rebaixado", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            this@PerfilUsuarioActivity,
+                            "Rebaixado",
+                            Toast.LENGTH_SHORT
+                        ).show()
                         finish()
                     }
                 }
@@ -308,7 +375,11 @@ class PerfilUsuarioActivity : BaseActivity() {
                 lifecycleScope.launch {
                     val ok = repository.removerMembro(chatId, uidUsuario)
                     if (ok) {
-                        Toast.makeText(this@PerfilUsuarioActivity, "Removido!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            this@PerfilUsuarioActivity,
+                            "Removido!",
+                            Toast.LENGTH_SHORT
+                        ).show()
                         finish()
                     }
                 }
@@ -324,14 +395,22 @@ class PerfilUsuarioActivity : BaseActivity() {
                 if (ok) {
                     usuarioEstaBloqueado = false
                     atualizarBotaoBloquear()
-                    Toast.makeText(this@PerfilUsuarioActivity, "Desbloqueado", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this@PerfilUsuarioActivity,
+                        "Desbloqueado",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             } else {
                 val ok = repository.bloquearUsuario(uidUsuario)
                 if (ok) {
                     usuarioEstaBloqueado = true
                     atualizarBotaoBloquear()
-                    Toast.makeText(this@PerfilUsuarioActivity, "Bloqueado", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this@PerfilUsuarioActivity,
+                        "Bloqueado",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
         }

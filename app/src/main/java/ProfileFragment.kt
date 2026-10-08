@@ -35,8 +35,16 @@ import kotlinx.coroutines.tasks.await
 import java.io.File
 import java.io.FileOutputStream
 
+
 class ProfileFragment : Fragment() {
 
+
+    private lateinit var btnAnexarCurriculo: View
+    private lateinit var containerCurriculoAnexado: View
+    private lateinit var txtNomeCurriculo: TextView
+    private lateinit var btnRemoverCurriculo: ImageView
+    private var curriculoUrlAtual: String = ""
+    private var curriculoNomeAtual: String = ""
     private lateinit var imgFotoPerfil: ImageView
     private lateinit var cardAvatarPerfil: MaterialCardView
     private lateinit var txtNomePerfil: TextView
@@ -82,6 +90,14 @@ class ProfileFragment : Fragment() {
         }
     }
 
+    private val pickPdfLauncher = registerForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        if (uri != null && isAdded) {
+            uploadCurriculo(uri)
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
@@ -91,6 +107,13 @@ class ProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        view.findViewById<View>(R.id.btnVerVisualizacoes).setOnClickListener {
+            startActivity(Intent(requireContext(), VisualizacoesActivity::class.java))
+        }
+        btnAnexarCurriculo = view.findViewById(R.id.btnAnexarCurriculo)
+        containerCurriculoAnexado = view.findViewById(R.id.containerCurriculoAnexado)
+        txtNomeCurriculo = view.findViewById(R.id.txtNomeCurriculo)
+        btnRemoverCurriculo = view.findViewById(R.id.btnRemoverCurriculo)
         imgFotoPerfil = view.findViewById(R.id.imgFotoPerfil)
         cardAvatarPerfil = view.findViewById(R.id.cardAvatarPerfil)
         txtNomePerfil = view.findViewById(R.id.txtNomePerfil)
@@ -137,6 +160,18 @@ class ProfileFragment : Fragment() {
             abrirDialogAddLink()
         }
 
+        btnAnexarCurriculo.setOnClickListener {
+            pickPdfLauncher.launch(arrayOf("application/pdf"))
+        }
+
+        containerCurriculoAnexado.setOnClickListener {
+            if (curriculoUrlAtual.isNotEmpty()) abrirCurriculo()
+        }
+
+        btnRemoverCurriculo.setOnClickListener {
+            confirmarRemoverCurriculo()
+        }
+
         btnLogoutPerfil.setOnClickListener { fazerLogout() }
         btnExcluirConta.setOnClickListener { confirmarExcluirConta() }
 
@@ -165,7 +200,9 @@ class ProfileFragment : Fragment() {
                     bioUsuario = doc.getString("bio") ?: ""
                     fotoUrlAtual = doc.getString("fotoUrl") ?: ""
                     statusAtual = doc.getString("status") ?: ThemeManager.STATUS_ONLINE
-
+                    curriculoUrlAtual = doc.getString("curriculoUrl") ?: ""
+                    curriculoNomeAtual = doc.getString("curriculoNome") ?: "curriculo.pdf"
+                    atualizarUiCurriculo()
                     txtNomePerfil.text = nomeUsuario
                     txtEmailPerfil.text = emailUsuario.ifEmpty { "—" }
                     txtProfissaoPerfil.text = profissaoUsuario.ifEmpty { "—" }
@@ -763,6 +800,132 @@ class ProfileFragment : Fragment() {
             }
             .setNegativeButton("Cancelar", null)
             .show()
+    }
+
+    private fun atualizarUiCurriculo() {
+        if (curriculoUrlAtual.isEmpty()) {
+            btnAnexarCurriculo.visibility = View.VISIBLE
+            containerCurriculoAnexado.visibility = View.GONE
+        } else {
+            btnAnexarCurriculo.visibility = View.GONE
+            containerCurriculoAnexado.visibility = View.VISIBLE
+            txtNomeCurriculo.text = curriculoNomeAtual.ifEmpty { "curriculo.pdf" }
+        }
+    }
+
+    private fun uploadCurriculo(uri: Uri) {
+        if (!isAdded) return
+        Toast.makeText(requireContext(), "Enviando currículo...", Toast.LENGTH_SHORT).show()
+
+        val nome = obterNomeArquivo(uri) ?: "curriculo.pdf"
+
+        try {
+            MediaManager.get().upload(uri)
+                .unsigned("fotos_perfil")
+                .option("folder", "curriculos")
+                .option("resource_type", "raw")
+                .callback(object : com.cloudinary.android.callback.UploadCallback {
+                    override fun onStart(requestId: String?) {}
+                    override fun onProgress(requestId: String?, bytes: Long, totalBytes: Long) {}
+
+                    override fun onSuccess(requestId: String?, resultData: MutableMap<Any?, Any?>?) {
+                        val url = resultData?.get("secure_url") as? String
+                            ?: resultData?.get("url") as? String
+                            ?: return
+                        val secureUrl = url.replace("http://", "https://")
+
+                        if (!isAdded) return
+
+                        viewLifecycleOwner.lifecycleScope.launch {
+                            try {
+                                db.collection("usuarios").document(usuarioId)
+                                    .update(
+                                        mapOf(
+                                            "curriculoUrl" to secureUrl,
+                                            "curriculoNome" to nome
+                                        )
+                                    ).await()
+
+                                if (!isAdded) return@launch
+
+                                curriculoUrlAtual = secureUrl
+                                curriculoNomeAtual = nome
+                                atualizarUiCurriculo()
+
+                                Toast.makeText(requireContext(), "Currículo anexado!", Toast.LENGTH_SHORT).show()
+                            } catch (e: Exception) {
+                                if (isAdded) {
+                                    Toast.makeText(requireContext(), "Erro: ${e.message}", Toast.LENGTH_LONG).show()
+                                }
+                            }
+                        }
+                    }
+
+                    override fun onError(requestId: String?, error: com.cloudinary.android.callback.ErrorInfo?) {
+                        if (isAdded) {
+                            Toast.makeText(requireContext(), "Erro: ${error?.description}", Toast.LENGTH_LONG).show()
+                        }
+                    }
+
+                    override fun onReschedule(requestId: String?, error: com.cloudinary.android.callback.ErrorInfo?) {}
+                })
+                .dispatch()
+        } catch (e: Exception) {
+            if (isAdded) {
+                Toast.makeText(requireContext(), "Erro: ${e.message}", Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    private fun obterNomeArquivo(uri: Uri): String? {
+        return try {
+            val cursor = requireContext().contentResolver.query(uri, null, null, null, null)
+            cursor?.use {
+                if (it.moveToFirst()) {
+                    val idx = it.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME)
+                    if (idx >= 0) it.getString(idx) else null
+                } else null
+            }
+        } catch (e: Exception) { null }
+    }
+
+    private fun abrirCurriculo() {
+        try {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(curriculoUrlAtual)))
+        } catch (e: ActivityNotFoundException) {
+            Toast.makeText(requireContext(), "Nenhum app pra abrir PDF", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun confirmarRemoverCurriculo() {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Remover currículo")
+            .setMessage("Remover o currículo anexado?")
+            .setPositiveButton("Remover") { _, _ -> removerCurriculo() }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+
+    private fun removerCurriculo() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                db.collection("usuarios").document(usuarioId)
+                    .update(
+                        mapOf(
+                            "curriculoUrl" to "",
+                            "curriculoNome" to ""
+                        )
+                    ).await()
+
+                curriculoUrlAtual = ""
+                curriculoNomeAtual = ""
+                atualizarUiCurriculo()
+
+                Toast.makeText(requireContext(), "Currículo removido", Toast.LENGTH_SHORT).show()
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "Erro: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     private fun salvarLink(link: LinkContato) {
