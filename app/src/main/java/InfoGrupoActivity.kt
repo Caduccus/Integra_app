@@ -321,6 +321,7 @@ class InfoGrupoActivity : BaseActivity() {
                         "Essa ação NÃO pode ser desfeita!"
             )
             .setPositiveButton("APAGAR") { _, _ ->
+                HapticHelper.destrutiva(this)
                 apagarGrupo()
             }
             .setNegativeButton("Cancelar", null)

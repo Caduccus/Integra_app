@@ -653,6 +653,7 @@ class ChatActivity : BaseActivity() {
 
         val texto = edtMensagem.text.toString().trim()
         if (texto.isEmpty()) return
+        HapticHelper.leve(this)
 
         val reply = mensagemRespondendo
         edtMensagem.setText("")

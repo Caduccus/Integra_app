@@ -133,7 +133,8 @@ class HomeFragment : Fragment() {
         btnSinoNotif.setOnClickListener {
             startActivity(Intent(requireContext(), NotificacoesActivity::class.java))
         }
-        view.findViewById<View>(R.id.btnBuscaGlobal).setOnClickListener {
+
+        view.findViewById<View>(R.id.btnBuscaGlobal)?.setOnClickListener {
             startActivity(Intent(requireContext(), BuscaGlobalActivity::class.java))
         }
 
@@ -240,6 +241,9 @@ class HomeFragment : Fragment() {
     private fun toggleFavorito(trabalho: Trabalho) {
         val uid = auth.currentUser?.uid ?: return
         val jaFavorito = trabalho.id in meusFavoritos
+
+        // ⭐ Haptic
+        HapticHelper.media(requireContext())
 
         meusFavoritos = if (jaFavorito) meusFavoritos - trabalho.id else meusFavoritos + trabalho.id
         adapter.atualizarFavoritos(meusFavoritos)

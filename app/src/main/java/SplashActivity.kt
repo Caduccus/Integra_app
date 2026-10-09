@@ -38,13 +38,11 @@ class SplashActivity : BaseActivity() {
         txtNome.animate().alpha(1f).setDuration(500).setStartDelay(600).start()
         txtSlogan.animate().alpha(1f).setDuration(500).setStartDelay(850).start()
 
-        // ⭐ Depois de 2s, decide — sem depender de Firestore
         lifecycleScope.launch {
             delay(2000)
             decidirDestino()
         }
 
-        // ⭐ Rede de segurança: se por algum motivo ficar travado 5s, força
         handler.postDelayed({
             if (!isFinishing) {
                 Log.w("SPLASH", "Timeout — forçando destino")
@@ -55,6 +53,17 @@ class SplashActivity : BaseActivity() {
 
     private fun decidirDestino() {
         if (isFinishing || isDestroyed) return
+
+        val prefs = getSharedPreferences("integra_prefs", MODE_PRIVATE)
+        val jaViuOnboarding = prefs.getBoolean("onboarding_visto", false)
+
+        if (!jaViuOnboarding) {
+            val intent = Intent(this, OnboardingActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+            finish()
+            return
+        }
 
         val user = auth.currentUser
         if (user == null) {

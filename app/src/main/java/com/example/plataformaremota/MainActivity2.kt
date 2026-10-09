@@ -198,6 +198,7 @@ class MainActivity2 : BaseActivity() {
                 .await()
 
             if (doc.exists()) {
+                HapticHelper.media(this@MainActivity2)
                 jaCandidatou = true
                 btnCandidatar.isEnabled = true
                 btnCandidatar.text = "ABRIR CHAT COM O CRIADOR"

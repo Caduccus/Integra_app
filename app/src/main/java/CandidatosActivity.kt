@@ -60,10 +60,9 @@ class CandidatosActivity : BaseActivity() {
     private fun configurarRecyclerView() {
         adapter = CandidatoAdapter(
             candidatos = emptyList(),
-            onChatClick = { c -> abrirChatComCandidato(c) },
-            onAceitar = { c -> confirmarAceitar(c) },
-            onRejeitar = { c -> confirmarRejeitar(c) },
-            onAvaliar = { c -> avaliarCandidato(c) }
+            onChatClick = { candidato -> abrirChatComCandidato(candidato) },
+            onAceitar = { candidato -> confirmarAceitar(candidato) },
+            onRejeitar = { candidato -> confirmarRejeitar(candidato) }
         )
         rvCandidatos.layoutManager = LinearLayoutManager(this)
         rvCandidatos.adapter = adapter
@@ -156,6 +155,9 @@ class CandidatosActivity : BaseActivity() {
                     .update("status", novoStatus)
                     .await()
 
+                // ⭐ Haptic
+                HapticHelper.media(this@CandidatosActivity)
+
                 val titulo = if (novoStatus == "aceito") "Você foi aceito! 🎉" else "Candidatura rejeitada"
                 val msg = if (novoStatus == "aceito")
                     "Parabéns! Sua candidatura para '$tituloTrabalho' foi aceita."
@@ -167,6 +169,7 @@ class CandidatosActivity : BaseActivity() {
                     titulo = titulo,
                     mensagem = msg
                 )
+
                 NotificacaoHelper.salvarInApp(
                     uidDestino = candidato.uid,
                     titulo = titulo,
@@ -181,18 +184,6 @@ class CandidatosActivity : BaseActivity() {
                 Toast.makeText(this@CandidatosActivity, "Erro: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
-    }
-
-    // ⭐ Avaliar candidato
-    private fun avaliarCandidato(candidato: Candidato) {
-        AvaliarHelper.abrirDialog(
-            context = this,
-            alvoId = candidato.uid,
-            alvoTipo = "usuario",
-            alvoNome = candidato.nome,
-            trabalhoId = trabalhoId,
-            trabalhoTitulo = tituloTrabalho
-        )
     }
 
     private fun abrirChatComCandidato(candidato: Candidato) {

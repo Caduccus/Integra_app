@@ -917,7 +917,10 @@ class ProfileFragment : Fragment() {
                         "• Sua participação em chats e grupos\n\n" +
                         "Essa ação NÃO pode ser desfeita!"
             )
-            .setPositiveButton("EXCLUIR TUDO") { _, _ -> executarExclusaoConta() }
+            .setPositiveButton("EXCLUIR TUDO") { _, _ ->
+                HapticHelper.destrutiva(requireContext())
+                executarExclusaoConta()
+            }
             .setNegativeButton("Cancelar", null)
             .show()
     }

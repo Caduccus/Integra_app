@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
         android:name=".IntegraApplication"
@@ -27,6 +28,10 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".OnboardingActivity"
+            android:exported="false" />
+
         <activity android:name=".CadastroActivity" android:exported="false" />
         <activity android:name=".LoginActivity" android:exported="false" />
         <activity android:name=".MainActivity2" android:exported="false" />
@@ -46,19 +51,7 @@
         <activity android:name=".MinhasCandidaturasActivity" android:exported="false" />
         <activity android:name=".NotificacoesActivity" android:exported="false" />
         <activity android:name=".VisualizacoesActivity" android:exported="false" />
-        <activity android:name=".EstatisticasEmpresaActivity" android:exported="false" />
         <activity android:name=".BuscaGlobalActivity" android:exported="false" />
-
-        <!-- ⭐ FileProvider pro compartilhamento de arquivos baixados -->
-        <provider
-            android:name="androidx.core.content.FileProvider"
-            android:authorities="${applicationId}.fileprovider"
-            android:exported="false"
-            android:grantUriPermissions="true">
-            <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths" />
-        </provider>
 
     </application>
 </manifest>
