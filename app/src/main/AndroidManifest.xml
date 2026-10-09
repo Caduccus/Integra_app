@@ -47,6 +47,7 @@
         <activity android:name=".NotificacoesActivity" android:exported="false" />
         <activity android:name=".VisualizacoesActivity" android:exported="false" />
         <activity android:name=".EstatisticasEmpresaActivity" android:exported="false" />
+        <activity android:name=".BuscaGlobalActivity" android:exported="false" />
 
         <!-- ⭐ FileProvider pro compartilhamento de arquivos baixados -->
         <provider

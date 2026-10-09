@@ -133,6 +133,9 @@ class HomeFragment : Fragment() {
         btnSinoNotif.setOnClickListener {
             startActivity(Intent(requireContext(), NotificacoesActivity::class.java))
         }
+        view.findViewById<View>(R.id.btnBuscaGlobal).setOnClickListener {
+            startActivity(Intent(requireContext(), BuscaGlobalActivity::class.java))
+        }
 
         iniciarBadgeSino()
         carregarTudo()

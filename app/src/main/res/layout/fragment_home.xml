@@ -31,7 +31,20 @@
             android:textSize="26sp"
             android:textStyle="bold" />
 
-        <!-- ⭐ Sino de notificações -->
+        <!-- ⭐ Lupa busca global -->
+        <ImageView
+            android:id="@+id/btnBuscaGlobal"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="4dp"
+            android:padding="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true"
+            android:src="@android:drawable/ic_menu_search"
+            app:tint="@color/white" />
+
+        <!-- Sino (o que você já tem) -->
         <FrameLayout
             android:layout_width="40dp"
             android:layout_height="40dp"
