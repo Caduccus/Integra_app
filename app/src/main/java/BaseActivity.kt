@@ -1,5 +1,7 @@
 package com.example.plataformaremota
 
+import android.content.Context
+import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Bundle
 import android.view.ViewGroup
@@ -18,11 +20,25 @@ open class BaseActivity : AppCompatActivity() {
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
+    // ⭐ Aplica o font scale ANTES de inflar qualquer coisa
+    override fun attachBaseContext(newBase: Context) {
+        val escala = AcessibilidadePrefs.getFontScaleValue(newBase)
+        val config = Configuration(newBase.resources.configuration)
+        config.fontScale = escala
+        val ctx = newBase.createConfigurationContext(config)
+        super.attachBaseContext(ctx)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
         window.statusBarColor = Color.BLACK
+
+        // ⭐ Reduzir animações: pula transição entre activities
+        if (AcessibilidadePrefs.isReduzirAnimacoes(this)) {
+            overridePendingTransition(0, 0)
+        }
 
         if (!CloudinaryManager.iniciado) {
             val config = HashMap<String, String>()
@@ -50,6 +66,13 @@ open class BaseActivity : AppCompatActivity() {
         atualizarStatusAutomatico(online = false)
     }
 
+    override fun finish() {
+        super.finish()
+        if (AcessibilidadePrefs.isReduzirAnimacoes(this)) {
+            overridePendingTransition(0, 0)
+        }
+    }
+
     private fun atualizarStatusAutomatico(online: Boolean) {
         val uid = auth.currentUser?.uid ?: return
         val novoStatus = if (online) ThemeManager.STATUS_ONLINE else ThemeManager.STATUS_AUSENTE
@@ -68,12 +91,22 @@ open class BaseActivity : AppCompatActivity() {
     private fun aplicarTema() {
         val root = findViewById<ViewGroup>(android.R.id.content)
 
-        // ⭐ Aplica fundo no ROOT também (cobre a área do IME quando teclado abre)
-        ThemeManager.aplicarBackground(this, root)
+        // ⭐ Alto contraste: fundo preto sólido ao invés do gradiente
+        if (AcessibilidadePrefs.isAltoContraste(this)) {
+            root.setBackgroundColor(Color.BLACK)
+        } else {
+            ThemeManager.aplicarBackground(this, root)
+        }
 
         if (root.childCount > 0) {
             val firstChild = root.getChildAt(0)
-            ThemeManager.aplicarBackground(this, firstChild)
+
+            if (AcessibilidadePrefs.isAltoContraste(this)) {
+                firstChild.setBackgroundColor(Color.BLACK)
+            } else {
+                ThemeManager.aplicarBackground(this, firstChild)
+            }
+
             ThemeManager.aplicarCores(this, firstChild)
             ThemeManager.aplicarCoresTexto(this, firstChild)
         }
@@ -92,7 +125,6 @@ open class BaseActivity : AppCompatActivity() {
                 bottom = maxOf(sysBars.bottom, ime.bottom)
             )
 
-            // ⭐ Marca como consumido — impede os filhos de aplicarem de novo
             WindowInsetsCompat.CONSUMED
         }
         ViewCompat.requestApplyInsets(root)

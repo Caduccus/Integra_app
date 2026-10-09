@@ -52,6 +52,12 @@
         <activity android:name=".NotificacoesActivity" android:exported="false" />
         <activity android:name=".VisualizacoesActivity" android:exported="false" />
         <activity android:name=".BuscaGlobalActivity" android:exported="false" />
+        <activity
+            android:name=".SobreActivity"
+            android:exported="false" />
+        <activity
+            android:name=".AcessibilidadeActivity"
+            android:exported="false" />
 
     </application>
 </manifest>
