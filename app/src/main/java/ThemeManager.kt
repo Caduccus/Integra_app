@@ -9,6 +9,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.card.MaterialCardView
 import com.google.android.material.textfield.TextInputLayout
 
 object ThemeManager {
@@ -32,12 +33,17 @@ object ThemeManager {
     private const val TEXTO_MARROM_SEC = 0xFF6D4C41.toInt()
     private const val TEXTO_BRANCO = 0xFFFFFFFF.toInt()
 
+    private const val COR_CARD_ALTO_CONTRASTE = 0xFF1A1A1A.toInt()
+
     private val CORES_FIXAS = listOf(
         0xFFD32F2F.toInt(), 0xFF43A047.toInt(), 0xFF1E88E5.toInt(),
         0xFFFB8C00.toInt(), 0xFF8E24AA.toInt(), 0xFF00897B.toInt(),
         0xFF757575.toInt(), 0xFF7F0000.toInt(), 0xFF455A64.toInt()
     )
 
+    // ─────────────────────────────────────────────
+    // TEMA
+    // ─────────────────────────────────────────────
     fun getTemaAtual(context: Context): String {
         return context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
             .getString(KEY, TEMA_PADRAO) ?: TEMA_PADRAO
@@ -111,7 +117,13 @@ object ThemeManager {
         view.setBackgroundResource(getBackground(tema))
     }
 
+    // ─────────────────────────────────────────────
+    // ⭐ APLICAR CORES (botões)
+    // ─────────────────────────────────────────────
     fun aplicarCores(context: Context, rootView: View) {
+        // Se alto contraste, quem manda é o aplicarAltoContraste
+        if (AcessibilidadePrefs.isAltoContraste(context)) return
+
         val tema = getTemaAtual(context)
         val primary = getPrimary(tema)
         aplicarCoresRecursivo(rootView, primary)
@@ -136,25 +148,27 @@ object ThemeManager {
         }
     }
 
-    // ⭐ CORRIGIDO: aplica imediato + via post
+    // ─────────────────────────────────────────────
+    // ⭐ APLICAR CORES DE TEXTO (só tema claro)
+    // ─────────────────────────────────────────────
     fun aplicarCoresTexto(context: Context, rootView: View) {
+        // Alto contraste manda — não pinta
+        if (AcessibilidadePrefs.isAltoContraste(context)) return
+
         val tema = getTemaAtual(context)
         if (tema != TEMA_BRANCO && tema != TEMA_AMARELO) return
 
         val primaryText = getTextColor(tema)
         val secondaryText = getSecondaryTextColor(tema)
 
-        // Aplica já (para views que já estão infladas)
         aplicarTextoForcado(rootView, primaryText, secondaryText)
 
-        // Reaplica depois do layout (caso alguma view tenha sido inflada depois)
         rootView.post {
             aplicarTextoForcado(rootView, primaryText, secondaryText)
         }
     }
 
     private fun aplicarTextoForcado(view: View, primaryText: Int, secondaryText: Int) {
-        // NAVBAR: pinta de BRANCO e para de recursão
         if (view is BottomNavigationView) {
             val states = arrayOf(
                 intArrayOf(android.R.attr.state_checked),
@@ -162,13 +176,11 @@ object ThemeManager {
             )
             val colors = intArrayOf(TEXTO_BRANCO, TEXTO_BRANCO)
             val colorStateList = ColorStateList(states, colors)
-
             view.itemIconTintList = colorStateList
             view.itemTextColor = colorStateList
             return
         }
 
-        // TextInputLayout
         if (view is TextInputLayout) {
             try {
                 val states = arrayOf(
@@ -179,13 +191,10 @@ object ThemeManager {
                 view.setBoxStrokeColorStateList(ColorStateList(states, colors))
                 view.boxStrokeWidth = 2
                 view.boxStrokeWidthFocused = 3
-
                 view.setHintTextColor(ColorStateList.valueOf(secondaryText))
                 view.defaultHintTextColor = ColorStateList.valueOf(secondaryText)
-
                 view.setStartIconTintList(ColorStateList.valueOf(primaryText))
                 view.setEndIconTintList(ColorStateList.valueOf(primaryText))
-
                 view.getEditText()?.let { et ->
                     et.setTextColor(primaryText)
                     et.setHintTextColor(secondaryText)
@@ -195,42 +204,109 @@ object ThemeManager {
             }
         }
 
-        // ⭐ MaterialButton: checa alpha do fundo pra decidir a cor do texto
         if (view is MaterialButton) {
             val corFundo = view.backgroundTintList?.defaultColor ?: Color.TRANSPARENT
             val alpha = Color.alpha(corFundo)
-
             if (alpha < 50) {
-                // TextButton (fundo transparente) → texto escuro/claro do tema
                 view.setTextColor(primaryText)
             } else {
-                // Botão colorido → mantém texto branco
                 view.setTextColor(Color.WHITE)
             }
             return
         }
 
-        // ⭐ ImageView: só pinta se JÁ tiver tint (ícones). Logo/fotos ficam intocadas.
         if (view is ImageView) {
             if (view.imageTintList != null) {
                 view.imageTintList = ColorStateList.valueOf(primaryText)
             }
         }
 
-        // TextView normal
         if (view is TextView) {
             view.setTextColor(primaryText)
         }
 
-        // Recursão
         if (view is ViewGroup) {
             for (i in 0 until view.childCount) {
                 aplicarTextoForcado(view.getChildAt(i), primaryText, secondaryText)
             }
         }
     }
+
     // ─────────────────────────────────────────────
-    // ⭐ STATUS
+    // ⭐ ALTO CONTRASTE
+    // ─────────────────────────────────────────────
+    fun aplicarAltoContraste(rootView: View) {
+        aplicarAltoContrasteRecursivo(rootView)
+
+        // ⭐ Re-aplica depois do layout — pega views que foram infladas
+        //   depois (fragments, listas, etc)
+        rootView.post {
+            aplicarAltoContrasteRecursivo(rootView)
+        }
+    }
+
+    private fun aplicarAltoContrasteRecursivo(view: View) {
+        when (view) {
+            is BottomNavigationView -> {
+                val states = arrayOf(
+                    intArrayOf(android.R.attr.state_checked),
+                    intArrayOf()
+                )
+                val colors = intArrayOf(TEXTO_BRANCO, TEXTO_BRANCO)
+                val csl = ColorStateList(states, colors)
+                view.itemIconTintList = csl
+                view.itemTextColor = csl
+                return
+            }
+
+            is TextInputLayout -> {
+                try {
+                    view.setBoxStrokeColorStateList(ColorStateList.valueOf(Color.WHITE))
+                    view.boxStrokeWidth = 2
+                    view.boxStrokeWidthFocused = 3
+                    view.setHintTextColor(ColorStateList.valueOf(Color.WHITE))
+                    view.defaultHintTextColor = ColorStateList.valueOf(Color.WHITE)
+                    view.setStartIconTintList(ColorStateList.valueOf(Color.WHITE))
+                    view.setEndIconTintList(ColorStateList.valueOf(Color.WHITE))
+                    view.getEditText()?.let { et ->
+                        et.setTextColor(Color.WHITE)
+                        et.setHintTextColor(Color.WHITE)
+                    }
+                } catch (_: Exception) { }
+            }
+
+            // ⭐ Card → fundo escuro sólido
+            is MaterialCardView -> {
+                try {
+                    view.setCardBackgroundColor(COR_CARD_ALTO_CONTRASTE)
+                } catch (_: Exception) { }
+            }
+
+            is MaterialButton -> {
+                view.setTextColor(Color.WHITE)
+                view.iconTint = ColorStateList.valueOf(Color.WHITE)
+                return
+            }
+
+            is ImageView -> {
+                if (view.imageTintList != null) {
+                    view.imageTintList = ColorStateList.valueOf(Color.WHITE)
+                }
+            }
+
+            is TextView -> {
+                view.setTextColor(Color.WHITE)
+            }
+        }
+
+        if (view is ViewGroup) {
+            for (i in 0 until view.childCount) {
+                aplicarAltoContrasteRecursivo(view.getChildAt(i))
+            }
+        }
+    }
+    // ─────────────────────────────────────────────
+    // STATUS (online / ausente / nao_pertube / invisivel)
     // ─────────────────────────────────────────────
     const val STATUS_ONLINE = "online"
     const val STATUS_AUSENTE = "ausente"

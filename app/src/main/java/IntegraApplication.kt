@@ -1,6 +1,8 @@
 package com.example.plataformaremota
 
 import android.app.Application
+import android.content.Context
+import android.content.res.Configuration
 import com.onesignal.OneSignal
 import com.onesignal.debug.LogLevel
 import com.onesignal.notifications.INotificationLifecycleListener
@@ -11,14 +13,20 @@ import kotlinx.coroutines.launch
 
 class IntegraApplication : Application() {
 
+    // ⭐ Aplica fontScale no app INTEIRO
+    override fun attachBaseContext(base: Context) {
+        val escala = AcessibilidadePrefs.getFontScaleValue(base)
+        val config = Configuration(base.resources.configuration)
+        config.fontScale = escala
+        super.attachBaseContext(base.createConfigurationContext(config))
+    }
+
     override fun onCreate() {
         super.onCreate()
 
         OneSignal.Debug.logLevel = LogLevel.VERBOSE
-
         OneSignal.initWithContext(this, "eb63f7b4-c19e-4a5a-8a69-ecf5bc8413db")
 
-        // ⭐ Bloqueia notificação se o usuário já está no chat
         OneSignal.Notifications.addForegroundLifecycleListener(
             object : INotificationLifecycleListener {
                 override fun onWillDisplay(event: INotificationWillDisplayEvent) {

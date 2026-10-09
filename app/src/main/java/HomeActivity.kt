@@ -30,7 +30,6 @@ class HomeActivity : BaseActivity() {
         usuarioId = intent.getStringExtra("usuarioId") ?: ""
         nomeUsuario = intent.getStringExtra("nomeUsuario") ?: ""
 
-        // ⭐ Se não recebeu o nome, busca do Firestore
         if (nomeUsuario.isEmpty() && usuarioId.isNotEmpty()) {
             db.collection("usuarios").document(usuarioId).get()
                 .addOnSuccessListener { doc ->
@@ -43,14 +42,30 @@ class HomeActivity : BaseActivity() {
         val tema = ThemeManager.getTemaAtual(this)
         bottomNav.setBackgroundColor(ThemeManager.getPrimary(tema))
 
+        // ⭐ Primeira vez: cria fragment inicial.
+        //    Restore: sincroniza fragmentAtualId com o estado salvo.
         if (savedInstanceState == null) {
             trocarFragment(HomeFragment(), false)
             bottomNav.selectedItemId = R.id.nav_inicio
             fragmentAtualId = R.id.nav_inicio
+        } else {
+            // Recupera qual aba estava selecionada antes do recreate
+            fragmentAtualId = savedInstanceState.getInt(
+                "fragmentAtualId", bottomNav.selectedItemId
+            )
+            // Garante que o bottomNav e o fragmentAtualId batem
+            bottomNav.post {
+                if (bottomNav.selectedItemId != fragmentAtualId) {
+                    bottomNav.selectedItemId = fragmentAtualId
+                }
+            }
         }
 
         bottomNav.setOnItemSelectedListener { item ->
-            if (item.itemId == fragmentAtualId) return@setOnItemSelectedListener true
+            if (item.itemId == fragmentAtualId) {
+                return@setOnItemSelectedListener true
+            }
+
             fragmentAtualId = item.itemId
 
             when (item.itemId) {
@@ -66,6 +81,12 @@ class HomeActivity : BaseActivity() {
         iniciarBadgeNaoLidas()
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        // ⭐ Salva qual aba estava ativa pra restaurar depois do recreate
+        outState.putInt("fragmentAtualId", fragmentAtualId)
+    }
+
     fun abrirAbaPublicar() {
         bottomNav.selectedItemId = R.id.nav_publicar
     }
@@ -78,16 +99,16 @@ class HomeActivity : BaseActivity() {
         fragment.arguments = bundle
 
         val transaction = supportFragmentManager.beginTransaction()
-        if (animar) {
+
+        // ⭐ Só anima se não tiver "reduzir animações" ativo
+        if (animar && !AcessibilidadePrefs.isReduzirAnimacoes(this)) {
             transaction.setCustomAnimations(R.anim.fade_in, R.anim.fade_out)
         }
+
         transaction.replace(R.id.fragmentContainer, fragment)
         transaction.commit()
     }
 
-    // ─────────────────────────────────────────────
-    // ⭐ BADGE DE MENSAGENS NÃO LIDAS
-    // ─────────────────────────────────────────────
     private fun iniciarBadgeNaoLidas() {
         val uid = auth.currentUser?.uid ?: return
 
