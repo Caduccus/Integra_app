@@ -46,6 +46,7 @@ open class BaseActivity : AppCompatActivity() {
         }
 
         auth.currentUser?.uid?.let { uid -> OneSignal.login(uid) }
+        AdminChecker.carregar()
     }
 
     override fun onContentChanged() {

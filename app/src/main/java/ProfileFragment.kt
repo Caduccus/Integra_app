@@ -395,6 +395,16 @@ class ProfileFragment : Fragment() {
             .setView(dialogView)
             .create()
 
+        val secaoAdmin = view.findViewById<View>(R.id.secaoAdmin)
+        AdminChecker.carregar { isAdmin ->
+            if (isAdded) {
+                secaoAdmin.visibility = if (isAdmin) View.VISIBLE else View.GONE
+            }
+        }
+        view.findViewById<View>(R.id.btnPainelAdmin)?.setOnClickListener {
+            startActivity(Intent(requireContext(), AdminActivity::class.java))
+        }
+
         val temas = mapOf(
             R.id.temaPadrao to ThemeManager.TEMA_PADRAO,
             R.id.temaVermelho to ThemeManager.TEMA_VERMELHO,
