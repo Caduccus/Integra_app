@@ -12,7 +12,20 @@
           "package_name": "com.example.plataformaremota"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "855167306553-lpn83g2nnlesc6at0q3otti76rmdcna0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.plataformaremota",
+            "certificate_hash": "0eb168edab511e91338352628f116fdf36177042"
+          }
+        },
+        {
+          "client_id": "855167306553-ra5d9pe3ji52b2dg40jceq7cbak222qk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDijNk1XdUHeII48k2MAq5EHmB5SWMvyWc"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "855167306553-ra5d9pe3ji52b2dg40jceq7cbak222qk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

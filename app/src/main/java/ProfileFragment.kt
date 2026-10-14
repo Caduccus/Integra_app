@@ -68,6 +68,10 @@ class ProfileFragment : Fragment() {
     private lateinit var btnLogoutPerfil: View
     private lateinit var btnExcluirConta: View
 
+    // Admin
+    private lateinit var secaoAdmin: View
+    private lateinit var btnPainelAdmin: View
+
     private var usuarioId: String = ""
     private var nomeUsuario: String = ""
     private var emailUsuario: String = ""
@@ -130,6 +134,9 @@ class ProfileFragment : Fragment() {
         btnLogoutPerfil = view.findViewById(R.id.btnLogoutPerfil)
         btnExcluirConta = view.findViewById(R.id.btnExcluirConta)
 
+        secaoAdmin = view.findViewById(R.id.secaoAdmin)
+        btnPainelAdmin = view.findViewById(R.id.btnPainelAdmin)
+
         usuarioId = arguments?.getString("usuarioId") ?: auth.currentUser?.uid ?: ""
         nomeUsuario = arguments?.getString("nomeUsuario") ?: ""
 
@@ -138,9 +145,14 @@ class ProfileFragment : Fragment() {
         carregarDadosUsuario()
         carregarFotoSalva()
         atualizarStatusNotificacoes()
+        configurarAcessoAdmin()
 
         cardAvatarPerfil.setOnClickListener { abrirBottomSheetFoto() }
         cardStatusPerfil.setOnClickListener { abrirDialogStatus() }
+
+        view.findViewById<View>(R.id.opcaoIdioma).setOnClickListener {
+            startActivity(Intent(requireContext(), LanguageActivity::class.java))
+        }
 
         view.findViewById<View>(R.id.opcaoEditarPerfil).setOnClickListener {
             abrirDialogEditarPerfil()
@@ -151,7 +163,10 @@ class ProfileFragment : Fragment() {
         view.findViewById<View>(R.id.opcaoTema).setOnClickListener {
             abrirDialogTemas()
         }
-        // ⭐ Sobre agora abre uma Activity, não um dialog
+        // ⭐ Acessibilidade
+        view.findViewById<View>(R.id.opcaoAcessibilidade).setOnClickListener {
+            startActivity(Intent(requireContext(), AcessibilidadeActivity::class.java))
+        }
         view.findViewById<View>(R.id.opcaoSobre).setOnClickListener {
             startActivity(Intent(requireContext(), SobreActivity::class.java))
         }
@@ -160,9 +175,6 @@ class ProfileFragment : Fragment() {
         }
         view.findViewById<View>(R.id.btnVerVisualizacoes).setOnClickListener {
             startActivity(Intent(requireContext(), VisualizacoesActivity::class.java))
-        }
-        view.findViewById<View>(R.id.opcaoAcessibilidade).setOnClickListener {
-            startActivity(Intent(requireContext(), AcessibilidadeActivity::class.java))
         }
 
         btnLogoutPerfil.setOnClickListener { fazerLogout() }
@@ -181,6 +193,25 @@ class ProfileFragment : Fragment() {
         ThemeManager.aplicarCoresTexto(requireContext(), view)
     }
 
+    // ─────────────────────────────────────────────
+    // ADMIN
+    // ─────────────────────────────────────────────
+    private fun configurarAcessoAdmin() {
+        AdminChecker.carregar { isAdmin ->
+            if (!isAdded) return@carregar
+
+            secaoAdmin.visibility = if (isAdmin) View.VISIBLE else View.GONE
+
+            btnPainelAdmin.setOnClickListener {
+                if (!isAdded) return@setOnClickListener
+                startActivity(Intent(requireContext(), AdminActivity::class.java))
+            }
+        }
+    }
+
+    // ─────────────────────────────────────────────
+    // DADOS DO USUÁRIO
+    // ─────────────────────────────────────────────
     private fun carregarDadosUsuario() {
         val uid = auth.currentUser?.uid ?: usuarioId
         if (uid.isEmpty()) {
@@ -244,6 +275,9 @@ class ProfileFragment : Fragment() {
         imgFotoPerfil.setPadding(0, 0, 0, 0)
     }
 
+    // ─────────────────────────────────────────────
+    // FOTO DE PERFIL
+    // ─────────────────────────────────────────────
     private fun abrirBottomSheetFoto() {
         val dialog = BottomSheetDialog(requireContext())
         val sheetView = layoutInflater.inflate(R.layout.bottom_sheet_foto_perfil, null)
@@ -386,6 +420,9 @@ class ProfileFragment : Fragment() {
         }
     }
 
+    // ─────────────────────────────────────────────
+    // TEMAS
+    // ─────────────────────────────────────────────
     private fun abrirDialogTemas() {
         if (!isAdded) return
         val dialogView = LayoutInflater.from(requireContext())
@@ -394,16 +431,6 @@ class ProfileFragment : Fragment() {
         val dialog = AlertDialog.Builder(requireContext())
             .setView(dialogView)
             .create()
-
-        val secaoAdmin = view.findViewById<View>(R.id.secaoAdmin)
-        AdminChecker.carregar { isAdmin ->
-            if (isAdded) {
-                secaoAdmin.visibility = if (isAdmin) View.VISIBLE else View.GONE
-            }
-        }
-        view.findViewById<View>(R.id.btnPainelAdmin)?.setOnClickListener {
-            startActivity(Intent(requireContext(), AdminActivity::class.java))
-        }
 
         val temas = mapOf(
             R.id.temaPadrao to ThemeManager.TEMA_PADRAO,
@@ -426,6 +453,9 @@ class ProfileFragment : Fragment() {
         dialog.show()
     }
 
+    // ─────────────────────────────────────────────
+    // EDITAR PERFIL
+    // ─────────────────────────────────────────────
     private fun abrirDialogEditarPerfil() {
         if (!isAdded) return
         val dialogView = LayoutInflater.from(requireContext())
@@ -494,6 +524,9 @@ class ProfileFragment : Fragment() {
         }
     }
 
+    // ─────────────────────────────────────────────
+    // NOTIFICAÇÕES
+    // ─────────────────────────────────────────────
     private fun abrirDialogNotificacoes() {
         if (!isAdded) return
         val prefs = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -523,6 +556,9 @@ class ProfileFragment : Fragment() {
         txtStatusNotificacoes.text = if (ativo) "Ativado" else "Desativado"
     }
 
+    // ─────────────────────────────────────────────
+    // LOGOUT / EXCLUSÃO
+    // ─────────────────────────────────────────────
     private fun fazerLogout() {
         auth.signOut()
         val intent = Intent(requireContext(), LoginActivity::class.java)
@@ -604,6 +640,7 @@ class ProfileFragment : Fragment() {
                 try { auth.currentUser?.delete()?.await() } catch (_: Exception) { }
 
                 auth.signOut()
+                AdminChecker.limpar()
 
                 if (isAdded) {
                     Toast.makeText(requireContext(), "Conta excluída", Toast.LENGTH_SHORT).show()

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Integraa</string>
+
+    <string name="login_titulo">Integra</string>
+    <string name="login_slogan">Trabajo remoto, sin límites</string>
+    <string name="login_hint_email">Correo</string>
+    <string name="login_hint_senha">Contraseña</string>
+    <string name="login_btn_entrar">ENTRAR</string>
+    <string name="login_btn_entrando">ENTRANDO...</string>
+    <string name="login_btn_google">Entrar con Google</string>
+    <string name="login_btn_google_carregando">Entrando...</string>
+    <string name="login_esqueci_senha">Olvidé mi contraseña</string>
+    <string name="login_ou">O</string>
+    <string name="login_btn_cadastrar">CREAR CUENTA</string>
+    <string name="login_erro_campos_vazios">Completa todos los campos</string>
+    <string name="login_erro_credenciais">Correo o contraseña incorrectos</string>
+    <string name="login_erro_google">Error al entrar con Google</string>
+    <string name="login_erro_token">Error: token nulo</string>
+
+    <string name="recuperar_titulo">Recuperar contraseña</string>
+    <string name="recuperar_msg">Ingresa tu correo registrado. Te enviaremos un enlace para restablecer tu contraseña.</string>
+    <string name="recuperar_btn_enviar">Enviar</string>
+    <string name="recuperar_btn_cancelar">Cancelar</string>
+    <string name="recuperar_email_invalido">Ingresa un correo válido</string>
+    <string name="recuperar_email_enviado_titulo">Correo enviado ✅</string>
+    <string name="recuperar_email_enviado_msg">Enviamos un enlace de recuperación a:\n\n%1$s\n\nRevisa tu bandeja de entrada y la carpeta de spam.</string>
+    <string name="recuperar_erro">No se pudo enviar: %1$s</string>
+    <string name="recuperar_ok">OK</string>
+</resources>

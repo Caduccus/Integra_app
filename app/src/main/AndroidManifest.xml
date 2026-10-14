@@ -62,6 +62,7 @@
         <activity android:name=".AdminUsuariosActivity" android:exported="false" />
         <activity android:name=".AdminEmpresasActivity" android:exported="false" />
         <activity android:name=".AdminTrabalhosActivity" android:exported="false" />
+        <activity android:name=".LanguageActivity" android:exported="false" />
 
     </application>
 </manifest>

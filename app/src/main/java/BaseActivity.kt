@@ -21,11 +21,16 @@ open class BaseActivity : AppCompatActivity() {
     private val auth = FirebaseAuth.getInstance()
 
     override fun attachBaseContext(newBase: Context) {
-        val escala = AcessibilidadePrefs.getFontScaleValue(newBase)
-        val config = Configuration(newBase.resources.configuration)
+        // ⭐ 1. Aplica idioma escolhido
+        val ctxComIdioma = LanguageManager.aplicarIdioma(newBase)
+
+        // ⭐ 2. Aplica escala de fonte
+        val escala = AcessibilidadePrefs.getFontScaleValue(ctxComIdioma)
+        val config = Configuration(ctxComIdioma.resources.configuration)
         config.fontScale = escala
-        val ctx = newBase.createConfigurationContext(config)
-        super.attachBaseContext(ctx)
+
+        val ctxFinal = ctxComIdioma.createConfigurationContext(config)
+        super.attachBaseContext(ctxFinal)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,7 +51,6 @@ open class BaseActivity : AppCompatActivity() {
         }
 
         auth.currentUser?.uid?.let { uid -> OneSignal.login(uid) }
-        AdminChecker.carregar()
     }
 
     override fun onContentChanged() {
@@ -58,10 +62,6 @@ open class BaseActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         atualizarStatusAutomatico(online = true)
-
-        // ⭐ Re-aplica o tema TODA vez que volta ao foreground
-        //   Isso garante que trocar preferência na Acessibilidade
-        //   ou trocar tema em outra tela se reflita aqui
         aplicarTema()
     }
 
@@ -96,7 +96,6 @@ open class BaseActivity : AppCompatActivity() {
         val root = findViewById<ViewGroup>(android.R.id.content) ?: return
         val altoContraste = AcessibilidadePrefs.isAltoContraste(this)
 
-        // 1) Background
         if (altoContraste) {
             root.setBackgroundColor(Color.BLACK)
         } else {
@@ -112,10 +111,8 @@ open class BaseActivity : AppCompatActivity() {
                 ThemeManager.aplicarBackground(this, firstChild)
             }
 
-            // 2) Cores de botões (mas ThemeManager já pula se alto contraste)
             ThemeManager.aplicarCores(this, firstChild)
 
-            // 3) Texto
             if (altoContraste) {
                 ThemeManager.aplicarAltoContraste(firstChild)
             } else {

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Integraa</string>
+
+    <string name="login_titulo">Integra</string>
+    <string name="login_slogan">Remote work, no limits</string>
+    <string name="login_hint_email">Email</string>
+    <string name="login_hint_senha">Password</string>
+    <string name="login_btn_entrar">SIGN IN</string>
+    <string name="login_btn_entrando">SIGNING IN...</string>
+    <string name="login_btn_google">Sign in with Google</string>
+    <string name="login_btn_google_carregando">Signing in...</string>
+    <string name="login_esqueci_senha">Forgot my password</string>
+    <string name="login_ou">OR</string>
+    <string name="login_btn_cadastrar">CREATE ACCOUNT</string>
+    <string name="login_erro_campos_vazios">Fill in all fields</string>
+    <string name="login_erro_credenciais">Wrong email or password</string>
+    <string name="login_erro_google">Error signing in with Google</string>
+    <string name="login_erro_token">Error: null token</string>
+
+    <string name="recuperar_titulo">Reset password</string>
+    <string name="recuperar_msg">Enter your registered email. We\'ll send you a link to reset your password.</string>
+    <string name="recuperar_btn_enviar">Send</string>
+    <string name="recuperar_btn_cancelar">Cancel</string>
+    <string name="recuperar_email_invalido">Enter a valid email</string>
+    <string name="recuperar_email_enviado_titulo">Email sent ✅</string>
+    <string name="recuperar_email_enviado_msg">We sent a recovery link to:\n\n%1$s\n\nCheck your inbox and spam folder.</string>
+    <string name="recuperar_erro">Could not send: %1$s</string>
+    <string name="recuperar_ok">OK</string>
+</resources>

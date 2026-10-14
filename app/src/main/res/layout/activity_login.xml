@@ -40,7 +40,7 @@
                     android:id="@+id/imageView4"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:contentDescription="Logo Integraa"
+                    android:contentDescription="@string/login_titulo"
                     android:padding="12dp"
                     android:scaleType="fitCenter"
                     app:srcCompat="@drawable/logo_integra" />
@@ -51,7 +51,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="Integra"
+                android:text="@string/login_titulo"
                 android:textColor="@android:color/white"
                 android:textSize="26sp"
                 android:textStyle="bold"
@@ -65,7 +65,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="Trabalho remoto, sem limites"
+                android:text="@string/login_slogan"
                 android:textColor="#B3FFFFFF"
                 android:textSize="14sp"
                 app:layout_constraintBottom_toTopOf="@+id/tilEmail"
@@ -79,7 +79,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="32dp"
-                android:hint="E-mail"
+                android:hint="@string/login_hint_email"
                 android:textColorHint="#B3FFFFFF"
                 app:boxBackgroundColor="@android:color/transparent"
                 app:boxStrokeColor="@color/white"
@@ -106,7 +106,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:hint="Senha"
+                android:hint="@string/login_hint_senha"
                 android:textColorHint="#B3FFFFFF"
                 app:boxBackgroundColor="@android:color/transparent"
                 app:boxStrokeColor="@color/white"
@@ -135,7 +135,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:padding="4dp"
-                android:text="Esqueci minha senha"
+                android:text="@string/login_esqueci_senha"
                 android:textColor="#B3FFFFFF"
                 android:textSize="13sp"
                 app:layout_constraintBottom_toTopOf="@+id/btnEntrar"
@@ -147,17 +147,40 @@
                 android:layout_width="0dp"
                 android:layout_height="56dp"
                 android:layout_marginTop="24dp"
-                android:text="ENTRAR"
+                android:text="@string/login_btn_entrar"
                 android:textColor="#FFFFFF"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 app:backgroundTint="#0D226B"
                 app:cornerRadius="28dp"
                 app:elevation="4dp"
-                app:layout_constraintBottom_toTopOf="@+id/linhaDivisoria"
+                app:layout_constraintBottom_toTopOf="@+id/btnGoogle"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/txtEsqueciSenha" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnGoogle"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_marginTop="12dp"
+                android:backgroundTint="#FFFFFF"
+                android:text="@string/login_btn_google"
+                android:textAllCaps="false"
+                android:textColor="#212121"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                app:cornerRadius="28dp"
+                app:elevation="4dp"
+                app:icon="@drawable/ic_google"
+                app:iconGravity="textStart"
+                app:iconPadding="12dp"
+                app:iconSize="22dp"
+                app:iconTint="@null"
+                app:layout_constraintBottom_toTopOf="@+id/linhaDivisoria"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/btnEntrar" />
 
             <LinearLayout
                 android:id="@+id/linhaDivisoria"
@@ -169,7 +192,7 @@
                 app:layout_constraintBottom_toTopOf="@+id/btnCadastrar"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/btnEntrar">
+                app:layout_constraintTop_toBottomOf="@+id/btnGoogle">
 
                 <View
                     android:layout_width="0dp"
@@ -181,7 +204,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="12dp"
-                    android:text="OU"
+                    android:text="@string/login_ou"
                     android:textColor="#80FFFFFF"
                     android:textSize="12sp"
                     android:textStyle="bold" />
@@ -200,7 +223,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="32dp"
-                android:text="CRIAR CONTA"
+                android:text="@string/login_btn_cadastrar"
                 android:textColor="@android:color/white"
                 android:textSize="14sp"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -211,7 +234,6 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
 
-    <!-- ⭐ Botão de tema: declarado DEPOIS do ScrollView (fica por cima) -->
     <ImageView
         android:id="@+id/btnTemaLogin"
         android:layout_width="44dp"
@@ -224,7 +246,7 @@
         android:contentDescription="Trocar tema"
         android:focusable="true"
         android:elevation="10dp"
-        android:src="@drawable/ic_theme"
+        android:src="@drawable/ic_home"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:tint="@color/white" />
