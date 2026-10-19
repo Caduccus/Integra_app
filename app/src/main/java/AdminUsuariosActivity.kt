@@ -39,7 +39,7 @@ class AdminUsuariosActivity : BaseActivity() {
         setContentView(R.layout.activity_admin_lista)
 
         findViewById<ImageView>(R.id.btnVoltarAdminLista).setOnClickListener { finish() }
-        findViewById<TextView>(R.id.txtTituloAdminLista).text = "Usuários"
+        findViewById<TextView>(R.id.txtTituloAdminLista).text = getString(R.string.admin_lista_usuarios)
 
         rv = findViewById(R.id.rvAdminLista)
         rv.layoutManager = LinearLayoutManager(this)
@@ -56,7 +56,7 @@ class AdminUsuariosActivity : BaseActivity() {
                     lista.add(
                         AdminUser(
                             uid = doc.id,
-                            nome = doc.getString("nome") ?: "Usuário",
+                            nome = doc.getString("nome") ?: getString(R.string.admin_usuario_padrao),
                             email = doc.getString("email") ?: "—",
                             isAdmin = doc.getBoolean("isAdmin") ?: false
                         )
@@ -64,32 +64,23 @@ class AdminUsuariosActivity : BaseActivity() {
                 }
                 rv.adapter = Adapter(lista)
             } catch (e: Exception) {
-                Toast.makeText(this@AdminUsuariosActivity, "Erro: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@AdminUsuariosActivity, getString(R.string.admin_erro, e.message ?: ""), Toast.LENGTH_SHORT).show()
             }
         }
     }
 
     private fun confirmarExcluir(u: AdminUser) {
         AlertDialog.Builder(this)
-            .setTitle("Excluir usuário")
-            .setMessage(
-                "Excluir '${u.nome}'?\n\n" +
-                        "Vai apagar:\n" +
-                        "• Perfil\n" +
-                        "• Trabalhos publicados\n" +
-                        "• Candidaturas\n" +
-                        "• Empresas criadas\n\n" +
-                        "A conta de login permanece (não dá pra apagar pelo app)."
-            )
-            .setPositiveButton("EXCLUIR") { _, _ -> excluir(u) }
-            .setNegativeButton("Cancelar", null)
+            .setTitle(getString(R.string.admin_excluir_usuario_titulo))
+            .setMessage(getString(R.string.admin_excluir_usuario_msg, u.nome))
+            .setPositiveButton(getString(R.string.admin_btn_excluir)) { _, _ -> excluir(u) }
+            .setNegativeButton(getString(R.string.geral_cancelar), null)
             .show()
     }
 
     private fun excluir(u: AdminUser) {
         lifecycleScope.launch {
             try {
-                // Trabalhos do usuário
                 val trabalhos = db.collection("trabalhos")
                     .whereEqualTo("criadorId", u.uid).get().await()
                 for (t in trabalhos.documents) {
@@ -98,17 +89,14 @@ class AdminUsuariosActivity : BaseActivity() {
                     t.reference.delete().await()
                 }
 
-                // Candidaturas do usuário em outros trabalhos
                 val todos = db.collection("trabalhos").get().await()
                 for (t in todos.documents) {
                     try { t.reference.collection("candidaturas").document(u.uid).delete().await() } catch (_: Exception) {}
                 }
 
-                // Empresas do usuário
                 val empresas = db.collection("empresas")
                     .whereEqualTo("criadorId", u.uid).get().await()
                 for (e in empresas.documents) {
-                    // apaga grupo geral
                     val grupo = db.collection("chats").document("empresa_${e.id}_geral")
                     try {
                         val msgs = grupo.collection("mensagens").get().await()
@@ -118,7 +106,6 @@ class AdminUsuariosActivity : BaseActivity() {
                     e.reference.delete().await()
                 }
 
-                // Remove de chats (participantes)
                 val chats = db.collection("chats")
                     .whereArrayContains("participantes", u.uid).get().await()
                 for (c in chats.documents) {
@@ -126,13 +113,12 @@ class AdminUsuariosActivity : BaseActivity() {
                         com.google.firebase.firestore.FieldValue.arrayRemove(u.uid)).await()
                 }
 
-                // Deleta o doc do usuário
                 db.collection("usuarios").document(u.uid).delete().await()
 
-                Toast.makeText(this@AdminUsuariosActivity, "Usuário excluído", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@AdminUsuariosActivity, getString(R.string.admin_sucesso_usuario), Toast.LENGTH_SHORT).show()
                 carregar()
             } catch (e: Exception) {
-                Toast.makeText(this@AdminUsuariosActivity, "Erro: ${e.message}", Toast.LENGTH_LONG).show()
+                Toast.makeText(this@AdminUsuariosActivity, getString(R.string.admin_erro, e.message ?: ""), Toast.LENGTH_LONG).show()
             }
         }
     }

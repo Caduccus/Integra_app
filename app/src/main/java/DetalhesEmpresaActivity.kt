@@ -82,7 +82,7 @@ class DetalhesEmpresaActivity : BaseActivity() {
         empresaId = intent.getStringExtra("empresaId") ?: ""
 
         if (empresaId.isEmpty()) {
-            Toast.makeText(this, "Empresa não encontrada", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.empresa_nao_encontrada), Toast.LENGTH_SHORT).show()
             finish()
             return
         }
@@ -128,7 +128,7 @@ class DetalhesEmpresaActivity : BaseActivity() {
             if (!souDono) {
                 Toast.makeText(
                     this,
-                    "Apenas o dono pode editar a foto da empresa",
+                    getString(R.string.empresa_so_dono_logo),
                     Toast.LENGTH_SHORT
                 ).show()
                 return@setOnClickListener
@@ -174,7 +174,7 @@ class DetalhesEmpresaActivity : BaseActivity() {
                 if (empresa == null) {
                     Toast.makeText(
                         this@DetalhesEmpresaActivity,
-                        "Empresa não encontrada",
+                        getString(R.string.empresa_nao_encontrada),
                         Toast.LENGTH_SHORT
                     ).show()
                     finish()
@@ -189,7 +189,7 @@ class DetalhesEmpresaActivity : BaseActivity() {
             } catch (e: Exception) {
                 Toast.makeText(
                     this@DetalhesEmpresaActivity,
-                    "Erro: ${e.message}",
+                    getString(R.string.geral_erro, e.message ?: ""),
                     Toast.LENGTH_SHORT
                 ).show()
             }
@@ -236,7 +236,6 @@ class DetalhesEmpresaActivity : BaseActivity() {
             blocoPendentes.visibility = View.GONE
         }
 
-        // ⭐ Botão de estatísticas só pra admins
         btnVerEstatisticas.visibility = if (souAdmin) View.VISIBLE else View.GONE
     }
 
@@ -249,7 +248,7 @@ class DetalhesEmpresaActivity : BaseActivity() {
                 membros.add(
                     Membro(
                         uid = uid,
-                        nome = doc.getString("nome") ?: "Usuário",
+                        nome = doc.getString("nome") ?: getString(R.string.admin_usuario_padrao),
                         username = doc.getString("username") ?: "",
                         fotoUrl = doc.getString("fotoUrl") ?: "",
                         ehAdmin = empresa.admins.contains(uid) || empresa.criadorId == uid,
@@ -301,22 +300,22 @@ class DetalhesEmpresaActivity : BaseActivity() {
 
         when {
             ehPendente -> {
-                btnAcao.text = "CANCELAR PEDIDO"
+                btnAcao.text = getString(R.string.empresa_btn_cancelar_pedido)
                 btnAcao.setBackgroundColor(0xFFFB8C00.toInt())
                 btnAcao.setOnClickListener { cancelarPedido() }
             }
             ehMembro && ehAdmin -> {
-                btnAcao.text = "GERENCIAR EMPRESA"
+                btnAcao.text = getString(R.string.empresa_btn_gerenciar)
                 btnAcao.setBackgroundColor(0xFF0D226B.toInt())
                 btnAcao.setOnClickListener { abrirGerenciar() }
             }
             ehMembro -> {
-                btnAcao.text = "ABRIR GRUPO GERAL"
+                btnAcao.text = getString(R.string.empresa_btn_abrir_grupo)
                 btnAcao.setBackgroundColor(0xFF0D226B.toInt())
                 btnAcao.setOnClickListener { abrirGrupoGeral() }
             }
             else -> {
-                btnAcao.text = "PEDIR PRA ENTRAR"
+                btnAcao.text = getString(R.string.empresa_btn_pedir_entrar)
                 btnAcao.setBackgroundColor(0xFF43A047.toInt())
                 btnAcao.setOnClickListener { pedirParaEntrar() }
             }
@@ -332,14 +331,14 @@ class DetalhesEmpresaActivity : BaseActivity() {
             if (ok) {
                 Toast.makeText(
                     this@DetalhesEmpresaActivity,
-                    "Pedido enviado! Aguarde aprovação.",
+                    getString(R.string.empresas_pedido_enviado),
                     Toast.LENGTH_LONG
                 ).show()
                 carregarTudo()
             } else {
                 Toast.makeText(
                     this@DetalhesEmpresaActivity,
-                    "Erro ao pedir",
+                    getString(R.string.empresas_erro_pedir),
                     Toast.LENGTH_SHORT
                 ).show()
             }
@@ -355,14 +354,14 @@ class DetalhesEmpresaActivity : BaseActivity() {
             if (ok) {
                 Toast.makeText(
                     this@DetalhesEmpresaActivity,
-                    "Pedido cancelado",
+                    getString(R.string.empresas_pedido_cancelado),
                     Toast.LENGTH_SHORT
                 ).show()
                 carregarTudo()
             } else {
                 Toast.makeText(
                     this@DetalhesEmpresaActivity,
-                    "Erro ao cancelar",
+                    getString(R.string.geral_erro, getString(R.string.empresas_btn_cancelar)),
                     Toast.LENGTH_SHORT
                 ).show()
             }
@@ -384,7 +383,7 @@ class DetalhesEmpresaActivity : BaseActivity() {
 
     private fun uploadLogo(uri: Uri) {
         uploadingLogo = true
-        Toast.makeText(this, "Enviando foto...", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, getString(R.string.perfil_foto_enviando), Toast.LENGTH_SHORT).show()
 
         try {
             MediaManager.get().upload(uri)
@@ -411,13 +410,13 @@ class DetalhesEmpresaActivity : BaseActivity() {
                                 imgLogo.setPadding(0, 0, 0, 0)
                                 Toast.makeText(
                                     this@DetalhesEmpresaActivity,
-                                    "Foto atualizada!",
+                                    getString(R.string.empresa_foto_atualizada),
                                     Toast.LENGTH_SHORT
                                 ).show()
                             } else {
                                 Toast.makeText(
                                     this@DetalhesEmpresaActivity,
-                                    "Erro ao salvar foto",
+                                    getString(R.string.geral_erro, "Falha ao salvar"),
                                     Toast.LENGTH_SHORT
                                 ).show()
                             }
@@ -428,7 +427,7 @@ class DetalhesEmpresaActivity : BaseActivity() {
                         uploadingLogo = false
                         Toast.makeText(
                             this@DetalhesEmpresaActivity,
-                            "Erro: ${error?.description}",
+                            getString(R.string.geral_erro, error?.description ?: ""),
                             Toast.LENGTH_LONG
                         ).show()
                     }
@@ -438,7 +437,7 @@ class DetalhesEmpresaActivity : BaseActivity() {
                 .dispatch()
         } catch (e: Exception) {
             uploadingLogo = false
-            Toast.makeText(this, "Erro: ${e.message}", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, getString(R.string.geral_erro, e.message ?: ""), Toast.LENGTH_LONG).show()
         }
     }
 

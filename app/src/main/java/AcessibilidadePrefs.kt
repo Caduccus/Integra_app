@@ -28,7 +28,7 @@ object AcessibilidadePrefs {
 
     fun setFontScale(context: Context, valor: String) {
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-            .edit().putString(KEY_FONT_SCALE, valor).apply()
+            .edit().putString(KEY_FONT_SCALE, valor).commit()
     }
 
     fun getNomeFonte(valor: String): String = when (valor) {

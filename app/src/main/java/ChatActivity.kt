@@ -80,8 +80,6 @@ class ChatActivity : BaseActivity() {
     private var fotosUsuarios: Map<String, String> = emptyMap()
     private var mensagensAtuais: List<Mensagem> = emptyList()
 
-    private val MAX_NOTIFICACOES = 3L
-
     private var mensagemRespondendo: Mensagem? = null
 
     private var estaGravando: Boolean = false
@@ -106,7 +104,6 @@ class ChatActivity : BaseActivity() {
         }
     }
 
-    // ⭐ Novo: seletor de arquivo
     private val pickArquivoLauncher = registerForActivityResult(
         ActivityResultContracts.OpenDocument()
     ) { uri ->
@@ -145,7 +142,7 @@ class ChatActivity : BaseActivity() {
         chatId = intent.getStringExtra("chatId") ?: ""
 
         if (chatId.isEmpty()) {
-            Toast.makeText(this, "Chat não encontrado", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.chat_erro_chat_nao_encontrado), Toast.LENGTH_SHORT).show()
             finish()
             return
         }
@@ -159,7 +156,7 @@ class ChatActivity : BaseActivity() {
 
         btnAnexar.setOnClickListener {
             if (estaBloqueado) {
-                Toast.makeText(this, "Não é possível enviar arquivos aqui", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.chat_erro_bloqueado_enviar), Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
             abrirBottomSheetAnexo()
@@ -182,7 +179,7 @@ class ChatActivity : BaseActivity() {
                     intent.putExtra("chatId", "")
                     startActivity(intent)
                 } else {
-                    Toast.makeText(this, "Não foi possível abrir o perfil", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, getString(R.string.chat_erro_abrir_perfil), Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -210,13 +207,10 @@ class ChatActivity : BaseActivity() {
         ChatAtivoManager.chatAtivo = null
     }
 
-    // ─────────────────────────────────────────────
-    // BLOQUEIO
-    // ─────────────────────────────────────────────
     private fun atualizarEstadoBloqueio() {
         if (!estaBloqueado) {
             edtMensagem.isEnabled = true
-            edtMensagem.hint = "Digite uma mensagem..."
+            edtMensagem.hint = getString(R.string.chat_input_hint)
             edtMensagem.alpha = 1f
             btnEnviar.isEnabled = true
             btnAnexar.isEnabled = true
@@ -239,24 +233,21 @@ class ChatActivity : BaseActivity() {
             btnGravarAudio.alpha = 0.4f
 
             edtMensagem.hint = if (euBloqueei) {
-                "Você bloqueou este usuário"
+                getString(R.string.chat_input_bloqueado)
             } else {
-                "Você não pode enviar mensagens"
+                getString(R.string.chat_input_nao_pode)
             }
         }
     }
 
     private fun podeEnviar(): Boolean {
         if (estaBloqueado) {
-            Toast.makeText(this, "Você não pode enviar mensagens nesta conversa", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.chat_erro_bloqueado_enviar), Toast.LENGTH_SHORT).show()
             return false
         }
         return true
     }
 
-    // ─────────────────────────────────────────────
-    // ⭐ BOTTOM SHEET DE ANEXO
-    // ─────────────────────────────────────────────
     private fun abrirBottomSheetAnexo() {
         val dialog = BottomSheetDialog(this)
         val view = layoutInflater.inflate(R.layout.bottom_sheet_anexo, null)
@@ -277,22 +268,19 @@ class ChatActivity : BaseActivity() {
         dialog.show()
     }
 
-    // ─────────────────────────────────────────────
-    // REPLY
-    // ─────────────────────────────────────────────
     private fun mostrarReply(msg: Mensagem) {
         mensagemRespondendo = msg
         layoutReplyBar.visibility = LinearLayout.VISIBLE
 
         txtReplyBarNome.text = if (msg.remetenteId == auth.currentUser?.uid) {
-            "Você"
+            getString(R.string.chat_reply_voce)
         } else {
-            msg.nomeRemetente.ifEmpty { "Usuário" }
+            msg.nomeRemetente.ifEmpty { getString(R.string.admin_usuario_padrao) }
         }
 
         txtReplyBarTexto.text = when (msg.tipo) {
-            "imagem" -> "📷 Imagem"
-            "audio" -> "🎤 Áudio"
+            "imagem" -> getString(R.string.chat_reply_imagem)
+            "audio" -> getString(R.string.chat_reply_audio)
             "arquivo" -> "📎 ${msg.nomeArquivo}"
             else -> msg.texto
         }
@@ -303,9 +291,6 @@ class ChatActivity : BaseActivity() {
         layoutReplyBar.visibility = LinearLayout.GONE
     }
 
-    // ─────────────────────────────────────────────
-    // EDITAR
-    // ─────────────────────────────────────────────
     private fun abrirDialogEditar(msg: Mensagem) {
         val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_editar_perfil, null)
         val edtNome = dialogView.findViewById<EditText>(R.id.edtDialogNome)
@@ -315,78 +300,69 @@ class ChatActivity : BaseActivity() {
         edtEmail.visibility = View.GONE
         edtProfissao.visibility = View.GONE
 
-        edtNome.hint = "Nova mensagem"
+        edtNome.hint = getString(R.string.chat_editar_hint)
         edtNome.setText(msg.texto)
         edtNome.setSelection(msg.texto.length)
 
         AlertDialog.Builder(this)
-            .setTitle("Editar mensagem")
+            .setTitle(getString(R.string.chat_editar_titulo))
             .setView(dialogView)
-            .setPositiveButton("Salvar") { _, _ ->
+            .setPositiveButton(getString(R.string.geral_salvar)) { _, _ ->
                 val novoTexto = edtNome.text.toString().trim()
                 if (novoTexto.isNotEmpty() && novoTexto != msg.texto) {
                     lifecycleScope.launch {
                         val ok = repository.editarMensagem(chatId, msg.id, novoTexto)
                         if (!ok) {
-                            Toast.makeText(this@ChatActivity, "Erro ao editar", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this@ChatActivity, getString(R.string.chat_erro_editar), Toast.LENGTH_SHORT).show()
                         }
                     }
                 }
             }
-            .setNegativeButton("Cancelar", null)
+            .setNegativeButton(getString(R.string.geral_cancelar), null)
             .show()
     }
 
-    // ─────────────────────────────────────────────
-    // DELETAR
-    // ─────────────────────────────────────────────
     private fun confirmarDeletar(msg: Mensagem) {
         AlertDialog.Builder(this)
-            .setTitle("Deletar mensagem")
-            .setMessage("Tem certeza que quer deletar essa mensagem?")
-            .setPositiveButton("Deletar") { _, _ ->
+            .setTitle(getString(R.string.chat_deletar_titulo))
+            .setMessage(getString(R.string.chat_deletar_msg))
+            .setPositiveButton(getString(R.string.chat_menu_deletar)) { _, _ ->
                 lifecycleScope.launch {
                     val ok = repository.deletarMensagem(chatId, msg.id)
                     if (ok) {
-                        Toast.makeText(this@ChatActivity, "Mensagem deletada", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@ChatActivity, getString(R.string.chat_deletado), Toast.LENGTH_SHORT).show()
                     } else {
-                        Toast.makeText(this@ChatActivity, "Erro ao deletar", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@ChatActivity, getString(R.string.chat_erro_deletar), Toast.LENGTH_SHORT).show()
                     }
                 }
             }
-            .setNegativeButton("Cancelar", null)
+            .setNegativeButton(getString(R.string.geral_cancelar), null)
             .show()
     }
 
-    // ─────────────────────────────────────────────
-    // MENU LONG PRESS
-    // ─────────────────────────────────────────────
     private fun abrirMenuMensagem(msg: Mensagem) {
         val uid = auth.currentUser?.uid ?: return
         val ehMinha = msg.remetenteId == uid
 
         val opcoes = mutableListOf<String>()
-        opcoes.add("Responder")
-        if (ehMinha && msg.tipo == "texto") opcoes.add("Editar")
-        if (ehMinha) opcoes.add("Deletar")
+        opcoes.add(getString(R.string.chat_menu_responder))
+        if (ehMinha && msg.tipo == "texto") opcoes.add(getString(R.string.chat_menu_editar))
+        if (ehMinha) opcoes.add(getString(R.string.chat_menu_deletar))
 
         AlertDialog.Builder(this)
             .setItems(opcoes.toTypedArray()) { _, which ->
                 when (opcoes[which]) {
-                    "Responder" -> mostrarReply(msg)
-                    "Editar" -> abrirDialogEditar(msg)
-                    "Deletar" -> confirmarDeletar(msg)
+                    getString(R.string.chat_menu_responder) -> mostrarReply(msg)
+                    getString(R.string.chat_menu_editar) -> abrirDialogEditar(msg)
+                    getString(R.string.chat_menu_deletar) -> confirmarDeletar(msg)
                 }
             }
             .show()
     }
 
-    // ─────────────────────────────────────────────
-    // GRAVAÇÃO DE ÁUDIO
-    // ─────────────────────────────────────────────
     private fun toggleGravacao() {
         if (estaBloqueado) {
-            Toast.makeText(this, "Não é possível gravar áudio aqui", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.chat_erro_bloqueado_enviar), Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -399,9 +375,9 @@ class ChatActivity : BaseActivity() {
                 btnGravarAudio.setImageResource(R.drawable.ic_stop)
                 btnGravarAudio.setColorFilter(android.graphics.Color.RED)
                 edtMensagem.isEnabled = false
-                edtMensagem.hint = "Gravando..."
+                edtMensagem.hint = getString(R.string.chat_input_gravando)
             } else {
-                Toast.makeText(this, "Erro ao iniciar gravação. Verifique permissão de microfone.", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, getString(R.string.chat_erro_mic), Toast.LENGTH_LONG).show()
             }
         } else if (estaGravando) {
             val (arquivo, duracao) = recorderHelper?.pararGravacao() ?: Pair(null, 0L)
@@ -414,10 +390,10 @@ class ChatActivity : BaseActivity() {
                 duracaoAudio = duracao
                 mostrarPreviewAudio()
             } else {
-                Toast.makeText(this, "Áudio muito curto", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.chat_audio_curto), Toast.LENGTH_SHORT).show()
                 arquivo?.delete()
                 edtMensagem.isEnabled = true
-                edtMensagem.hint = "Digite uma mensagem..."
+                edtMensagem.hint = getString(R.string.chat_input_hint)
             }
         }
     }
@@ -446,7 +422,7 @@ class ChatActivity : BaseActivity() {
         btnGravarAudio.visibility = LinearLayout.VISIBLE
         edtMensagem.visibility = LinearLayout.VISIBLE
         edtMensagem.isEnabled = true
-        edtMensagem.hint = "Digite uma mensagem..."
+        edtMensagem.hint = getString(R.string.chat_input_hint)
     }
 
     private fun togglePlayPreview() {
@@ -490,7 +466,7 @@ class ChatActivity : BaseActivity() {
                     tocandoPreview = false
                 }
             } catch (e: Exception) {
-                Toast.makeText(this, "Erro ao tocar", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.chat_erro_tocar), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -499,7 +475,7 @@ class ChatActivity : BaseActivity() {
         val arquivo = arquivoAudio ?: return
         val duracao = duracaoAudio
 
-        Toast.makeText(this, "Enviando áudio...", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, getString(R.string.chat_enviando_audio), Toast.LENGTH_SHORT).show()
 
         try {
             MediaManager.get().upload(Uri.fromFile(arquivo))
@@ -527,46 +503,42 @@ class ChatActivity : BaseActivity() {
                                 btnGravarAudio.visibility = LinearLayout.VISIBLE
                                 edtMensagem.visibility = LinearLayout.VISIBLE
                                 edtMensagem.isEnabled = true
-                                edtMensagem.hint = "Digite uma mensagem..."
+                                edtMensagem.hint = getString(R.string.chat_input_hint)
                             } else {
-                                Toast.makeText(this@ChatActivity, "Erro ao salvar áudio", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(this@ChatActivity, getString(R.string.chat_erro_audio_salvar), Toast.LENGTH_SHORT).show()
                             }
                         }
                     }
 
                     override fun onError(requestId: String?, error: ErrorInfo?) {
-                        Toast.makeText(this@ChatActivity, "Erro: ${error?.description}", Toast.LENGTH_LONG).show()
+                        Toast.makeText(this@ChatActivity, getString(R.string.geral_erro, error?.description ?: ""), Toast.LENGTH_LONG).show()
                     }
 
                     override fun onReschedule(requestId: String?, error: ErrorInfo?) { }
                 })
                 .dispatch()
         } catch (e: Exception) {
-            Toast.makeText(this, "Erro: ${e.message}", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, getString(R.string.geral_erro, e.message ?: ""), Toast.LENGTH_LONG).show()
         }
     }
 
-    // ─────────────────────────────────────────────
-    // ⭐ UPLOAD DE ARQUIVO
-    // ─────────────────────────────────────────────
     private fun uploadArquivo(uri: Uri) {
         val nomeOriginal = obterNomeArquivoChat(uri) ?: "arquivo"
         val tamanho = obterTamanhoArquivo(uri)
         val mime = contentResolver.getType(uri) ?: "*/*"
 
-        // Garante extensão no nome
         val nomeComExtensao = if (!nomeOriginal.contains(".")) {
             val ext = mimeParaExtensao(mime)
             if (ext.isNotEmpty()) "$nomeOriginal.$ext" else nomeOriginal
         } else nomeOriginal
 
-        Toast.makeText(this, "Enviando $nomeComExtensao...", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, getString(R.string.chat_arquivo_enviando, nomeComExtensao), Toast.LENGTH_SHORT).show()
 
         try {
             MediaManager.get().upload(uri)
                 .unsigned("fotos_perfil")
                 .option("folder", "chats/$chatId/arquivos")
-                .option("resource_type", "raw")   // ⭐ ISSO É O FIX
+                .option("resource_type", "raw")
                 .option("public_id", nomeComExtensao)
                 .callback(object : UploadCallback {
                     override fun onStart(requestId: String?) { }
@@ -587,28 +559,20 @@ class ChatActivity : BaseActivity() {
                                 mime = mime
                             )
                             if (!ok) {
-                                Toast.makeText(
-                                    this@ChatActivity,
-                                    "Erro ao salvar arquivo",
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                                Toast.makeText(this@ChatActivity, getString(R.string.chat_erro_arquivo_salvar), Toast.LENGTH_SHORT).show()
                             }
                         }
                     }
 
                     override fun onError(requestId: String?, error: ErrorInfo?) {
-                        Toast.makeText(
-                            this@ChatActivity,
-                            "Erro: ${error?.description}",
-                            Toast.LENGTH_LONG
-                        ).show()
+                        Toast.makeText(this@ChatActivity, getString(R.string.geral_erro, error?.description ?: ""), Toast.LENGTH_LONG).show()
                     }
 
                     override fun onReschedule(requestId: String?, error: ErrorInfo?) { }
                 })
                 .dispatch()
         } catch (e: Exception) {
-            Toast.makeText(this, "Erro: ${e.message}", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, getString(R.string.geral_erro, e.message ?: ""), Toast.LENGTH_LONG).show()
         }
     }
 
@@ -621,9 +585,7 @@ class ChatActivity : BaseActivity() {
                     if (idx >= 0) it.getString(idx) else null
                 } else null
             }
-        } catch (_: Exception) {
-            null
-        }
+        } catch (_: Exception) { null }
     }
 
     private fun obterTamanhoArquivo(uri: Uri): Long {
@@ -640,9 +602,6 @@ class ChatActivity : BaseActivity() {
         return tamanho
     }
 
-    // ─────────────────────────────────────────────
-    // ENVIAR TEXTO
-    // ─────────────────────────────────────────────
     private fun enviar() {
         if (!podeEnviar()) return
 
@@ -669,14 +628,11 @@ class ChatActivity : BaseActivity() {
             btnEnviar.isEnabled = true
 
             if (!sucesso) {
-                Toast.makeText(this@ChatActivity, "Erro ao enviar", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@ChatActivity, getString(R.string.chat_erro_enviar), Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    // ─────────────────────────────────────────────
-    // RESTO
-    // ─────────────────────────────────────────────
     private fun resetarContadorNaoLidas() {
         val uid = auth.currentUser?.uid ?: return
         lifecycleScope.launch {
@@ -700,7 +656,7 @@ class ChatActivity : BaseActivity() {
             fotosUsuarios = fotosUsuarios,
             onImagemClick = { url -> abrirImagemEmTelaCheia(url) },
             onLongClick = { msg -> abrirMenuMensagem(msg) },
-            onArquivoClick = { msg -> baixarEAbrirArquivo(msg) }   // ⭐ NOVO
+            onArquivoClick = { msg -> baixarEAbrirArquivo(msg) }
         )
         rvMensagens.layoutManager = LinearLayoutManager(this).apply { stackFromEnd = true }
         rvMensagens.adapter = adapter
@@ -715,7 +671,7 @@ class ChatActivity : BaseActivity() {
             ehGrupoAtual = chat.ehGrupo
 
             if (chat.ehGrupo) {
-                txtNomeChat.text = chat.nome.ifEmpty { "Grupo" }
+                txtNomeChat.text = chat.nome.ifEmpty { getString(R.string.info_grupo_placeholder_grupo) }
                 if (chat.fotoUrl.isNotEmpty()) {
                     Glide.with(this@ChatActivity).load(chat.fotoUrl)
                         .circleCrop().into(imgFotoHeader)
@@ -727,7 +683,7 @@ class ChatActivity : BaseActivity() {
                 if (outroUid != null) {
                     try {
                         val doc = db.collection("usuarios").document(outroUid).get().await()
-                        txtNomeChat.text = doc.getString("nome") ?: "Usuário"
+                        txtNomeChat.text = doc.getString("nome") ?: getString(R.string.admin_usuario_padrao)
                         val fotoUrl = doc.getString("fotoUrl") ?: ""
                         if (fotoUrl.isNotEmpty()) {
                             Glide.with(this@ChatActivity).load(fotoUrl)
@@ -809,7 +765,7 @@ class ChatActivity : BaseActivity() {
     }
 
     private fun baixarImagem(url: String) {
-        Toast.makeText(this, "Baixando imagem...", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, getString(R.string.chat_baixando_imagem), Toast.LENGTH_SHORT).show()
 
         lifecycleScope.launch {
             try {
@@ -819,7 +775,7 @@ class ChatActivity : BaseActivity() {
                 }
 
                 if (bitmap == null) {
-                    Toast.makeText(this@ChatActivity, "Erro ao baixar", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@ChatActivity, getString(R.string.chat_erro_baixar), Toast.LENGTH_SHORT).show()
                     return@launch
                 }
 
@@ -842,20 +798,14 @@ class ChatActivity : BaseActivity() {
                     contentResolver.openOutputStream(uri)?.use { out ->
                         bitmap.compress(android.graphics.Bitmap.CompressFormat.JPEG, 95, out)
                     }
-                    Toast.makeText(this@ChatActivity, "Imagem salva na galeria! ✅", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@ChatActivity, getString(R.string.chat_audio_salvo), Toast.LENGTH_LONG).show()
                 } else {
-                    Toast.makeText(this@ChatActivity, "Erro ao salvar", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@ChatActivity, getString(R.string.chat_erro_salvar), Toast.LENGTH_SHORT).show()
                 }
             } catch (e: Exception) {
-                Toast.makeText(this@ChatActivity, "Erro: ${e.message}", Toast.LENGTH_LONG).show()
+                Toast.makeText(this@ChatActivity, getString(R.string.geral_erro, e.message ?: ""), Toast.LENGTH_LONG).show()
             }
         }
-    }
-
-    private fun nomeSemExtensao(nomeCompleto: String): String {
-        // Cloudinary usa o nome do arquivo como public_id
-        // Mantém pontos e extensão (o Cloudinary aceita)
-        return nomeCompleto.replace(Regex("[^a-zA-Z0-9._-]"), "_")
     }
 
     private fun formatarDuracao(ms: Long): String {
@@ -871,14 +821,14 @@ class ChatActivity : BaseActivity() {
         handler.removeCallbacksAndMessages(null)
         super.onDestroy()
     }
-    // ⭐ Baixa o arquivo e abre local com FileProvider
+
     private fun baixarEAbrirArquivo(msg: Mensagem) {
         if (msg.urlMidia.isEmpty()) {
-            Toast.makeText(this, "Arquivo indisponível", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.chat_arquivo_indisponivel), Toast.LENGTH_SHORT).show()
             return
         }
 
-        Toast.makeText(this, "Abrindo ${msg.nomeArquivo}...", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, getString(R.string.chat_abrindo_arquivo, msg.nomeArquivo), Toast.LENGTH_SHORT).show()
 
         lifecycleScope.launch {
             try {
@@ -887,11 +837,7 @@ class ChatActivity : BaseActivity() {
                 }
 
                 if (arquivo == null || !arquivo.exists()) {
-                    Toast.makeText(
-                        this@ChatActivity,
-                        "Não foi possível baixar o arquivo",
-                        Toast.LENGTH_LONG
-                    ).show()
+                    Toast.makeText(this@ChatActivity, getString(R.string.chat_arquivo_erro_baixar), Toast.LENGTH_LONG).show()
                     return@launch
                 }
 
@@ -910,7 +856,6 @@ class ChatActivity : BaseActivity() {
                 try {
                     startActivity(intent)
                 } catch (e: Exception) {
-                    // Fallback: sem tipo definido
                     try {
                         val fallback = Intent(Intent.ACTION_VIEW).apply {
                             setDataAndType(uri, "*/*")
@@ -919,19 +864,11 @@ class ChatActivity : BaseActivity() {
                         }
                         startActivity(fallback)
                     } catch (_: Exception) {
-                        Toast.makeText(
-                            this@ChatActivity,
-                            "Nenhum app para abrir \"${msg.nomeArquivo}\"",
-                            Toast.LENGTH_LONG
-                        ).show()
+                        Toast.makeText(this@ChatActivity, getString(R.string.chat_arquivo_sem_app, msg.nomeArquivo), Toast.LENGTH_LONG).show()
                     }
                 }
             } catch (e: Exception) {
-                Toast.makeText(
-                    this@ChatActivity,
-                    "Erro: ${e.message}",
-                    Toast.LENGTH_LONG
-                ).show()
+                Toast.makeText(this@ChatActivity, getString(R.string.geral_erro, e.message ?: ""), Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -945,7 +882,6 @@ class ChatActivity : BaseActivity() {
 
             val arquivo = File(cacheDir, nomeFinal)
 
-            // ⭐ OkHttp lida com URL já codificada corretamente
             val client = okhttp3.OkHttpClient.Builder()
                 .connectTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
                 .readTimeout(60, java.util.concurrent.TimeUnit.SECONDS)
@@ -979,19 +915,6 @@ class ChatActivity : BaseActivity() {
             e.printStackTrace()
             null
         }
-    }
-
-    // ⭐ Remove duplicação tipo ".pdf.pdf" no final do URL
-    private fun limparExtensaoDuplicada(url: String): String {
-        val extensoes = listOf("pdf","docx","doc","xlsx","xls","pptx","ppt","zip","rar",
-            "txt","csv","jpg","jpeg","png","gif","mp4","mp3","wav","webp","json")
-        for (ext in extensoes) {
-            val duplicado = ".$ext.$ext"
-            if (url.endsWith(duplicado, ignoreCase = true)) {
-                return url.substring(0, url.length - (ext.length + 1))
-            }
-        }
-        return url
     }
 
     private fun mimeParaExtensao(mime: String): String {

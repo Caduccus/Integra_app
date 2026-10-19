@@ -122,10 +122,10 @@ class ChatListFragment : Fragment() {
 
     private fun abrirMenuConversa(chat: Chat) {
         val opcoes = mutableListOf<String>()
-        if (!chat.ehGrupo) opcoes.add("Excluir conversa")
+        if (!chat.ehGrupo) opcoes.add(getString(R.string.chat_menu_excluir))
 
         if (opcoes.isEmpty()) {
-            Toast.makeText(requireContext(), "Segure uma conversa pessoal para excluir", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.chat_segure_excluir), Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -133,7 +133,7 @@ class ChatListFragment : Fragment() {
             .setTitle(nomeDoChat(chat))
             .setItems(opcoes.toTypedArray()) { _, which ->
                 when (opcoes[which]) {
-                    "Excluir conversa" -> confirmarExcluir(chat)
+                    getString(R.string.chat_menu_excluir) -> confirmarExcluir(chat)
                 }
             }
             .show()
@@ -141,24 +141,20 @@ class ChatListFragment : Fragment() {
 
     private fun confirmarExcluir(chat: Chat) {
         AlertDialog.Builder(requireContext())
-            .setTitle("Excluir conversa")
-            .setMessage(
-                "A conversa com ${nomeDoChat(chat)} será removida da sua lista.\n\n" +
-                        "O outro participante ainda continuará vendo o histórico. " +
-                        "Se qualquer um de vocês mandar uma nova mensagem, a conversa volta a aparecer."
-            )
-            .setPositiveButton("Excluir") { _, _ ->
+            .setTitle(getString(R.string.chat_excluir_titulo))
+            .setMessage(getString(R.string.chat_excluir_msg, nomeDoChat(chat)))
+            .setPositiveButton(getString(R.string.geral_excluir)) { _, _ ->
                 lifecycleScope.launch {
                     val ok = repository.excluirConversa(chat.id)
                     if (ok) {
-                        Toast.makeText(requireContext(), "Conversa excluída", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), getString(R.string.chat_excluido), Toast.LENGTH_SHORT).show()
                         carregarChats()
                     } else {
-                        Toast.makeText(requireContext(), "Erro ao excluir", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), getString(R.string.geral_erro, getString(R.string.geral_excluir)), Toast.LENGTH_SHORT).show()
                     }
                 }
             }
-            .setNegativeButton("Cancelar", null)
+            .setNegativeButton(getString(R.string.geral_cancelar), null)
             .show()
     }
 
@@ -182,10 +178,10 @@ class ChatListFragment : Fragment() {
     }
 
     private fun nomeDoChat(chat: Chat): String {
-        if (chat.ehGrupo) return chat.nome.ifEmpty { "Grupo" }
-        val uidAtual = auth.currentUser?.uid ?: return "Chat"
-        val outroUid = chat.participantes.firstOrNull { it != uidAtual } ?: return "Chat"
-        return nomesUsuarios[outroUid] ?: "Usuário"
+        if (chat.ehGrupo) return chat.nome.ifEmpty { getString(R.string.info_grupo_placeholder_grupo) }
+        val uidAtual = auth.currentUser?.uid ?: return getString(R.string.chat_header_titulo)
+        val outroUid = chat.participantes.firstOrNull { it != uidAtual } ?: return getString(R.string.chat_header_titulo)
+        return nomesUsuarios[outroUid] ?: getString(R.string.admin_usuario_padrao)
     }
 
     private fun fotoDoChat(chat: Chat): String {
@@ -198,7 +194,7 @@ class ChatListFragment : Fragment() {
     private fun contextoDoChat(chat: Chat): String {
         if (chat.trabalhoId.isEmpty()) return ""
         val titulo = titulosTrabalhos[chat.trabalhoId] ?: return ""
-        return "Sobre: $titulo"
+        return getString(R.string.comum_sobre_trabalho, titulo)
     }
 
     private fun statusDoChat(chat: Chat): String {
@@ -209,7 +205,6 @@ class ChatListFragment : Fragment() {
         return statusUsuarios[outroUid] ?: ThemeManager.STATUS_ONLINE
     }
 
-    // ⭐ Carregamento com timeout TOTAL e logs
     private fun carregarChats() {
         mostrarLoading()
 
@@ -235,7 +230,7 @@ class ChatListFragment : Fragment() {
 
                 if (sucesso == null) {
                     Log.w(TAG, "⏱ Timeout ao carregar chats")
-                    Toast.makeText(requireContext(), "Tempo esgotado — tente novamente", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), getString(R.string.chat_tempo_esgotado), Toast.LENGTH_SHORT).show()
                     mostrarEstadoVazio()
                 }
             } catch (e: Throwable) {
@@ -246,7 +241,6 @@ class ChatListFragment : Fragment() {
     }
 
     private suspend fun executarCarregamento(uid: String) = coroutineScope {
-        // 1) Busca os chats
         val snapshot = db.collection("chats")
             .whereArrayContains("participantes", uid)
             .get()
@@ -270,16 +264,12 @@ class ChatListFragment : Fragment() {
             .filter { it.isNotEmpty() }
             .distinct()
 
-        // 2) Carrega dados auxiliares EM PARALELO, cada um com try/catch interno
         val jobU = async { carregarUsuarios(uidsOutros) }
         val jobT = async { carregarTitulos(idsTrabalhos) }
 
         try { jobU.await() } catch (e: Throwable) { Log.e(TAG, "Erro usuários: ${e.message}") }
         try { jobT.await() } catch (e: Throwable) { Log.e(TAG, "Erro títulos: ${e.message}") }
 
-        Log.d(TAG, "✅ Dados auxiliares OK")
-
-        // 3) Atualiza a UI — sempre, mesmo se algo falhou em cima
         withContext(Dispatchers.Main) {
             adapter.atualizarLista(chats)
             if (chats.isEmpty()) mostrarEstadoVazio() else mostrarLista()
@@ -294,12 +284,12 @@ class ChatListFragment : Fragment() {
                 try {
                     val doc = db.collection("usuarios").document(uid).get().await()
                     uid to Triple(
-                        doc.getString("nome") ?: "Usuário",
+                        doc.getString("nome") ?: getString(R.string.admin_usuario_padrao),
                         doc.getString("fotoUrl") ?: "",
                         doc.getString("status") ?: ThemeManager.STATUS_ONLINE
                     )
                 } catch (e: Throwable) {
-                    uid to Triple("Usuário", "", ThemeManager.STATUS_ONLINE)
+                    uid to Triple(getString(R.string.admin_usuario_padrao), "", ThemeManager.STATUS_ONLINE)
                 }
             }
         }.awaitAll()
@@ -339,7 +329,6 @@ class ChatListFragment : Fragment() {
         layoutEstadoVazio.visibility = View.GONE
         layoutLoading.visibility = View.GONE
 
-        // Cancela runnable anterior, se houver
         skeletonRunnable?.let { skeletonHandler.removeCallbacks(it) }
 
         skeletonRunnable = Runnable {

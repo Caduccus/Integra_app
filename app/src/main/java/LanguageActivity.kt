@@ -35,15 +35,19 @@ class LanguageActivity : BaseActivity() {
         LanguageManager.setIdioma(this, idioma)
 
         AlertDialog.Builder(this)
-            .setTitle("Aplicar idioma")
-            .setMessage("O app vai reiniciar para aplicar.")
-            .setPositiveButton("Reiniciar") { _, _ ->
-                val intent = Intent(this, SplashActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                startActivity(intent)
-                Runtime.getRuntime().exit(0)
+            .setTitle(getString(R.string.idioma_reiniciar_titulo))
+            .setMessage(getString(R.string.idioma_reiniciar_msg))
+            .setPositiveButton(getString(R.string.acess_reiniciar)) { _, _ ->
+                reiniciarApp()
             }
             .setCancelable(false)
             .show()
+    }
+
+    private fun reiniciarApp() {
+        val intent = Intent(this, SplashActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+        finishAffinity()
     }
 }

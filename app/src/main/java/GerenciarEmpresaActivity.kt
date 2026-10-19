@@ -52,7 +52,7 @@ class GerenciarEmpresaActivity : BaseActivity() {
 
         empresaId = intent.getStringExtra("empresaId") ?: ""
         if (empresaId.isEmpty()) {
-            Toast.makeText(this, "Empresa não encontrada", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.empresa_nao_encontrada), Toast.LENGTH_SHORT).show()
             finish()
             return
         }
@@ -110,10 +110,10 @@ class GerenciarEmpresaActivity : BaseActivity() {
     private fun trocarAba() {
         if (btnTabPendentes.isChecked) {
             rvGerenciar.adapter = pendenteAdapter
-            atualizarEstadoVazio(listaPendentes.isEmpty(), "Nenhum pedido pendente")
+            atualizarEstadoVazio(listaPendentes.isEmpty(), getString(R.string.gerenciar_vazio_pendentes))
         } else {
             rvGerenciar.adapter = membroAdapter
-            atualizarEstadoVazio(listaMembros.isEmpty(), "Nenhum membro na empresa")
+            atualizarEstadoVazio(listaMembros.isEmpty(), getString(R.string.gerenciar_vazio_membros))
         }
     }
 
@@ -130,7 +130,7 @@ class GerenciarEmpresaActivity : BaseActivity() {
                     return@launch
                 }
                 empresaAtual = empresa
-                txtTitulo.text = "Gerenciar: ${empresa.nome}"
+                txtTitulo.text = getString(R.string.gerenciar_titulo, empresa.nome)
 
                 val uidAtual = auth.currentUser?.uid ?: ""
                 btnExcluirEmpresa.visibility =
@@ -140,11 +140,7 @@ class GerenciarEmpresaActivity : BaseActivity() {
                 carregarPendentes(empresa)
                 trocarAba()
             } catch (e: Exception) {
-                Toast.makeText(
-                    this@GerenciarEmpresaActivity,
-                    "Erro: ${e.message}",
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(this@GerenciarEmpresaActivity, getString(R.string.geral_erro, e.message ?: ""), Toast.LENGTH_SHORT).show()
                 finish()
             }
             layoutLoading.visibility = View.GONE
@@ -159,7 +155,7 @@ class GerenciarEmpresaActivity : BaseActivity() {
                 lista.add(
                     MembroGerenciar(
                         uid = uid,
-                        nome = doc.getString("nome") ?: "Usuário",
+                        nome = doc.getString("nome") ?: getString(R.string.admin_usuario_padrao),
                         username = doc.getString("username") ?: "",
                         fotoUrl = doc.getString("fotoUrl") ?: "",
                         ehAdmin = empresa.admins.contains(uid),
@@ -184,7 +180,7 @@ class GerenciarEmpresaActivity : BaseActivity() {
                 lista.add(
                     Pendente(
                         uid = uid,
-                        nome = doc.getString("nome") ?: "Usuário",
+                        nome = doc.getString("nome") ?: getString(R.string.admin_usuario_padrao),
                         username = doc.getString("username") ?: "",
                         fotoUrl = doc.getString("fotoUrl") ?: ""
                     )
@@ -195,7 +191,7 @@ class GerenciarEmpresaActivity : BaseActivity() {
         pendenteAdapter.atualizarLista(listaPendentes)
 
         btnTabPendentes.text = if (listaPendentes.isEmpty())
-            "Pendentes" else "Pendentes (${listaPendentes.size})"
+            getString(R.string.gerenciar_tab_pendentes) else getString(R.string.gerenciar_tab_pendentes_com, listaPendentes.size)
     }
 
     private fun atualizarEstadoVazio(vazio: Boolean, msg: String) {
@@ -213,40 +209,28 @@ class GerenciarEmpresaActivity : BaseActivity() {
         lifecycleScope.launch {
             val ok = repository.aprovarMembro(empresaId, pendente.uid)
             if (ok) {
-                Toast.makeText(
-                    this@GerenciarEmpresaActivity,
-                    "${pendente.nome} aprovado!",
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(this@GerenciarEmpresaActivity, getString(R.string.gerenciar_aprovado, pendente.nome), Toast.LENGTH_SHORT).show()
                 carregarTudo()
             } else {
-                Toast.makeText(
-                    this@GerenciarEmpresaActivity,
-                    "Erro ao aprovar",
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(this@GerenciarEmpresaActivity, getString(R.string.gerenciar_erro_aprovar), Toast.LENGTH_SHORT).show()
             }
         }
     }
 
     private fun rejeitar(pendente: Pendente) {
         AlertDialog.Builder(this)
-            .setTitle("Rejeitar pedido")
-            .setMessage("Rejeitar o pedido de ${pendente.nome}?")
-            .setPositiveButton("Rejeitar") { _, _ ->
+            .setTitle(getString(R.string.gerenciar_rejeitar_titulo))
+            .setMessage(getString(R.string.gerenciar_rejeitar_msg, pendente.nome))
+            .setPositiveButton(getString(R.string.gerenciar_btn_excluir_empresa)) { _, _ ->
                 lifecycleScope.launch {
                     val ok = repository.rejeitarMembro(empresaId, pendente.uid)
                     if (ok) {
-                        Toast.makeText(
-                            this@GerenciarEmpresaActivity,
-                            "Pedido rejeitado",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        Toast.makeText(this@GerenciarEmpresaActivity, getString(R.string.gerenciar_rejeitado), Toast.LENGTH_SHORT).show()
                         carregarTudo()
                     }
                 }
             }
-            .setNegativeButton("Cancelar", null)
+            .setNegativeButton(getString(R.string.geral_cancelar), null)
             .show()
     }
 
@@ -255,30 +239,30 @@ class GerenciarEmpresaActivity : BaseActivity() {
         val empresa = empresaAtual ?: return
 
         if (membro.ehDono) {
-            Toast.makeText(this, "O dono não pode ser alterado", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.gerenciar_so_dono), Toast.LENGTH_SHORT).show()
             return
         }
 
         if (membro.uid == uidAtual) {
-            Toast.makeText(this, "Você não pode alterar a si mesmo", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.gerenciar_nao_alterar_self), Toast.LENGTH_SHORT).show()
             return
         }
 
         val opcoes = mutableListOf<String>()
         if (membro.ehAdmin) {
-            opcoes.add("Rebaixar admin")
+            opcoes.add(getString(R.string.gerenciar_opcoes_rebaixar))
         } else {
-            opcoes.add("Promover a admin")
+            opcoes.add(getString(R.string.gerenciar_opcoes_promover))
         }
-        opcoes.add("Remover do grupo")
+        opcoes.add(getString(R.string.gerenciar_opcoes_remover))
 
         AlertDialog.Builder(this)
             .setTitle(membro.nome)
             .setItems(opcoes.toTypedArray()) { _, which ->
                 when (opcoes[which]) {
-                    "Promover a admin" -> promover(membro)
-                    "Rebaixar admin" -> rebaixar(membro)
-                    "Remover do grupo" -> confirmarRemover(membro)
+                    getString(R.string.gerenciar_opcoes_promover) -> promover(membro)
+                    getString(R.string.gerenciar_opcoes_rebaixar) -> rebaixar(membro)
+                    getString(R.string.gerenciar_opcoes_remover) -> confirmarRemover(membro)
                 }
             }
             .show()
@@ -288,11 +272,7 @@ class GerenciarEmpresaActivity : BaseActivity() {
         lifecycleScope.launch {
             val ok = repository.promoverAdmin(empresaId, membro.uid)
             if (ok) {
-                Toast.makeText(
-                    this@GerenciarEmpresaActivity,
-                    "${membro.nome} agora é admin",
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(this@GerenciarEmpresaActivity, getString(R.string.gerenciar_agora_admin, membro.nome), Toast.LENGTH_SHORT).show()
                 carregarTudo()
             }
         }
@@ -302,11 +282,7 @@ class GerenciarEmpresaActivity : BaseActivity() {
         lifecycleScope.launch {
             val ok = repository.rebaixarAdmin(empresaId, membro.uid)
             if (ok) {
-                Toast.makeText(
-                    this@GerenciarEmpresaActivity,
-                    "${membro.nome} não é mais admin",
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(this@GerenciarEmpresaActivity, getString(R.string.gerenciar_nao_admin, membro.nome), Toast.LENGTH_SHORT).show()
                 carregarTudo()
             }
         }
@@ -314,72 +290,53 @@ class GerenciarEmpresaActivity : BaseActivity() {
 
     private fun confirmarRemover(membro: MembroGerenciar) {
         AlertDialog.Builder(this)
-            .setTitle("Remover membro")
-            .setMessage("Remover ${membro.nome} do grupo?")
-            .setPositiveButton("Remover") { _, _ ->
+            .setTitle(getString(R.string.gerenciar_remover_titulo))
+            .setMessage(getString(R.string.gerenciar_remover_msg, membro.nome))
+            .setPositiveButton(getString(R.string.gerenciar_opcoes_remover)) { _, _ ->
                 lifecycleScope.launch {
                     val ok = repository.removerMembro(empresaId, membro.uid)
                     if (ok) {
-                        Toast.makeText(
-                            this@GerenciarEmpresaActivity,
-                            "Removido",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        Toast.makeText(this@GerenciarEmpresaActivity, getString(R.string.gerenciar_removido), Toast.LENGTH_SHORT).show()
                         carregarTudo()
                     }
                 }
             }
-            .setNegativeButton("Cancelar", null)
+            .setNegativeButton(getString(R.string.geral_cancelar), null)
             .show()
     }
 
     private fun confirmarExcluirEmpresa() {
         val empresa = empresaAtual ?: return
         AlertDialog.Builder(this)
-            .setTitle("⚠️ Excluir empresa")
-            .setMessage(
-                "Tem CERTEZA que quer excluir a empresa '${empresa.nome}'?\n\n" +
-                        "Isso vai apagar:\n" +
-                        "• A empresa\n" +
-                        "• O grupo de chat \"Geral\"\n" +
-                        "• Todas as mensagens do grupo\n\n" +
-                        "Os trabalhos publicados vão continuar existindo, mas sem vínculo com a empresa.\n\n" +
-                        "Essa ação NÃO pode ser desfeita!"
-            )
-            .setPositiveButton("EXCLUIR TUDO") { _, _ -> executarExclusao() }
-            .setNegativeButton("Cancelar", null)
+            .setTitle(getString(R.string.gerenciar_excluir_titulo))
+            .setMessage(getString(R.string.gerenciar_excluir_msg, empresa.nome))
+            .setPositiveButton(getString(R.string.perfil_excluir_btn)) { _, _ -> executarExclusao() }
+            .setNegativeButton(getString(R.string.geral_cancelar), null)
             .show()
     }
 
     private fun executarExclusao() {
-        Toast.makeText(this, "Excluindo empresa...", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, getString(R.string.gerenciar_excluindo), Toast.LENGTH_SHORT).show()
 
         lifecycleScope.launch {
             val ok = repository.deletarEmpresa(empresaId)
 
             if (ok) {
+                // Notifica membros (Texto dinâmico, deixaremos a tradução para a próxima fase de Notificações)
                 empresaAtual?.membros?.forEach { uid ->
                     if (uid != auth.currentUser?.uid) {
                         NotificacaoHelper.enviar(
                             uidDestino = uid,
-                            titulo = "Empresa excluída",
+                            titulo = getString(R.string.gerenciar_excluida),
                             mensagem = "A empresa '${empresaAtual?.nome}' foi excluída pelo dono."
                         )
                     }
                 }
 
-                Toast.makeText(
-                    this@GerenciarEmpresaActivity,
-                    "Empresa excluída",
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(this@GerenciarEmpresaActivity, getString(R.string.gerenciar_excluida), Toast.LENGTH_SHORT).show()
                 finish()
             } else {
-                Toast.makeText(
-                    this@GerenciarEmpresaActivity,
-                    "Erro ao excluir empresa",
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(this@GerenciarEmpresaActivity, getString(R.string.gerenciar_erro_excluir), Toast.LENGTH_SHORT).show()
             }
         }
     }

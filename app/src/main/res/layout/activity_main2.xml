@@ -175,71 +175,48 @@
         </com.google.android.material.card.MaterialCardView>
 
         <!-- BOTÕES DO CRIADOR -->
-        <LinearLayout
-            android:id="@+id/layoutBotoesCriador"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:weightSum="3"
-            android:visibility="gone">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnExcluir"
-                android:layout_width="0dp"
-                android:layout_height="52dp"
-                android:layout_weight="1"
-                android:layout_marginEnd="4dp"
-                android:backgroundTint="#D32F2F"
-                android:text="EXCLUIR"
-                android:textColor="#FFFFFF"
-                android:textSize="11sp"
-                android:textStyle="bold"
-                android:maxLines="1"
-                app:cornerRadius="12dp"
-                app:icon="@drawable/ic_delete"
-                app:iconGravity="textStart"
-                app:iconPadding="4dp"
-                app:iconTint="#FFFFFF"
-                app:iconSize="18dp" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnEditar"
-                android:layout_width="0dp"
-                android:layout_height="52dp"
-                android:layout_weight="1"
-                android:layout_marginHorizontal="4dp"
-                android:backgroundTint="#0D226B"
-                android:text="EDITAR"
-                android:textColor="#FFFFFF"
-                android:textSize="11sp"
-                android:textStyle="bold"
-                android:maxLines="1"
-                app:cornerRadius="12dp"
-                app:icon="@drawable/ic_edit"
-                app:iconGravity="textStart"
-                app:iconPadding="4dp"
-                app:iconTint="#FFFFFF"
-                app:iconSize="18dp" />
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_weight="1"
+            android:layout_marginStart="4dp">
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnChat"
-                android:layout_width="0dp"
-                android:layout_height="52dp"
-                android:layout_weight="1"
-                android:layout_marginStart="4dp"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:backgroundTint="#43A047"
-                android:text="CHAT"
+                android:text="@string/trabalho_btn_candidatos"
                 android:textColor="#FFFFFF"
                 android:textSize="11sp"
                 android:textStyle="bold"
                 android:maxLines="1"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
                 app:cornerRadius="12dp"
-                app:icon="@drawable/ic_chat"
+                app:icon="@drawable/ic_person"
                 app:iconGravity="textStart"
                 app:iconPadding="4dp"
                 app:iconTint="#FFFFFF"
                 app:iconSize="18dp" />
-        </LinearLayout>
+
+            <TextView
+                android:id="@+id/badgeCandidatos"
+                android:layout_width="wrap_content"
+                android:layout_height="20dp"
+                android:layout_gravity="top|end"
+                android:layout_marginTop="4dp"
+                android:layout_marginEnd="4dp"
+                android:minWidth="20dp"
+                android:paddingHorizontal="6dp"
+                android:background="@drawable/badge_background"
+                android:gravity="center"
+                android:textColor="#FFFFFF"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:visibility="gone"
+                tools:text="3" />
+        </FrameLayout>
 
         <!-- BOTÃO DO CANDIDATO -->
         <com.google.android.material.button.MaterialButton

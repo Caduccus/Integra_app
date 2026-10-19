@@ -36,7 +36,7 @@ class AdminTrabalhosActivity : BaseActivity() {
         setContentView(R.layout.activity_admin_lista)
 
         findViewById<ImageView>(R.id.btnVoltarAdminLista).setOnClickListener { finish() }
-        findViewById<TextView>(R.id.txtTituloAdminLista).text = "Trabalhos"
+        findViewById<TextView>(R.id.txtTituloAdminLista).text = getString(R.string.admin_lista_trabalhos)
 
         rv = findViewById(R.id.rvAdminLista)
         rv.layoutManager = LinearLayoutManager(this)
@@ -61,17 +61,17 @@ class AdminTrabalhosActivity : BaseActivity() {
                 }
                 rv.adapter = Adapter(lista)
             } catch (e: Exception) {
-                Toast.makeText(this@AdminTrabalhosActivity, "Erro: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@AdminTrabalhosActivity, getString(R.string.admin_erro, e.message ?: ""), Toast.LENGTH_SHORT).show()
             }
         }
     }
 
     private fun confirmarExcluir(t: AdminTrabalho) {
         AlertDialog.Builder(this)
-            .setTitle("Excluir trabalho")
-            .setMessage("Excluir '${t.titulo}'?")
-            .setPositiveButton("EXCLUIR") { _, _ -> excluir(t) }
-            .setNegativeButton("Cancelar", null)
+            .setTitle(getString(R.string.admin_excluir_trabalho_titulo))
+            .setMessage(getString(R.string.admin_excluir_trabalho_msg, t.titulo))
+            .setPositiveButton(getString(R.string.admin_btn_excluir)) { _, _ -> excluir(t) }
+            .setNegativeButton(getString(R.string.geral_cancelar), null)
             .show()
     }
 
@@ -83,10 +83,10 @@ class AdminTrabalhosActivity : BaseActivity() {
                 for (c in cands.documents) c.reference.delete().await()
                 ref.delete().await()
 
-                Toast.makeText(this@AdminTrabalhosActivity, "Trabalho excluído", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@AdminTrabalhosActivity, getString(R.string.admin_sucesso_trabalho), Toast.LENGTH_SHORT).show()
                 carregar()
             } catch (e: Exception) {
-                Toast.makeText(this@AdminTrabalhosActivity, "Erro: ${e.message}", Toast.LENGTH_LONG).show()
+                Toast.makeText(this@AdminTrabalhosActivity, getString(R.string.admin_erro, e.message ?: ""), Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -106,7 +106,7 @@ class AdminTrabalhosActivity : BaseActivity() {
         override fun onBindViewHolder(h: VH, pos: Int) {
             val t = itens[pos]
             h.nome.text = t.titulo
-            h.sub.text = "${t.categoria} • por ${t.criador}"
+            h.sub.text = getString(R.string.admin_trabalho_por, t.categoria, t.criador)
             h.btnExcluir.setOnClickListener { confirmarExcluir(t) }
         }
 

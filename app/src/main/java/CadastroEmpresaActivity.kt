@@ -91,15 +91,11 @@ class CadastroEmpresaActivity : BaseActivity() {
             opcoes
         )
         edtArea.setAdapter(adapter)
-        // ⭐ NÃO coloca setOnClickListener — o ExposedDropdownMenu já abre sozinho
     }
 
-    // ─────────────────────────────────────────────
-    // UPLOAD DE LOGO
-    // ─────────────────────────────────────────────
     private fun uploadLogo(uri: Uri) {
         uploadingLogo = true
-        Toast.makeText(this, "Enviando logo...", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, getString(R.string.nova_empresa_logo_enviando), Toast.LENGTH_SHORT).show()
 
         try {
             MediaManager.get().upload(uri)
@@ -123,7 +119,7 @@ class CadastroEmpresaActivity : BaseActivity() {
                             imgLogo.setPadding(0, 0, 0, 0)
                             Toast.makeText(
                                 this@CadastroEmpresaActivity,
-                                "Logo carregada!", Toast.LENGTH_SHORT
+                                getString(R.string.nova_empresa_logo_carregada), Toast.LENGTH_SHORT
                             ).show()
                         }
                     }
@@ -132,7 +128,7 @@ class CadastroEmpresaActivity : BaseActivity() {
                         uploadingLogo = false
                         Toast.makeText(
                             this@CadastroEmpresaActivity,
-                            "Erro: ${error?.description}", Toast.LENGTH_LONG
+                            getString(R.string.geral_erro, error?.description ?: ""), Toast.LENGTH_LONG
                         ).show()
                     }
 
@@ -141,13 +137,10 @@ class CadastroEmpresaActivity : BaseActivity() {
                 .dispatch()
         } catch (e: Exception) {
             uploadingLogo = false
-            Toast.makeText(this, "Erro: ${e.message}", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, getString(R.string.geral_erro, e.message ?: ""), Toast.LENGTH_LONG).show()
         }
     }
 
-    // ─────────────────────────────────────────────
-    // CRIAR EMPRESA
-    // ─────────────────────────────────────────────
     private fun criarEmpresa() {
         val nome = edtNome.text.toString().trim()
         val descricao = edtDescricao.text.toString().trim()
@@ -157,29 +150,29 @@ class CadastroEmpresaActivity : BaseActivity() {
         val email = edtEmail.text.toString().trim()
 
         if (nome.length < 2) {
-            mostrarSnackbar("Nome precisa ter pelo menos 2 caracteres")
+            mostrarSnackbar(getString(R.string.nova_empresa_erro_nome))
             return
         }
         if (descricao.length < 10) {
-            mostrarSnackbar("Descrição precisa ter pelo menos 10 caracteres")
+            mostrarSnackbar(getString(R.string.nova_empresa_erro_descricao))
             return
         }
         if (area.isEmpty()) {
-            mostrarSnackbar("Selecione uma área de atuação")
+            mostrarSnackbar(getString(R.string.nova_empresa_erro_area))
             edtArea.requestFocus()
             return
         }
         if (email.isNotEmpty() && !email.contains("@")) {
-            mostrarSnackbar("E-mail inválido")
+            mostrarSnackbar(getString(R.string.nova_empresa_erro_email))
             return
         }
         if (uploadingLogo) {
-            mostrarSnackbar("Aguarde o upload da logo terminar")
+            mostrarSnackbar(getString(R.string.nova_empresa_aguarde_upload))
             return
         }
 
         btnCriar.isEnabled = false
-        btnCriar.text = "CRIANDO..."
+        btnCriar.text = getString(R.string.nova_empresa_criando)
 
         lifecycleScope.launch {
             val empresa = Empresa(
@@ -197,15 +190,15 @@ class CadastroEmpresaActivity : BaseActivity() {
             if (id != null) {
                 Toast.makeText(
                     this@CadastroEmpresaActivity,
-                    "Empresa criada!",
+                    getString(R.string.nova_empresa_sucesso),
                     Toast.LENGTH_SHORT
                 ).show()
                 setResult(RESULT_OK)
                 finish()
             } else {
                 btnCriar.isEnabled = true
-                btnCriar.text = "CRIAR EMPRESA"
-                mostrarSnackbar("Erro ao criar empresa. Verifique sua conexão.")
+                btnCriar.text = getString(R.string.nova_empresa_btn_criar)
+                mostrarSnackbar(getString(R.string.nova_empresa_erro_geral))
             }
         }
     }

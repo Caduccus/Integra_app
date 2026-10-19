@@ -4,26 +4,26 @@
     <item
         android:id="@+id/nav_inicio"
         android:icon="@drawable/ic_home"
-        android:title="Início" />
+        android:title="@string/nav_inicio" />
 
     <item
         android:id="@+id/nav_empresas"
         android:icon="@drawable/ic_work_outline"
-        android:title="Empresas" />
+        android:title="@string/nav_empresas" />
 
     <item
         android:id="@+id/nav_publicar"
         android:icon="@drawable/ic_add_circle"
-        android:title="Publicar" />
+        android:title="@string/nav_publicar" />
 
     <item
         android:id="@+id/nav_mensagens"
         android:icon="@drawable/ic_message"
-        android:title="Mensagens" />
+        android:title="@string/nav_mensagens" />
 
     <item
         android:id="@+id/nav_perfil"
         android:icon="@drawable/ic_profile"
-        android:title="Perfil" />
+        android:title="@string/nav_perfil" />
 
 </menu>

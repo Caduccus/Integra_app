@@ -1,7 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Integraa</string>
+    <string name="trabalho_btn_candidatos">CANDIDATES</string>
+    <string name="trabalho_badge_candidatos">%1$d pending</string>
 
+    <!-- GERAL -->
+    <string name="geral_ok">OK</string>
+    <string name="geral_cancelar">Cancel</string>
+    <string name="geral_salvar">Save</string>
+    <string name="geral_remover">Remove</string>
+    <string name="geral_excluir">Delete</string>
+    <string name="geral_editar">Edit</string>
+    <string name="geral_voltar">Back</string>
+    <string name="geral_erro">Error: %1$s</string>
+    <string name="geral_aguarde">Please wait...</string>
+    <string name="geral_depois">Later</string>
+    <string name="chat_segure_excluir">Hold a personal conversation to delete</string>
+    <string name="chat_tempo_esgotado">Timeout — try again</string>
+    <string name="chat_erro_mic">Error starting recording. Check microphone permission.</string>
+    <string name="chat_erro_tocar">Error playing</string>
+    <string name="admin_trabalho_por">%1$s • by %2$s</string>
+    <string name="notif_data_formato">%1$s at %2$s</string>
+
+    <!-- LOGIN -->
     <string name="login_titulo">Integra</string>
     <string name="login_slogan">Remote work, no limits</string>
     <string name="login_hint_email">Email</string>
@@ -17,14 +38,673 @@
     <string name="login_erro_credenciais">Wrong email or password</string>
     <string name="login_erro_google">Error signing in with Google</string>
     <string name="login_erro_token">Error: null token</string>
+    <string name="login_tema_desc">Change theme</string>
 
+    <!-- RECUPERAR SENHA -->
     <string name="recuperar_titulo">Reset password</string>
-    <string name="recuperar_msg">Enter your registered email. We\'ll send you a link to reset your password.</string>
+    <string name="recuperar_msg">Enter your registered email. We will send you a link to reset your password.</string>
     <string name="recuperar_btn_enviar">Send</string>
     <string name="recuperar_btn_cancelar">Cancel</string>
+    <string name="recuperar_ok">OK</string>
     <string name="recuperar_email_invalido">Enter a valid email</string>
-    <string name="recuperar_email_enviado_titulo">Email sent ✅</string>
+    <string name="recuperar_email_enviado_titulo">Email sent</string>
     <string name="recuperar_email_enviado_msg">We sent a recovery link to:\n\n%1$s\n\nCheck your inbox and spam folder.</string>
     <string name="recuperar_erro">Could not send: %1$s</string>
-    <string name="recuperar_ok">OK</string>
+
+    <!-- CADASTRO -->
+    <string name="cadastro_titulo">Create account</string>
+    <string name="cadastro_subtitulo">Fill in the data below to get started</string>
+    <string name="cadastro_hint_nome">Full name</string>
+    <string name="cadastro_hint_username">Username (e.g. joao123)</string>
+    <string name="cadastro_hint_email">Email</string>
+    <string name="cadastro_hint_senha">Password</string>
+    <string name="cadastro_hint_bio">Bio (optional)</string>
+    <string name="cadastro_hint_profissao">Profession</string>
+    <string name="cadastro_btn_salvar">SIGN UP</string>
+    <string name="cadastro_btn_finalizar_google">FINISH SIGN UP</string>
+    <string name="cadastro_erro_campos_obrigatorios">Fill in all required fields</string>
+    <string name="cadastro_erro_campos_vazios">Fill in all fields</string>
+    <string name="cadastro_erro_username_curto">Username must be at least 3 characters</string>
+    <string name="cadastro_erro_senha_curta">Password must be at least 6 characters</string>
+    <string name="cadastro_erro_username_em_uso">This username is already taken</string>
+    <string name="cadastro_sucesso">Account created successfully!</string>
+    <string name="cadastro_sucesso_google">Account created!</string>
+
+    <!-- HOME -->
+    <string name="home_titulo_trabalhos">Available jobs</string>
+    <string name="home_busca_hint">Search jobs...</string>
+    <string name="home_filtro_todos">All</string>
+    <string name="home_filtro_meus">Mine</string>
+    <string name="home_filtro_inscritos">Applied</string>
+    <string name="home_filtro_empresas">Comp.</string>
+    <string name="home_filtro_favoritos">Fav.</string>
+    <string name="home_btn_historico">View application history</string>
+    <string name="home_btn_publicar_primeiro">PUBLISH FIRST</string>
+    <string name="home_ola">Hello!</string>
+    <string name="home_ola_nome">Hello, %1$s!</string>
+    <string name="home_vazio_titulo">Nothing here yet</string>
+    <string name="home_vazio_sub">Be the first to publish a job!</string>
+    <string name="home_vazio_meus_titulo">Nothing published</string>
+    <string name="home_vazio_meus_sub">You have not published any job yet</string>
+    <string name="home_vazio_inscritos_titulo">No applications</string>
+    <string name="home_vazio_inscritos_sub">Apply to a job to see it here</string>
+    <string name="home_vazio_empresas_titulo">No company jobs</string>
+    <string name="home_vazio_empresas_sub">No jobs from your companies yet</string>
+    <string name="home_vazio_fav_titulo">No favorites</string>
+    <string name="home_vazio_fav_sub">Tap the heart on a job to save it here</string>
+    <string name="home_carregando">Loading jobs...</string>
+    <string name="home_logout_desc">Sign out</string>
+
+    <!-- BOTTOM NAV -->
+    <string name="nav_inicio">Home</string>
+    <string name="nav_empresas">Companies</string>
+    <string name="nav_publicar">Publish</string>
+    <string name="nav_mensagens">Messages</string>
+    <string name="nav_perfil">Profile</string>
+
+    <!-- CHAT LIST -->
+    <string name="chat_titulo">Messages</string>
+    <string name="chat_list_titulo">Messages</string>
+    <string name="chat_btn_novo_grupo">+ GROUP</string>
+    <string name="chat_list_novo_grupo">+ GROUP</string>
+    <string name="chat_vazio_titulo">No conversations yet</string>
+    <string name="chat_vazio_sub">Apply to a job or create a group to get started</string>
+    <string name="chat_btn_criar_grupo">CREATE GROUP</string>
+    <string name="chat_menu_excluir">Delete conversation</string>
+    <string name="chat_excluir_titulo">Delete conversation</string>
+    <string name="chat_excluir_msg">The conversation with %1$s will be removed from your list.\n\nThe other person will still see the history. If either of you sends a new message, the conversation reappears.</string>
+    <string name="chat_excluido">Conversation deleted</string>
+    <string name="chat_ultima_vazia">No messages yet</string>
+
+    <!-- CHAT -->
+    <string name="chat_header_titulo">Chat</string>
+    <string name="chat_input_hint">Type a message...</string>
+    <string name="chat_input_hint_digite">Type a message...</string>
+    <string name="chat_input_gravando">Recording...</string>
+    <string name="chat_input_bloqueado">You blocked this user</string>
+    <string name="chat_input_nao_pode">You cannot send messages</string>
+    <string name="chat_reply_voce">You</string>
+    <string name="chat_reply_imagem">Image</string>
+    <string name="chat_reply_audio">Audio</string>
+    <string name="chat_reply_texto_placeholder">Replied text</string>
+    <string name="chat_editar_titulo">Edit message</string>
+    <string name="chat_editar_hint">New message</string>
+    <string name="chat_deletar_titulo">Delete message</string>
+    <string name="chat_deletar_msg">Are you sure you want to delete this message?</string>
+    <string name="chat_deletado">Message deleted</string>
+    <string name="chat_menu_responder">Reply</string>
+    <string name="chat_menu_editar">Edit</string>
+    <string name="chat_menu_deletar">Delete</string>
+    <string name="chat_audio_curto">Audio too short</string>
+    <string name="chat_enviando_audio">Sending audio...</string>
+    <string name="chat_audio_salvo">Image saved to gallery!</string>
+    <string name="chat_erro_enviar">Error sending</string>
+    <string name="chat_erro_editar">Error editing</string>
+    <string name="chat_erro_deletar">Error deleting</string>
+    <string name="chat_erro_abrir_perfil">Could not open profile</string>
+    <string name="chat_erro_chat_nao_encontrado">Chat not found</string>
+    <string name="chat_erro_arquivo_salvar">Error saving file</string>
+    <string name="chat_erro_audio_salvar">Error saving audio</string>
+    <string name="chat_erro_bloqueado_enviar">You cannot send messages in this conversation</string>
+    <string name="chat_baixando_imagem">Downloading image...</string>
+    <string name="chat_imagem_baixada">Image saved to gallery!</string>
+    <string name="chat_erro_baixar">Error downloading</string>
+    <string name="chat_erro_salvar">Error saving</string>
+    <string name="chat_abrindo_arquivo">Opening %1$s...</string>
+    <string name="chat_arquivo_indisponivel">File unavailable</string>
+    <string name="chat_arquivo_erro_baixar">Could not download file</string>
+    <string name="chat_arquivo_sem_app">No app to open %1$s</string>
+    <string name="chat_arquivo_enviando">Sending %1$s...</string>
+    <string name="chat_editada">edited</string>
+
+    <!-- PREVIEW ÁUDIO -->
+    <string name="audio_preview_toque_ouvir">Tap to listen</string>
+    <string name="audio_preview_cancelar">CANCEL</string>
+    <string name="audio_preview_enviar">SEND</string>
+    <string name="audio_preview_erro_abrir">Error opening preview</string>
+
+    <!-- PREVIEW IMAGEM -->
+    <string name="imagem_preview_titulo">Preview</string>
+    <string name="imagem_preview_legenda_hint">Add a caption...</string>
+    <string name="imagem_preview_cancelar">Cancel</string>
+    <string name="imagem_preview_erro_abrir">Error opening preview</string>
+    <string name="imagem_preview_enviando">Sending...</string>
+    <string name="imagem_preview_erro_enviar">Error sending</string>
+
+    <!-- IMAGEM CHEIA -->
+    <string name="imagem_cheia_fechar">Close</string>
+    <string name="imagem_cheia_baixar">Download</string>
+
+    <!-- FOTO PERFIL SHEET -->
+    <string name="foto_sheet_titulo">Profile photo</string>
+    <string name="foto_sheet_galeria">Choose from gallery</string>
+    <string name="foto_sheet_remover">Remove photo</string>
+
+    <!-- ANEXO SHEET -->
+    <string name="anexo_titulo">Attach</string>
+    <string name="anexo_imagem">Image</string>
+    <string name="anexo_arquivo">File (PDF, ZIP, DOCX...)</string>
+
+    <!-- PERFIL -->
+    <string name="perfil_titulo">Profile</string>
+    <string name="perfil_bio_vazia">No bio yet</string>
+    <string name="perfil_secao_meu_perfil">MY PROFILE</string>
+    <string name="perfil_secao_curriculo">RESUME</string>
+    <string name="perfil_secao_links">CONTACT LINKS</string>
+    <string name="perfil_secao_preferencias">PREFERENCES</string>
+    <string name="perfil_secao_sobre">ABOUT</string>
+    <string name="perfil_secao_conta">ACCOUNT</string>
+    <string name="perfil_secao_admin">ADMIN</string>
+    <string name="perfil_editar_info">Edit information</string>
+    <string name="perfil_quem_viu">Who viewed my profile</string>
+    <string name="perfil_anexar_curriculo">Attach resume (PDF)</string>
+    <string name="perfil_curriculo_toque_abrir">Tap to open</string>
+    <string name="perfil_remover_curriculo_titulo">Remove resume</string>
+    <string name="perfil_remover_curriculo_msg">Remove the attached resume?</string>
+    <string name="perfil_curriculo_enviando">Uploading resume...</string>
+    <string name="perfil_curriculo_anexado">Resume attached!</string>
+    <string name="perfil_curriculo_removido">Resume removed</string>
+    <string name="perfil_add_link">Add link</string>
+    <string name="perfil_add_link_titulo">Add link</string>
+    <string name="perfil_add_link_tipo">Link type</string>
+    <string name="perfil_add_link_valor">Value (e.g. your-username or number)</string>
+    <string name="perfil_add_link_btn">Add</string>
+    <string name="perfil_add_link_preencher">Fill in both fields</string>
+    <string name="perfil_add_link_sucesso">Link added</string>
+    <string name="perfil_remover_link">Remove link</string>
+    <string name="perfil_remover_link_msg">Remove the %1$s link?</string>
+    <string name="perfil_link_removido">Link removed</string>
+    <string name="perfil_sem_links">No links added</string>
+    <string name="perfil_tema">App theme</string>
+    <string name="perfil_notificacoes">Notifications</string>
+    <string name="perfil_notificacoes_ativado">On</string>
+    <string name="perfil_notificacoes_desativado">Off</string>
+    <string name="perfil_notificacoes_receber">Receive notifications</string>
+    <string name="perfil_idioma">Language</string>
+    <string name="perfil_acessibilidade">Accessibility</string>
+    <string name="perfil_sobre">About the app</string>
+    <string name="perfil_sair">Sign out</string>
+    <string name="perfil_excluir_conta">Delete account</string>
+    <string name="perfil_excluir_aviso">Account deletion is permanent and cannot be undone</string>
+    <string name="perfil_excluir_titulo">Delete account</string>
+    <string name="perfil_excluir_msg">Are you SURE you want to delete your account?\n\nThis will PERMANENTLY delete:\n\n- Your profile\n- All your published jobs\n- All your applications\n- Your participation in chats and groups\n\nThis action CANNOT be undone!</string>
+    <string name="perfil_excluir_btn">DELETE EVERYTHING</string>
+    <string name="perfil_excluindo">Deleting account...</string>
+    <string name="perfil_excluida">Account deleted</string>
+    <string name="perfil_editar_titulo">Edit profile</string>
+    <string name="perfil_editar_nome">Name</string>
+    <string name="perfil_editar_email">Email</string>
+    <string name="perfil_editar_profissao">Profession</string>
+    <string name="perfil_editar_bio">Bio (optional, max 150)</string>
+    <string name="perfil_editar_sucesso">Profile updated!</string>
+    <string name="perfil_editar_preencher">Fill in all fields</string>
+    <string name="perfil_editar_erro">Error</string>
+    <string name="perfil_foto_enviando">Uploading photo...</string>
+    <string name="perfil_foto_atualizada">Photo updated!</string>
+    <string name="perfil_foto_removida">Photo removed</string>
+    <string name="perfil_foto_titulo">Profile photo</string>
+    <string name="perfil_foto_galeria">Choose from gallery</string>
+    <string name="perfil_foto_remover">Remove photo</string>
+    <string name="perfil_status_titulo">Choose status</string>
+    <string name="perfil_status_atualizado">Status updated</string>
+    <string name="perfil_ver_visualizacoes">Who viewed my profile</string>
+    <string name="perfil_painel_admin">Admin panel</string>
+    <string name="perfil_painel_admin_sub">Manage users, companies, jobs</string>
+    <string name="perfil_erro_usuario">User not identified</string>
+    <string name="perfil_carregando">Loading...</string>
+    <string name="perfil_avaliacoes_secao">REVIEWS</string>
+
+    <!-- STATUS -->
+    <string name="status_online">Online</string>
+    <string name="status_ausente">Away</string>
+    <string name="status_nao_pertube">Do not disturb</string>
+    <string name="status_invisivel">Invisible</string>
+
+    <!-- TEMAS -->
+    <string name="tema_escolha">Choose a theme</string>
+    <string name="tema_padrao">Default (Purple)</string>
+    <string name="tema_vermelho">Red</string>
+    <string name="tema_azul">Blue</string>
+    <string name="tema_verde">Green</string>
+    <string name="tema_preto">Black</string>
+    <string name="tema_branco">White</string>
+    <string name="tema_amarelo">Yellow</string>
+
+    <!-- ACESSIBILIDADE -->
+    <string name="acess_titulo">Accessibility</string>
+    <string name="acess_subtitulo">Adjust the app for your best experience.</string>
+    <string name="acess_secao_fonte">FONT SIZE</string>
+    <string name="acess_fonte_normal">Normal</string>
+    <string name="acess_fonte_grande">Large</string>
+    <string name="acess_fonte_extra">Extra large</string>
+    <string name="acess_secao_outras">OTHER OPTIONS</string>
+    <string name="acess_reduzir_animacoes">Reduce animations</string>
+    <string name="acess_reduzir_animacoes_sub">Removes transitions between screens</string>
+    <string name="acess_alto_contraste">High contrast</string>
+    <string name="acess_alto_contraste_sub">Black background + more readable text</string>
+    <string name="acess_reiniciar_titulo">Apply %1$s?</string>
+    <string name="acess_reiniciar_msg">The app will restart to apply the change across all screens.</string>
+    <string name="acess_reiniciar">Restart</string>
+    <string name="acess_aviso">Tip: if you use TalkBack, all screens have voice descriptions.</string>
+    <string name="acess_motivo_fonte">Font size</string>
+    <string name="acess_motivo_contraste">High contrast</string>
+
+    <!-- IDIOMA -->
+    <string name="idioma_titulo">Language</string>
+    <string name="idioma_subtitulo">Choose the app language</string>
+    <string name="idioma_sistema">System (default)</string>
+    <string name="idioma_pt">Português</string>
+    <string name="idioma_en">English</string>
+    <string name="idioma_es">Español</string>
+    <string name="idioma_reiniciar_titulo">Apply language</string>
+    <string name="idioma_reiniciar_msg">The app will restart to apply.</string>
+
+    <!-- SOBRE -->
+    <string name="sobre_titulo">About</string>
+    <string name="sobre_versao">Version %1$s</string>
+    <string name="sobre_slogan">Remote work, no limits</string>
+    <string name="sobre_autores">Developed by</string>
+    <string name="sobre_github">Source code</string>
+    <string name="sobre_termos">Terms of use</string>
+    <string name="sobre_politica">Privacy policy</string>
+    <string name="sobre_rodape">© 2026 Integra • All rights reserved</string>
+    <string name="sobre_fechar">Close</string>
+    <string name="sobre_link_erro">Could not open link</string>
+
+    <!-- EMPRESAS -->
+    <string name="empresas_titulo">Companies</string>
+    <string name="empresas_btn_criar">+ CREATE</string>
+    <string name="empresas_filtro_descobrir">Discover</string>
+    <string name="empresas_filtro_minhas">Mine</string>
+    <string name="empresas_filtro_pedidos">Requests</string>
+    <string name="empresas_vazio_nenhuma">No companies yet</string>
+    <string name="empresas_vazio_nenhuma_sub">Be the first to create one!</string>
+    <string name="empresas_vazio_minhas">You have no companies</string>
+    <string name="empresas_vazio_minhas_sub">Create one or request to join</string>
+    <string name="empresas_vazio_pedidos">No pending requests</string>
+    <string name="empresas_vazio_pedidos_sub">When you request to join, it appears here</string>
+    <string name="empresas_btn_criar_empresa">CREATE COMPANY</string>
+    <string name="empresas_btn_pedir">REQUEST</string>
+    <string name="empresas_btn_cancelar">CANCEL</string>
+    <string name="empresas_pedido_enviado">Request sent! Wait for approval.</string>
+    <string name="empresas_pedido_cancelado">Request cancelled</string>
+    <string name="empresas_erro_pedir">Error requesting</string>
+
+    <!-- DETALHES EMPRESA -->
+    <string name="empresa_detalhes_titulo">Company details</string>
+    <string name="empresa_sobre">About the company</string>
+    <string name="empresa_cnpj">Tax ID</string>
+    <string name="empresa_endereco">Address</string>
+    <string name="empresa_email">Email</string>
+    <string name="empresa_membros">Members</string>
+    <string name="empresa_pedidos">Requests</string>
+    <string name="empresa_secao_membros">Members</string>
+    <string name="empresa_secao_trabalhos">Company jobs</string>
+    <string name="empresa_sem_trabalhos">No jobs published yet</string>
+    <string name="empresa_btn_pedir_entrar">REQUEST TO JOIN</string>
+    <string name="empresa_btn_cancelar_pedido">CANCEL REQUEST</string>
+    <string name="empresa_btn_gerenciar">MANAGE COMPANY</string>
+    <string name="empresa_btn_abrir_grupo">OPEN GENERAL GROUP</string>
+    <string name="empresa_privada_msg">This job is private to the company. Only members can apply.</string>
+    <string name="empresa_so_dono_logo">Only the owner can edit the company logo</string>
+    <string name="empresa_foto_atualizada">Photo updated!</string>
+    <string name="empresa_nao_encontrada">Company not found</string>
+    <string name="empresa_ver_estatisticas">View statistics</string>
+
+    <!-- GERENCIAR EMPRESA -->
+    <string name="gerenciar_titulo">Manage: %1$s</string>
+    <string name="gerenciar_tab_membros">Members</string>
+    <string name="gerenciar_tab_pendentes">Pending</string>
+    <string name="gerenciar_tab_pendentes_com">Pending (%1$d)</string>
+    <string name="gerenciar_vazio_membros">No members in the company</string>
+    <string name="gerenciar_vazio_pendentes">No pending requests</string>
+    <string name="gerenciar_btn_excluir_empresa">DELETE COMPANY</string>
+    <string name="gerenciar_badge_dono">OWNER</string>
+    <string name="gerenciar_badge_admin">ADMIN</string>
+    <string name="gerenciar_aprovado">%1$s approved!</string>
+    <string name="gerenciar_rejeitar_titulo">Reject request</string>
+    <string name="gerenciar_rejeitar_msg">Reject the request from %1$s?</string>
+    <string name="gerenciar_rejeitado">Request rejected</string>
+    <string name="gerenciar_opcoes_promover">Promote to admin</string>
+    <string name="gerenciar_opcoes_rebaixar">Demote admin</string>
+    <string name="gerenciar_opcoes_remover">Remove from group</string>
+    <string name="gerenciar_so_dono">The owner cannot be changed</string>
+    <string name="gerenciar_nao_alterar_self">You cannot change yourself</string>
+    <string name="gerenciar_agora_admin">%1$s is now admin</string>
+    <string name="gerenciar_nao_admin">%1$s is no longer admin</string>
+    <string name="gerenciar_remover_titulo">Remove member</string>
+    <string name="gerenciar_remover_msg">Remove %1$s from the group?</string>
+    <string name="gerenciar_removido">Removed</string>
+    <string name="gerenciar_excluir_titulo">Delete company</string>
+    <string name="gerenciar_excluir_msg">Are you SURE you want to delete the company?\n\nThis will delete:\n\n- The company\n- The General chat group\n- All group messages\n\nPublished jobs will remain.\n\nThis action CANNOT be undone!</string>
+    <string name="gerenciar_excluindo">Deleting company...</string>
+    <string name="gerenciar_excluida">Company deleted</string>
+    <string name="gerenciar_erro_aprovar">Error approving</string>
+    <string name="gerenciar_erro_excluir">Error deleting company</string>
+
+    <!-- CADASTRO EMPRESA -->
+    <string name="nova_empresa_titulo">Create company</string>
+    <string name="nova_empresa_logo">Tap to add logo (optional)</string>
+    <string name="nova_empresa_hint_nome">Company name</string>
+    <string name="nova_empresa_hint_descricao">Description</string>
+    <string name="nova_empresa_hint_cnpj">Tax ID (optional)</string>
+    <string name="nova_empresa_hint_area">Industry</string>
+    <string name="nova_empresa_hint_endereco">Address (optional)</string>
+    <string name="nova_empresa_hint_email">Corporate email (optional)</string>
+    <string name="nova_empresa_btn_criar">CREATE COMPANY</string>
+    <string name="nova_empresa_obrigatorios">Required fields</string>
+    <string name="nova_empresa_logo_enviando">Uploading logo...</string>
+    <string name="nova_empresa_logo_carregada">Logo uploaded!</string>
+    <string name="nova_empresa_sucesso">Company created!</string>
+    <string name="nova_empresa_erro_nome">Name must be at least 2 characters</string>
+    <string name="nova_empresa_erro_descricao">Description must be at least 10 characters</string>
+    <string name="nova_empresa_erro_area">Select an industry</string>
+    <string name="nova_empresa_erro_email">Invalid email</string>
+    <string name="nova_empresa_aguarde_upload">Wait for the logo upload to finish</string>
+    <string name="nova_empresa_criando">CREATING...</string>
+    <string name="nova_empresa_erro_geral">Error creating company. Check your connection.</string>
+
+    <!-- GRUPOS -->
+    <string name="info_grupo_titulo">Group info</string>
+    <string name="info_grupo_nome_placeholder">Group name</string>
+    <string name="info_grupo_total">%1$d members</string>
+    <string name="info_grupo_btn_nome">NAME</string>
+    <string name="info_grupo_btn_adicionar">ADD</string>
+    <string name="info_grupo_btn_sair">LEAVE</string>
+    <string name="info_grupo_btn_apagar">DELETE GROUP</string>
+    <string name="info_grupo_editar_nome">Edit group name</string>
+    <string name="info_grupo_novo_nome">New group name</string>
+    <string name="info_grupo_nome_atualizado">Name updated</string>
+    <string name="info_grupo_sair_titulo">Leave group</string>
+    <string name="info_grupo_sair_msg">Are you sure you want to leave the group?</string>
+    <string name="info_grupo_saiu">You left the group</string>
+    <string name="info_grupo_so_admin_sai">You can only leave if a company admin removes you</string>
+    <string name="info_grupo_apagar_titulo">Delete group</string>
+    <string name="info_grupo_apagar_msg">Are you SURE you want to delete this group?\n\nThis will delete:\n\n- The group\n- All messages\n- All members will be removed\n\nThis action CANNOT be undone!</string>
+    <string name="info_grupo_apagando">Deleting group...</string>
+    <string name="info_grupo_apagado">Group deleted!</string>
+    <string name="info_grupo_erro_abrir">Error opening group</string>
+    <string name="info_grupo_erro_sair">Error leaving</string>
+    <string name="info_grupo_erro_apagar">Error deleting group</string>
+    <string name="info_grupo_placeholder_grupo">Group</string>
+    <string name="info_grupo_enviando_foto">Uploading photo...</string>
+
+    <!-- ADICIONAR MEMBROS -->
+    <string name="add_membros_titulo">Add members</string>
+    <string name="add_membros_btn_confirmar">ADD</string>
+    <string name="add_membros_busca">Search by name or @username</string>
+    <string name="add_membros_selecionados">Selected: %1$d</string>
+    <string name="add_membros_selecionados_count">Selected: %1$d</string>
+    <string name="add_membros_vazio">All users are already in the group</string>
+    <string name="add_membros_adicionando">ADDING...</string>
+    <string name="add_membros_privado">This group is private to the company. Only those who join via the company can participate.</string>
+    <string name="add_membros_sucesso">Members added!</string>
+    <string name="add_membros_selecione">Select at least 1 person</string>
+    <string name="add_membros_erro">Error adding</string>
+    <string name="add_membros_notif_titulo">Added to a group</string>
+    <string name="add_membros_notif_msg">%1$s added you to the group %2$s</string>
+
+    <!-- NOVO GRUPO -->
+    <string name="novo_grupo_titulo">New group</string>
+    <string name="novo_grupo_btn_criar">CREATE</string>
+    <string name="novo_grupo_hint_nome">Group name</string>
+    <string name="novo_grupo_busca">Search by name or @username</string>
+    <string name="novo_grupo_vazio">No user found</string>
+    <string name="novo_grupo_vazio_usuarios">No user found</string>
+    <string name="novo_grupo_criando">CREATING...</string>
+    <string name="novo_grupo_sucesso">Group created!</string>
+    <string name="novo_grupo_erro_nome">Enter a group name</string>
+    <string name="novo_grupo_erro_selecione">Select at least 1 person</string>
+    <string name="novo_grupo_erro">Error creating group</string>
+    <string name="novo_grupo_selecionados_count">Selected: %1$d</string>
+
+    <!-- TRABALHO -->
+    <string name="trabalho_detalhes_titulo">Job Details</string>
+    <string name="trabalho_publicado_por">Published by: %1$s</string>
+    <string name="trabalho_secao_descricao">Description</string>
+    <string name="trabalho_secao_categoria">Category</string>
+    <string name="trabalho_secao_nivel">Experience Level</string>
+    <string name="trabalho_secao_prazo">Deadline</string>
+    <string name="trabalho_btn_excluir">DELETE</string>
+    <string name="trabalho_btn_editar">EDIT</string>
+    <string name="trabalho_btn_chat">CHAT</string>
+    <string name="trabalho_btn_candidatar">APPLY FOR JOB</string>
+    <string name="trabalho_btn_abrir_chat">OPEN CHAT WITH CREATOR</string>
+    <string name="trabalho_btn_enviando">SENDING...</string>
+    <string name="trabalho_excluir_titulo">Delete job</string>
+    <string name="trabalho_excluir_msg">Are you sure you want to delete this job?</string>
+    <string name="trabalho_excluido">Job deleted!</string>
+    <string name="trabalho_candidatura_enviada">Application sent!</string>
+    <string name="trabalho_editar_em_breve">Coming soon</string>
+    <string name="trabalho_share_titulo">Share job</string>
+    <string name="trabalho_share_encontrado">Found on Integra.app</string>
+    <string name="trabalho_nao_encontrado">Job not found</string>
+    <string name="trabalho_erro_excluir">Error deleting</string>
+    <string name="trabalho_aguarde_carregar">Wait for the job to load</string>
+    <string name="trabalho_erro_chat">Error opening chat</string>
+    <string name="trabalho_logado_necessario">You must be logged in</string>
+    <string name="trabalho_notif_nova_titulo">New application</string>
+    <string name="trabalho_notif_nova_msg">%1$s applied for %2$s</string>
+    <string name="trabalho_notif_enviada_titulo">Application sent</string>
+    <string name="trabalho_notif_enviada_msg">You applied for %1$s</string>
+    <string name="trabalho_share_extra">Category: %1$s</string>
+    <string name="trabalho_share_nivel">Level: %1$s</string>
+    <string name="trabalho_share_prazo">Deadline: %1$s</string>
+
+    <!-- EDITAR TRABALHO -->
+    <string name="editar_trabalho_titulo">Edit job</string>
+    <string name="editar_trabalho_btn_salvar">SAVE CHANGES</string>
+    <string name="editar_trabalho_salvando">SAVING...</string>
+    <string name="editar_trabalho_sucesso">Job updated!</string>
+    <string name="editar_trabalho_erro">Error saving</string>
+    <string name="editar_trabalho_nao_encontrado">Job does not exist</string>
+
+    <!-- PUBLICAR -->
+    <string name="publicar_titulo">Publish job</string>
+    <string name="publicar_subtitulo">Fill in the data below</string>
+    <string name="publicar_secao_sobre">ABOUT THE JOB</string>
+    <string name="publicar_secao_detalhes">DETAILS</string>
+    <string name="publicar_secao_visibilidade">VISIBILITY</string>
+    <string name="publicar_hint_titulo">Job title</string>
+    <string name="publicar_hint_descricao">Detailed description</string>
+    <string name="publicar_hint_categoria">Category</string>
+    <string name="publicar_hint_nivel">Experience level</string>
+    <string name="publicar_hint_prazo">Deadline (e.g. 30 days)</string>
+    <string name="publicar_hint_como">Publish as</string>
+    <string name="publicar_btn">PUBLISH JOB</string>
+    <string name="publicar_publicando">PUBLISHING...</string>
+    <string name="publicar_sucesso">Job published!</string>
+    <string name="publicar_sucesso_empresa">Private job published at %1$s!</string>
+    <string name="publicar_pessoal">Personal (no company)</string>
+    <string name="publicar_info_publico">Public job: anyone can see and apply.</string>
+    <string name="publicar_info_privado">Private job: visible only to %1$s members. No outsiders can apply.</string>
+    <string name="publicar_erro_preencher">Fill in all fields</string>
+    <string name="publicar_erro_usuario">User not logged in</string>
+
+    <!-- CANDIDATOS -->
+    <string name="candidatos_titulo">Candidates</string>
+    <string name="candidatos_vazio">No candidates yet</string>
+    <string name="candidatos_vazio_sub">When someone applies, they appear here</string>
+    <string name="candidatos_btn_chat">CHAT</string>
+    <string name="candidatos_btn_aceitar">ACCEPT</string>
+    <string name="candidatos_btn_rejeitar">REJECT</string>
+    <string name="candidatos_btn_avaliar">RATE</string>
+    <string name="candidatos_status_pendente">Pending</string>
+    <string name="candidatos_status_vista">Seen</string>
+    <string name="candidatos_status_aceito">Accepted</string>
+    <string name="candidatos_status_rejeitado">Rejected</string>
+    <string name="candidatos_aceitar_titulo">Accept application</string>
+    <string name="candidatos_aceitar_msg">Accept %1$s for %2$s?</string>
+    <string name="candidatos_rejeitar_titulo">Reject application</string>
+    <string name="candidatos_rejeitar_msg">Reject %1$s?</string>
+    <string name="candidatos_atualizado">Updated!</string>
+    <string name="candidatos_erro_trabalho">Job not found</string>
+    <string name="candidatos_candidatou_se_em">Applied on %1$s</string>
+    <string name="candidatos_aceito_notif_titulo">You were accepted!</string>
+    <string name="candidatos_aceito_notif_msg">Congrats! Your application for %1$s was accepted.</string>
+    <string name="candidatos_rejeitado_notif_titulo">Application rejected</string>
+    <string name="candidatos_rejeitado_notif_msg">Your application for %1$s was not accepted this time.</string>
+
+    <!-- HISTÓRICO CANDIDATURAS -->
+    <string name="historico_titulo">My applications</string>
+    <string name="historico_vazio_titulo">No applications yet</string>
+    <string name="historico_vazio_sub">Apply to a job to track it here</string>
+    <string name="historico_step_enviada">Sent</string>
+    <string name="historico_step_vista">Seen</string>
+    <string name="historico_step_resultado">Result</string>
+    <string name="historico_status_aceita">Accepted</string>
+    <string name="historico_status_rejeitada">Rejected</string>
+    <string name="historico_status_vista">Seen</string>
+    <string name="historico_status_enviada">Sent</string>
+    <string name="historico_data_desconhecida">Unknown date</string>
+    <string name="historico_enviada_em">Sent on %1$s</string>
+    <string name="historico_sem_titulo">Untitled</string>
+    <string name="historico_avaliar_empresa">RATE COMPANY</string>
+
+    <!-- NOTIFICAÇÕES -->
+    <string name="notif_titulo">Notifications</string>
+    <string name="notif_vazio">No notifications</string>
+
+    <!-- VISUALIZAÇÕES -->
+    <string name="visualizacoes_titulo">Who viewed your profile</string>
+    <string name="visualizacoes_vazio">No one has viewed yet</string>
+    <string name="visualizacoes_vazio_sub">When someone opens your profile, it appears here</string>
+    <string name="visualizacoes_agora">just now</string>
+    <string name="visualizacoes_min_atras">%1$d min ago</string>
+    <string name="visualizacoes_horas_atras">%1$dh ago</string>
+    <string name="visualizacoes_dias_atras">%1$dd ago</string>
+
+    <!-- BUSCA GLOBAL -->
+    <string name="busca_titulo">Search</string>
+    <string name="busca_hint">Search jobs, companies, people...</string>
+    <string name="busca_vazio_titulo">Type to search</string>
+    <string name="busca_vazio_sub">Jobs, companies and people</string>
+    <string name="busca_sem_resultado">Nothing found</string>
+    <string name="busca_sem_resultado_sub">Try another term</string>
+    <string name="busca_secao_trabalhos">JOBS</string>
+    <string name="busca_secao_empresas">COMPANIES</string>
+    <string name="busca_secao_pessoas">PEOPLE</string>
+
+    <!-- PERFIL DE USUÁRIO -->
+    <string name="perfil_usuario_titulo">Profile</string>
+    <string name="perfil_usuario_username">@%1$s</string>
+    <string name="perfil_usuario_bio_vazia">No bio yet</string>
+    <string name="perfil_usuario_secao_links">LINKS</string>
+    <string name="perfil_usuario_sem_links">No links added</string>
+    <string name="perfil_usuario_secao_curriculo">RESUME</string>
+    <string name="perfil_usuario_curriculo_abrir">Tap to open</string>
+    <string name="perfil_usuario_secao_grupo">GROUP ACTIONS</string>
+    <string name="perfil_usuario_secao_acoes">ACTIONS</string>
+    <string name="perfil_usuario_btn_promover">PROMOTE TO ADMIN</string>
+    <string name="perfil_usuario_btn_rebaixar">DEMOTE ADMIN</string>
+    <string name="perfil_usuario_btn_remover">REMOVE FROM GROUP</string>
+    <string name="perfil_usuario_btn_bloquear">BLOCK USER</string>
+    <string name="perfil_usuario_btn_desbloquear">UNBLOCK USER</string>
+    <string name="perfil_usuario_bloqueado">Blocked</string>
+    <string name="perfil_usuario_desbloqueado">Unblocked</string>
+    <string name="perfil_usuario_erro_abrir">Error opening profile</string>
+    <string name="perfil_usuario_promover_titulo">Promote to admin</string>
+    <string name="perfil_usuario_promover_msg">Make %1$s admin of the group?</string>
+    <string name="perfil_usuario_promover_btn">Promote</string>
+    <string name="perfil_usuario_rebaixar_titulo">Demote admin</string>
+    <string name="perfil_usuario_rebaixar_msg">Remove %1$s from admin?</string>
+    <string name="perfil_usuario_rebaixar_btn">Demote</string>
+    <string name="perfil_usuario_remover_titulo">Remove from group</string>
+    <string name="perfil_usuario_remover_msg">Remove %1$s from group?</string>
+    <string name="perfil_usuario_remover_btn">Remove</string>
+    <string name="perfil_usuario_promovido">Promoted!</string>
+    <string name="perfil_usuario_rebaixado">Demoted</string>
+    <string name="perfil_usuario_removido">Removed!</string>
+    <string name="perfil_usuario_pdf_erro">No app to open PDF</string>
+    <string name="perfil_usuario_avaliacoes_sem_comentario">(no comment)</string>
+    <string name="perfil_usuario_avaliacoes_sobre">About: %1$s</string>
+    <string name="perfil_usuario_avaliacoes_count">(%1$d reviews)</string>
+    <string name="perfil_usuario_avaliacao_count_singular">(1 review)</string>
+
+    <!-- ADMIN -->
+    <string name="admin_titulo">Admin panel</string>
+    <string name="admin_stat_usuarios">Users</string>
+    <string name="admin_stat_empresas">Companies</string>
+    <string name="admin_stat_trabalhos">Jobs</string>
+    <string name="admin_stat_chats">Chats</string>
+    <string name="admin_secao_gerenciar">MANAGE</string>
+    <string name="admin_btn_usuarios">Manage users</string>
+    <string name="admin_btn_empresas">Manage companies</string>
+    <string name="admin_btn_trabalhos">Manage jobs</string>
+    <string name="admin_aviso">Admin actions affect the whole app. Use carefully.</string>
+    <string name="admin_lista_usuarios">Users</string>
+    <string name="admin_lista_empresas">Companies</string>
+    <string name="admin_lista_trabalhos">Jobs</string>
+    <string name="admin_lista_titulo">Admin</string>
+    <string name="admin_excluir_usuario_titulo">Delete user</string>
+    <string name="admin_excluir_usuario_msg">Delete this user?\n\nThis will delete:\n\n- Profile\n- Published jobs\n- Applications\n- Created companies\n\nLogin account remains.</string>
+    <string name="admin_excluir_empresa_titulo">Delete company</string>
+    <string name="admin_excluir_empresa_msg">Delete this company?\n\nThis will delete the company, the General group and all messages.</string>
+    <string name="admin_excluir_trabalho_titulo">Delete job</string>
+    <string name="admin_excluir_trabalho_msg">Delete this job?</string>
+    <string name="admin_btn_excluir">DELETE</string>
+    <string name="admin_sucesso_usuario">User deleted</string>
+    <string name="admin_sucesso_empresa">Company deleted</string>
+    <string name="admin_sucesso_trabalho">Job deleted</string>
+    <string name="admin_ver_estatisticas">View statistics</string>
+    <string name="admin_usuario_padrao">User</string>
+    <string name="admin_erro">Error: %1$s</string>
+    <string name="admin_membros_count">%1$s • %2$d members</string>
+
+    <!-- ESTATÍSTICAS EMPRESA -->
+    <string name="estat_titulo">Statistics</string>
+    <string name="estat_membros">Members</string>
+    <string name="estat_trabalhos">Jobs</string>
+    <string name="estat_candidaturas">Applications</string>
+    <string name="estat_pendentes">Pending</string>
+    <string name="estat_grafico_titulo">Applications in the last 7 days</string>
+    <string name="estat_top3_titulo">Most competitive jobs</string>
+    <string name="estat_sem_candidaturas">No applications yet</string>
+    <string name="estat_sem_titulo">Untitled</string>
+    <string name="estat_candidatura_singular">1 application</string>
+    <string name="estat_candidatura_plural">%1$d applications</string>
+    <string name="estat_dia_dom">Sun</string>
+    <string name="estat_dia_seg">Mon</string>
+    <string name="estat_dia_ter">Tue</string>
+    <string name="estat_dia_qua">Wed</string>
+    <string name="estat_dia_qui">Thu</string>
+    <string name="estat_dia_sex">Fri</string>
+    <string name="estat_dia_sab">Sat</string>
+
+    <!-- AVALIAÇÕES -->
+    <string name="avaliar_titulo">Rate %1$s</string>
+    <string name="avaliar_dialog_titulo">Leave a review</string>
+    <string name="avaliar_sua_nota">Your rating</string>
+    <string name="avaliar_comentario_hint">Comment (optional)</string>
+    <string name="avaliar_enviar">Send</string>
+    <string name="avaliar_enviada">Review sent!</string>
+    <string name="avaliar_erro">Error: %1$s</string>
+    <string name="avaliar_nao_self">You cannot rate yourself</string>
+    <string name="avaliar_nao_propria_empresa">You cannot rate your own company</string>
+    <string name="avaliar_usuario_padrao">User</string>
+    <string name="avaliar_empresa_padrao">the company</string>
+
+    <!-- ONBOARDING -->
+    <string name="onboarding_pular">Skip</string>
+    <string name="onboarding_proximo">NEXT</string>
+    <string name="onboarding_comecar">START</string>
+    <string name="onboarding_titulo_1">Welcome to Integra</string>
+    <string name="onboarding_desc_1">The platform that connects talent to remote opportunities.\n\nFind jobs that match you.</string>
+    <string name="onboarding_titulo_2">Find jobs</string>
+    <string name="onboarding_desc_2">Browse jobs from real companies.\n\nFilter by category, level and company. Favorite the ones you like most.</string>
+    <string name="onboarding_titulo_3">Create your company</string>
+    <string name="onboarding_desc_3">Build your team, publish jobs and manage applications.\n\nAll in one place, right from your phone.</string>
+    <string name="onboarding_titulo_4">Chat directly</string>
+    <string name="onboarding_desc_4">Real-time chat with candidates and companies.\n\nSend text, photos, audio and files.</string>
+
+    <!-- DIALOG SOBRE TEXTO -->
+    <string name="dialog_sobre_placeholder">Text</string>
+
+    <!-- SPLASH -->
+    <string name="splash_nome">Integra</string>
+    <string name="splash_slogan">Remote work, no limits</string>
+
+    <!-- ERROS GENÉRICOS -->
+    <string name="erro_generico">Error: %1$s</string>
+    <string name="erro_conexao">Check your connection</string>
 </resources>

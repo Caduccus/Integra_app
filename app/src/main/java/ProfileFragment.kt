@@ -140,7 +140,7 @@ class ProfileFragment : Fragment() {
         usuarioId = arguments?.getString("usuarioId") ?: auth.currentUser?.uid ?: ""
         nomeUsuario = arguments?.getString("nomeUsuario") ?: ""
 
-        txtNomePerfil.text = nomeUsuario.ifEmpty { "Carregando..." }
+        txtNomePerfil.text = getString(R.string.perfil_carregando)
 
         carregarDadosUsuario()
         carregarFotoSalva()
@@ -163,7 +163,6 @@ class ProfileFragment : Fragment() {
         view.findViewById<View>(R.id.opcaoTema).setOnClickListener {
             abrirDialogTemas()
         }
-        // ⭐ Acessibilidade
         view.findViewById<View>(R.id.opcaoAcessibilidade).setOnClickListener {
             startActivity(Intent(requireContext(), AcessibilidadeActivity::class.java))
         }
@@ -180,7 +179,6 @@ class ProfileFragment : Fragment() {
         btnLogoutPerfil.setOnClickListener { fazerLogout() }
         btnExcluirConta.setOnClickListener { confirmarExcluirConta() }
 
-        // Currículo
         btnAnexarCurriculo.setOnClickListener {
             pickPdfLauncher.launch(arrayOf("application/pdf"))
         }
@@ -193,9 +191,6 @@ class ProfileFragment : Fragment() {
         ThemeManager.aplicarCoresTexto(requireContext(), view)
     }
 
-    // ─────────────────────────────────────────────
-    // ADMIN
-    // ─────────────────────────────────────────────
     private fun configurarAcessoAdmin() {
         AdminChecker.carregar { isAdmin ->
             if (!isAdded) return@carregar
@@ -209,13 +204,10 @@ class ProfileFragment : Fragment() {
         }
     }
 
-    // ─────────────────────────────────────────────
-    // DADOS DO USUÁRIO
-    // ─────────────────────────────────────────────
     private fun carregarDadosUsuario() {
         val uid = auth.currentUser?.uid ?: usuarioId
         if (uid.isEmpty()) {
-            txtNomePerfil.text = "Usuário não identificado"
+            txtNomePerfil.text = getString(R.string.perfil_erro_usuario)
             return
         }
         usuarioId = uid
@@ -227,7 +219,7 @@ class ProfileFragment : Fragment() {
                 if (!isAdded || view == null) return@launch
 
                 if (doc.exists()) {
-                    nomeUsuario = doc.getString("nome") ?: "Usuário"
+                    nomeUsuario = doc.getString("nome") ?: getString(R.string.admin_usuario_padrao)
                     emailUsuario = doc.getString("email") ?: ""
                     profissaoUsuario = doc.getString("profissao") ?: ""
                     bioUsuario = doc.getString("bio") ?: ""
@@ -239,7 +231,7 @@ class ProfileFragment : Fragment() {
                     txtNomePerfil.text = nomeUsuario
                     txtEmailPerfil.text = emailUsuario.ifEmpty { "—" }
                     txtProfissaoPerfil.text = profissaoUsuario.ifEmpty { "—" }
-                    txtBioPerfil.text = if (bioUsuario.isEmpty()) "Sem bio ainda" else bioUsuario
+                    txtBioPerfil.text = if (bioUsuario.isEmpty()) getString(R.string.perfil_bio_vazia) else bioUsuario
 
                     atualizarUiStatus()
                     atualizarUiCurriculo()
@@ -249,14 +241,14 @@ class ProfileFragment : Fragment() {
                         carregarFotoRemota(fotoUrlAtual)
                     }
                 } else {
-                    txtNomePerfil.text = nomeUsuario.ifEmpty { "Usuário" }
+                    txtNomePerfil.text = nomeUsuario.ifEmpty { getString(R.string.admin_usuario_padrao) }
                     txtEmailPerfil.text = auth.currentUser?.email ?: "—"
                     txtProfissaoPerfil.text = "—"
-                    txtBioPerfil.text = "Sem bio ainda"
+                    txtBioPerfil.text = getString(R.string.perfil_bio_vazia)
                 }
             } catch (e: Exception) {
                 if (isAdded) {
-                    Toast.makeText(requireContext(), "Erro: ${e.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), getString(R.string.geral_erro, e.message ?: ""), Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -275,9 +267,6 @@ class ProfileFragment : Fragment() {
         imgFotoPerfil.setPadding(0, 0, 0, 0)
     }
 
-    // ─────────────────────────────────────────────
-    // FOTO DE PERFIL
-    // ─────────────────────────────────────────────
     private fun abrirBottomSheetFoto() {
         val dialog = BottomSheetDialog(requireContext())
         val sheetView = layoutInflater.inflate(R.layout.bottom_sheet_foto_perfil, null)
@@ -315,14 +304,14 @@ class ProfileFragment : Fragment() {
             uploadParaCloudinary(uri)
         } catch (e: Exception) {
             if (isAdded) {
-                Toast.makeText(requireContext(), "Erro: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), getString(R.string.geral_erro, e.message ?: ""), Toast.LENGTH_SHORT).show()
             }
         }
     }
 
     private fun uploadParaCloudinary(uri: Uri) {
         if (!isAdded) return
-        Toast.makeText(requireContext(), "Enviando foto...", Toast.LENGTH_SHORT).show()
+        Toast.makeText(requireContext(), getString(R.string.perfil_foto_enviando), Toast.LENGTH_SHORT).show()
 
         try {
             MediaManager.get().upload(uri)
@@ -346,10 +335,10 @@ class ProfileFragment : Fragment() {
                                     .update("fotoUrl", secureUrl).await()
                                 if (!isAdded) return@launch
                                 fotoUrlAtual = secureUrl
-                                Toast.makeText(requireContext(), "Foto atualizada!", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(requireContext(), getString(R.string.perfil_foto_atualizada), Toast.LENGTH_SHORT).show()
                             } catch (e: Exception) {
                                 if (isAdded) {
-                                    Toast.makeText(requireContext(), "Erro: ${e.message}", Toast.LENGTH_LONG).show()
+                                    Toast.makeText(requireContext(), getString(R.string.geral_erro, e.message ?: ""), Toast.LENGTH_LONG).show()
                                 }
                             }
                         }
@@ -357,7 +346,7 @@ class ProfileFragment : Fragment() {
 
                     override fun onError(requestId: String?, error: com.cloudinary.android.callback.ErrorInfo?) {
                         if (isAdded) {
-                            Toast.makeText(requireContext(), "Erro: ${error?.description}", Toast.LENGTH_LONG).show()
+                            Toast.makeText(requireContext(), getString(R.string.geral_erro, error?.description ?: ""), Toast.LENGTH_LONG).show()
                         }
                     }
 
@@ -366,7 +355,7 @@ class ProfileFragment : Fragment() {
                 .dispatch()
         } catch (e: Exception) {
             if (isAdded) {
-                Toast.makeText(requireContext(), "Erro: ${e.message}", Toast.LENGTH_LONG).show()
+                Toast.makeText(requireContext(), getString(R.string.geral_erro, e.message ?: ""), Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -411,18 +400,15 @@ class ProfileFragment : Fragment() {
                 val padding = (18 * resources.displayMetrics.density).toInt()
                 imgFotoPerfil.setPadding(padding, padding, padding, padding)
 
-                Toast.makeText(requireContext(), "Foto removida", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), getString(R.string.perfil_foto_removida), Toast.LENGTH_SHORT).show()
             } catch (e: Exception) {
                 if (isAdded) {
-                    Toast.makeText(requireContext(), "Erro: ${e.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), getString(R.string.geral_erro, e.message ?: ""), Toast.LENGTH_SHORT).show()
                 }
             }
         }
     }
 
-    // ─────────────────────────────────────────────
-    // TEMAS
-    // ─────────────────────────────────────────────
     private fun abrirDialogTemas() {
         if (!isAdded) return
         val dialogView = LayoutInflater.from(requireContext())
@@ -453,9 +439,6 @@ class ProfileFragment : Fragment() {
         dialog.show()
     }
 
-    // ─────────────────────────────────────────────
-    // EDITAR PERFIL
-    // ─────────────────────────────────────────────
     private fun abrirDialogEditarPerfil() {
         if (!isAdded) return
         val dialogView = LayoutInflater.from(requireContext())
@@ -472,9 +455,9 @@ class ProfileFragment : Fragment() {
         edtBio.setText(bioUsuario)
 
         AlertDialog.Builder(requireContext())
-            .setTitle("Editar perfil")
+            .setTitle(getString(R.string.perfil_editar_titulo))
             .setView(dialogView)
-            .setPositiveButton("Salvar") { _, _ ->
+            .setPositiveButton(getString(R.string.geral_salvar)) { _, _ ->
                 salvarEdicao(
                     edtNome.text.toString().trim(),
                     edtEmail.text.toString().trim(),
@@ -482,13 +465,13 @@ class ProfileFragment : Fragment() {
                     edtBio.text.toString().trim()
                 )
             }
-            .setNegativeButton("Cancelar", null)
+            .setNegativeButton(getString(R.string.geral_cancelar), null)
             .show()
     }
 
     private fun salvarEdicao(nome: String, email: String, profissao: String, bio: String) {
         if (nome.isEmpty() || email.isEmpty() || profissao.isEmpty()) {
-            Toast.makeText(requireContext(), "Preencha todos os campos", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.perfil_editar_preencher), Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -513,39 +496,36 @@ class ProfileFragment : Fragment() {
                 txtNomePerfil.text = nome
                 txtEmailPerfil.text = email
                 txtProfissaoPerfil.text = profissao
-                txtBioPerfil.text = if (bio.isEmpty()) "Sem bio ainda" else bio
+                txtBioPerfil.text = if (bio.isEmpty()) getString(R.string.perfil_bio_vazia) else bio
 
-                Toast.makeText(requireContext(), "Perfil atualizado!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), getString(R.string.perfil_editar_sucesso), Toast.LENGTH_SHORT).show()
             } catch (e: Exception) {
                 if (isAdded) {
-                    Toast.makeText(requireContext(), "Erro: ${e.message}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(requireContext(), getString(R.string.geral_erro, e.message ?: ""), Toast.LENGTH_LONG).show()
                 }
             }
         }
     }
 
-    // ─────────────────────────────────────────────
-    // NOTIFICAÇÕES
-    // ─────────────────────────────────────────────
     private fun abrirDialogNotificacoes() {
         if (!isAdded) return
         val prefs = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val ativoAtual = prefs.getBoolean(KEY_NOTIFICACOES, true)
 
         val switch = SwitchMaterial(requireContext()).apply {
-            text = "Receber notificações"
+            text = getString(R.string.perfil_notificacoes_receber)
             isChecked = ativoAtual
             setPadding(48, 32, 48, 32)
         }
 
         AlertDialog.Builder(requireContext())
-            .setTitle("Notificações")
+            .setTitle(getString(R.string.perfil_notificacoes))
             .setView(switch)
-            .setPositiveButton("Salvar") { _, _ ->
+            .setPositiveButton(getString(R.string.geral_salvar)) { _, _ ->
                 prefs.edit().putBoolean(KEY_NOTIFICACOES, switch.isChecked).apply()
                 atualizarStatusNotificacoes()
             }
-            .setNegativeButton("Cancelar", null)
+            .setNegativeButton(getString(R.string.geral_cancelar), null)
             .show()
     }
 
@@ -553,12 +533,9 @@ class ProfileFragment : Fragment() {
         if (!isAdded) return
         val prefs = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val ativo = prefs.getBoolean(KEY_NOTIFICACOES, true)
-        txtStatusNotificacoes.text = if (ativo) "Ativado" else "Desativado"
+        txtStatusNotificacoes.text = if (ativo) getString(R.string.perfil_notificacoes_ativado) else getString(R.string.perfil_notificacoes_desativado)
     }
 
-    // ─────────────────────────────────────────────
-    // LOGOUT / EXCLUSÃO
-    // ─────────────────────────────────────────────
     private fun fazerLogout() {
         auth.signOut()
         val intent = Intent(requireContext(), LoginActivity::class.java)
@@ -570,21 +547,13 @@ class ProfileFragment : Fragment() {
     private fun confirmarExcluirConta() {
         if (!isAdded) return
         AlertDialog.Builder(requireContext())
-            .setTitle("⚠️ Excluir conta")
-            .setMessage(
-                "Tem CERTEZA que quer excluir sua conta?\n\n" +
-                        "Isso vai apagar PERMANENTEMENTE:\n" +
-                        "• Seu perfil\n" +
-                        "• Todos os seus trabalhos publicados\n" +
-                        "• Todas as suas candidaturas\n" +
-                        "• Sua participação em chats e grupos\n\n" +
-                        "Essa ação NÃO pode ser desfeita!"
-            )
-            .setPositiveButton("EXCLUIR TUDO") { _, _ ->
+            .setTitle(getString(R.string.perfil_excluir_titulo))
+            .setMessage(getString(R.string.perfil_excluir_msg))
+            .setPositiveButton(getString(R.string.perfil_excluir_btn)) { _, _ ->
                 HapticHelper.destrutiva(requireContext())
                 executarExclusaoConta()
             }
-            .setNegativeButton("Cancelar", null)
+            .setNegativeButton(getString(R.string.geral_cancelar), null)
             .show()
     }
 
@@ -592,7 +561,7 @@ class ProfileFragment : Fragment() {
         val uid = auth.currentUser?.uid ?: return
 
         if (isAdded) {
-            Toast.makeText(requireContext(), "Excluindo conta...", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.perfil_excluindo), Toast.LENGTH_SHORT).show()
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
@@ -643,7 +612,7 @@ class ProfileFragment : Fragment() {
                 AdminChecker.limpar()
 
                 if (isAdded) {
-                    Toast.makeText(requireContext(), "Conta excluída", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), getString(R.string.perfil_excluida), Toast.LENGTH_SHORT).show()
                 }
 
                 val intent = Intent(requireContext(), LoginActivity::class.java)
@@ -653,19 +622,25 @@ class ProfileFragment : Fragment() {
 
             } catch (e: Exception) {
                 if (isAdded) {
-                    Toast.makeText(requireContext(), "Erro ao excluir: ${e.message}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(requireContext(), getString(R.string.geral_erro, e.message ?: ""), Toast.LENGTH_LONG).show()
                 }
             }
         }
     }
 
-    // ─────────────────────────────────────────────
-    // STATUS
-    // ─────────────────────────────────────────────
     private fun atualizarUiStatus() {
         val cor = ThemeManager.getStatusColor(statusAtual)
         dotStatusPerfil.backgroundTintList = ColorStateList.valueOf(cor)
-        txtStatusPerfil.text = ThemeManager.getStatusNomeAmigavel(statusAtual)
+
+        // Traduzindo o nome do status
+        val statusNome = when (statusAtual) {
+            ThemeManager.STATUS_ONLINE -> getString(R.string.status_online)
+            ThemeManager.STATUS_AUSENTE -> getString(R.string.status_ausente)
+            ThemeManager.STATUS_NAO_PERTUBE -> getString(R.string.status_nao_pertube)
+            ThemeManager.STATUS_INVISIVEL -> getString(R.string.status_invisivel)
+            else -> getString(R.string.status_online)
+        }
+        txtStatusPerfil.text = statusNome
     }
 
     private fun abrirDialogStatus() {
@@ -675,12 +650,17 @@ class ProfileFragment : Fragment() {
             ThemeManager.STATUS_NAO_PERTUBE,
             ThemeManager.STATUS_INVISIVEL
         )
-        val nomes = opcoes.map { ThemeManager.getStatusNomeAmigavel(it) }.toTypedArray()
+        val nomes = arrayOf(
+            getString(R.string.status_online),
+            getString(R.string.status_ausente),
+            getString(R.string.status_nao_pertube),
+            getString(R.string.status_invisivel)
+        )
 
         AlertDialog.Builder(requireContext())
-            .setTitle("Escolher status")
+            .setTitle(getString(R.string.perfil_status_titulo))
             .setItems(nomes) { _, which -> salvarStatus(opcoes[which]) }
-            .setNegativeButton("Cancelar", null)
+            .setNegativeButton(getString(R.string.geral_cancelar), null)
             .show()
     }
 
@@ -692,16 +672,13 @@ class ProfileFragment : Fragment() {
                     .update("status", novoStatus).await()
                 statusAtual = novoStatus
                 atualizarUiStatus()
-                Toast.makeText(requireContext(), "Status atualizado", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), getString(R.string.perfil_status_atualizado), Toast.LENGTH_SHORT).show()
             } catch (e: Exception) {
-                Toast.makeText(requireContext(), "Erro: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), getString(R.string.geral_erro, e.message ?: ""), Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    // ─────────────────────────────────────────────
-    // LINKS
-    // ─────────────────────────────────────────────
     private fun carregarLinks(doc: com.google.firebase.firestore.DocumentSnapshot) {
         linksAtuais.clear()
         try {
@@ -753,7 +730,7 @@ class ProfileFragment : Fragment() {
         "github"    -> "GitHub"
         "instagram" -> "Instagram"
         "site"      -> "Site"
-        "email"     -> "E-mail"
+        "email"     -> getString(R.string.perfil_editar_email)
         else        -> tipo.replaceFirstChar { it.uppercase() }
     }
 
@@ -781,16 +758,16 @@ class ProfileFragment : Fragment() {
         try {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
         } catch (e: ActivityNotFoundException) {
-            Toast.makeText(requireContext(), "Nenhum app encontrado", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.geral_erro, e.message ?: ""), Toast.LENGTH_SHORT).show()
         }
     }
 
     private fun confirmarRemoverLink(link: LinkContato) {
         AlertDialog.Builder(requireContext())
-            .setTitle("Remover link")
-            .setMessage("Remover o link de ${nomeTipoLink(link.tipo)}?")
-            .setPositiveButton("Remover") { _, _ -> removerLink(link) }
-            .setNegativeButton("Cancelar", null)
+            .setTitle(getString(R.string.perfil_remover_link))
+            .setMessage(getString(R.string.perfil_remover_link_msg, nomeTipoLink(link.tipo)))
+            .setPositiveButton(getString(R.string.geral_remover)) { _, _ -> removerLink(link) }
+            .setNegativeButton(getString(R.string.geral_cancelar), null)
             .show()
     }
 
@@ -805,9 +782,9 @@ class ProfileFragment : Fragment() {
                     .update("links", listaFirestore).await()
                 linksAtuais = novos
                 renderizarLinks()
-                Toast.makeText(requireContext(), "Link removido", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), getString(R.string.perfil_link_removido), Toast.LENGTH_SHORT).show()
             } catch (e: Exception) {
-                Toast.makeText(requireContext(), "Erro: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), getString(R.string.geral_erro, e.message ?: ""), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -825,20 +802,20 @@ class ProfileFragment : Fragment() {
         )
 
         AlertDialog.Builder(requireContext())
-            .setTitle("Adicionar link")
+            .setTitle(getString(R.string.perfil_add_link_titulo))
             .setView(dialogView)
-            .setPositiveButton("Adicionar") { _, _ ->
+            .setPositiveButton(getString(R.string.perfil_add_link_btn)) { _, _ ->
                 val tipo = edtTipo.text.toString().trim().lowercase()
                 val valor = edtValor.text.toString().trim()
 
                 if (tipo.isEmpty() || valor.isEmpty()) {
-                    Toast.makeText(requireContext(), "Preencha os dois campos", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), getString(R.string.perfil_add_link_preencher), Toast.LENGTH_SHORT).show()
                     return@setPositiveButton
                 }
 
                 salvarLink(LinkContato(tipo, valor))
             }
-            .setNegativeButton("Cancelar", null)
+            .setNegativeButton(getString(R.string.geral_cancelar), null)
             .show()
     }
 
@@ -851,16 +828,13 @@ class ProfileFragment : Fragment() {
                     .update("links", listaFirestore).await()
                 linksAtuais = novos
                 renderizarLinks()
-                Toast.makeText(requireContext(), "Link adicionado", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), getString(R.string.perfil_add_link_sucesso), Toast.LENGTH_SHORT).show()
             } catch (e: Exception) {
-                Toast.makeText(requireContext(), "Erro: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), getString(R.string.geral_erro, e.message ?: ""), Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    // ─────────────────────────────────────────────
-    // CURRÍCULO
-    // ─────────────────────────────────────────────
     private fun atualizarUiCurriculo() {
         if (curriculoUrlAtual.isEmpty()) {
             btnAnexarCurriculo.visibility = View.VISIBLE
@@ -874,7 +848,7 @@ class ProfileFragment : Fragment() {
 
     private fun uploadCurriculo(uri: Uri) {
         if (!isAdded) return
-        Toast.makeText(requireContext(), "Enviando currículo...", Toast.LENGTH_SHORT).show()
+        Toast.makeText(requireContext(), getString(R.string.perfil_curriculo_enviando), Toast.LENGTH_SHORT).show()
 
         val nome = obterNomeArquivo(uri) ?: "curriculo.pdf"
 
@@ -911,10 +885,10 @@ class ProfileFragment : Fragment() {
                                 curriculoNomeAtual = nome
                                 atualizarUiCurriculo()
 
-                                Toast.makeText(requireContext(), "Currículo anexado!", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(requireContext(), getString(R.string.perfil_curriculo_anexado), Toast.LENGTH_SHORT).show()
                             } catch (e: Exception) {
                                 if (isAdded) {
-                                    Toast.makeText(requireContext(), "Erro: ${e.message}", Toast.LENGTH_LONG).show()
+                                    Toast.makeText(requireContext(), getString(R.string.geral_erro, e.message ?: ""), Toast.LENGTH_LONG).show()
                                 }
                             }
                         }
@@ -922,7 +896,7 @@ class ProfileFragment : Fragment() {
 
                     override fun onError(requestId: String?, error: com.cloudinary.android.callback.ErrorInfo?) {
                         if (isAdded) {
-                            Toast.makeText(requireContext(), "Erro: ${error?.description}", Toast.LENGTH_LONG).show()
+                            Toast.makeText(requireContext(), getString(R.string.geral_erro, error?.description ?: ""), Toast.LENGTH_LONG).show()
                         }
                     }
 
@@ -931,7 +905,7 @@ class ProfileFragment : Fragment() {
                 .dispatch()
         } catch (e: Exception) {
             if (isAdded) {
-                Toast.makeText(requireContext(), "Erro: ${e.message}", Toast.LENGTH_LONG).show()
+                Toast.makeText(requireContext(), getString(R.string.geral_erro, e.message ?: ""), Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -952,16 +926,16 @@ class ProfileFragment : Fragment() {
         try {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(curriculoUrlAtual)))
         } catch (e: ActivityNotFoundException) {
-            Toast.makeText(requireContext(), "Nenhum app pra abrir PDF", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.perfil_usuario_pdf_erro), Toast.LENGTH_SHORT).show()
         }
     }
 
     private fun confirmarRemoverCurriculo() {
         AlertDialog.Builder(requireContext())
-            .setTitle("Remover currículo")
-            .setMessage("Remover o currículo anexado?")
-            .setPositiveButton("Remover") { _, _ -> removerCurriculo() }
-            .setNegativeButton("Cancelar", null)
+            .setTitle(getString(R.string.perfil_remover_curriculo_titulo))
+            .setMessage(getString(R.string.perfil_remover_curriculo_msg))
+            .setPositiveButton(getString(R.string.geral_remover)) { _, _ -> removerCurriculo() }
+            .setNegativeButton(getString(R.string.geral_cancelar), null)
             .show()
     }
 
@@ -980,9 +954,9 @@ class ProfileFragment : Fragment() {
                 curriculoNomeAtual = ""
                 atualizarUiCurriculo()
 
-                Toast.makeText(requireContext(), "Currículo removido", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), getString(R.string.perfil_curriculo_removido), Toast.LENGTH_SHORT).show()
             } catch (e: Exception) {
-                Toast.makeText(requireContext(), "Erro: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), getString(R.string.geral_erro, e.message ?: ""), Toast.LENGTH_SHORT).show()
             }
         }
     }

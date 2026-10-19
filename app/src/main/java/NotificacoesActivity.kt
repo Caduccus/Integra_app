@@ -111,8 +111,15 @@ class NotificacoesActivity : BaseActivity() {
             h.msg.text = n.mensagem
             h.dot.visibility = if (n.lida) View.INVISIBLE else View.VISIBLE
 
-            val fmt = SimpleDateFormat("dd/MM 'às' HH:mm", Locale.getDefault())
-            h.data.text = fmt.format(Date(n.timestamp))
+            val dateFormat = SimpleDateFormat("dd/MM", Locale.getDefault())
+            val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+
+            // Usa a string traduzida: "dd/MM às HH:mm" (PT), "dd/MM at HH:mm" (EN), "dd/MM a las HH:mm" (ES)
+            h.data.text = getString(
+                R.string.notif_data_formato,
+                dateFormat.format(Date(n.timestamp)),
+                timeFormat.format(Date(n.timestamp))
+            )
         }
 
         override fun getItemCount() = itens.size

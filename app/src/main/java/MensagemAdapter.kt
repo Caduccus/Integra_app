@@ -28,7 +28,7 @@ class MensagemAdapter(
     private val fotosUsuarios: Map<String, String> = emptyMap(),
     private val onImagemClick: (String) -> Unit = {},
     private val onLongClick: (Mensagem) -> Unit = {},
-    private val onArquivoClick: (Mensagem) -> Unit = {}   // ⭐ NOVO
+    private val onArquivoClick: (Mensagem) -> Unit = {}
 ) : RecyclerView.Adapter<MensagemAdapter.MensagemViewHolder>() {
 
     class MensagemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -66,6 +66,7 @@ class MensagemAdapter(
         val msg = mensagens[position]
         val uidAtual = FirebaseAuth.getInstance().currentUser?.uid ?: ""
         val ehMinha = msg.remetenteId == uidAtual
+        val ctx = holder.itemView.context
 
         if (msg.tipo == "sistema") {
             holder.linha.gravity = Gravity.CENTER
@@ -115,7 +116,7 @@ class MensagemAdapter(
         when (msg.tipo) {
             "imagem" -> {
                 holder.imgMensagem.visibility = View.VISIBLE
-                Glide.with(holder.itemView.context)
+                Glide.with(ctx)
                     .load(msg.urlMidia).fitCenter().into(holder.imgMensagem)
                 holder.imgMensagem.setOnClickListener { onImagemClick(msg.urlMidia) }
 
@@ -134,10 +135,9 @@ class MensagemAdapter(
             }
             "arquivo" -> {
                 holder.layoutArquivo.visibility = View.VISIBLE
-                holder.txtNomeArquivo.text = msg.nomeArquivo.ifEmpty { "arquivo" }
-                holder.txtTamanhoArquivo.text = formatarTamanho(msg.tamanhoArquivo)
+                holder.txtNomeArquivo.text = msg.nomeArquivo.ifEmpty { ctx.getString(R.string.chat_arquivo_indisponivel) }
+                holder.txtTamanhoArquivo.text = formatarTamanho(ctx, msg.tamanhoArquivo)
 
-                // ⭐ Delega pro ChatActivity (que baixa e abre local)
                 holder.layoutArquivo.setOnClickListener {
                     onArquivoClick(msg)
                 }
@@ -148,7 +148,10 @@ class MensagemAdapter(
             }
         }
 
-        if (msg.editada) holder.txtEditada.visibility = View.VISIBLE
+        if (msg.editada) {
+            holder.txtEditada.visibility = View.VISIBLE
+            holder.txtEditada.text = ctx.getString(R.string.chat_editada)
+        }
 
         if (ehMinha) {
             holder.linha.gravity = Gravity.END
@@ -182,7 +185,7 @@ class MensagemAdapter(
             holder.cardFoto.visibility = View.VISIBLE
             val fotoUrl = fotosUsuarios[msg.remetenteId] ?: ""
             if (fotoUrl.isNotEmpty()) {
-                Glide.with(holder.itemView.context)
+                Glide.with(ctx)
                     .load(fotoUrl).circleCrop().into(holder.imgFoto)
             } else {
                 holder.imgFoto.setImageResource(R.drawable.ic_person)
@@ -207,8 +210,8 @@ class MensagemAdapter(
         }
     }
 
-    private fun formatarTamanho(bytes: Long): String {
-        if (bytes <= 0) return "arquivo"
+    private fun formatarTamanho(context: android.content.Context, bytes: Long): String {
+        if (bytes <= 0) return context.getString(R.string.chat_arquivo_indisponivel)
         val kb = bytes / 1024.0
         val mb = kb / 1024.0
         return when {

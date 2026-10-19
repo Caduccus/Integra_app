@@ -125,7 +125,7 @@ class EmpresasFragment : Fragment() {
                 todasPedidos = repository.listarPendentesMinhas()
                 aplicarFiltro()
             } catch (e: Exception) {
-                Toast.makeText(requireContext(), "Erro: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), getString(R.string.geral_erro, e.message ?: ""), Toast.LENGTH_SHORT).show()
                 mostrarEstadoVazio()
             }
         }
@@ -143,18 +143,18 @@ class EmpresasFragment : Fragment() {
         if (lista.isEmpty()) {
             when {
                 btnMinhasEmpresas.isChecked -> {
-                    txtVazioTitulo.text = "Você não tem empresas"
-                    txtVazioSubtitulo.text = "Crie uma ou peça pra entrar em uma"
+                    txtVazioTitulo.text = getString(R.string.empresas_vazio_minhas)
+                    txtVazioSubtitulo.text = getString(R.string.empresas_vazio_minhas_sub)
                     btnCriarEmpresaVazio.visibility = View.VISIBLE
                 }
                 btnPedidosEmpresa.isChecked -> {
-                    txtVazioTitulo.text = "Sem pedidos pendentes"
-                    txtVazioSubtitulo.text = "Quando você pedir pra entrar, aparece aqui"
+                    txtVazioTitulo.text = getString(R.string.empresas_vazio_pedidos)
+                    txtVazioSubtitulo.text = getString(R.string.empresas_vazio_pedidos_sub)
                     btnCriarEmpresaVazio.visibility = View.GONE
                 }
                 else -> {
-                    txtVazioTitulo.text = "Nenhuma empresa ainda"
-                    txtVazioSubtitulo.text = "Seja o primeiro a criar uma!"
+                    txtVazioTitulo.text = getString(R.string.empresas_vazio_nenhuma)
+                    txtVazioSubtitulo.text = getString(R.string.empresas_vazio_nenhuma_sub)
                     btnCriarEmpresaVazio.visibility = View.VISIBLE
                 }
             }
@@ -167,9 +167,9 @@ class EmpresasFragment : Fragment() {
     private fun textoBotao(empresa: Empresa): String {
         val uid = auth.currentUser?.uid ?: return ""
         return when {
-            uid in empresa.pendentes -> "CANCELAR"
+            uid in empresa.pendentes -> getString(R.string.empresas_btn_cancelar)
             uid in empresa.membros -> ""
-            else -> "PEDIR"
+            else -> getString(R.string.empresas_btn_pedir)
         }
     }
 
@@ -187,16 +187,16 @@ class EmpresasFragment : Fragment() {
             if (uid in empresa.pendentes) {
                 val ok = repository.cancelarPedido(empresa.id)
                 if (ok) {
-                    Toast.makeText(requireContext(), "Pedido cancelado", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), getString(R.string.empresas_pedido_cancelado), Toast.LENGTH_SHORT).show()
                     carregarTudo()
                 }
             } else {
                 val ok = repository.pedirParaEntrar(empresa.id)
                 if (ok) {
-                    Toast.makeText(requireContext(), "Pedido enviado! Aguarde aprovação.", Toast.LENGTH_LONG).show()
+                    Toast.makeText(requireContext(), getString(R.string.empresas_pedido_enviado), Toast.LENGTH_LONG).show()
                     carregarTudo()
                 } else {
-                    Toast.makeText(requireContext(), "Erro ao pedir", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), getString(R.string.empresas_erro_pedir), Toast.LENGTH_SHORT).show()
                 }
             }
         }

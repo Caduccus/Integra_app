@@ -51,7 +51,7 @@ object ThemeManager {
 
     fun setTema(context: Context, tema: String) {
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-            .edit().putString(KEY, tema).apply()
+            .edit().putString(KEY, tema).commit()
     }
 
     fun getBackground(tema: String): Int = when (tema) {

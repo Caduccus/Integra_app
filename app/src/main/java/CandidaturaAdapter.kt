@@ -18,7 +18,7 @@ data class CandidaturaItem(
     val trabalhoId: String,
     val tituloTrabalho: String,
     val empresaNome: String,
-    val empresaId: String = "",        // ⭐ NOVO
+    val empresaId: String = "",
     val statusCandidatura: String,
     val timestamp: Long
 )
@@ -26,7 +26,7 @@ data class CandidaturaItem(
 class CandidaturaAdapter(
     private var itens: List<CandidaturaItem>,
     private val onClick: (CandidaturaItem) -> Unit,
-    private val onAvaliar: (CandidaturaItem) -> Unit = {}   // ⭐ NOVO
+    private val onAvaliar: (CandidaturaItem) -> Unit = {}
 ) : RecyclerView.Adapter<CandidaturaAdapter.CandidaturaViewHolder>() {
 
     class CandidaturaViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -54,6 +54,7 @@ class CandidaturaAdapter(
 
     override fun onBindViewHolder(holder: CandidaturaViewHolder, position: Int) {
         val item = itens[position]
+        val ctx = holder.itemView.context
 
         holder.txtTitulo.text = item.tituloTrabalho
 
@@ -65,10 +66,10 @@ class CandidaturaAdapter(
         }
 
         val (textoChip, corChip) = when (item.statusCandidatura.lowercase()) {
-            "aceito", "aceita" -> "Aceita" to Color.parseColor("#43A047")
-            "rejeitado", "rejeitada" -> "Rejeitada" to Color.parseColor("#D32F2F")
-            "vista" -> "Vista" to Color.parseColor("#1E88E5")
-            else -> "Enviada" to Color.parseColor("#FB8C00")
+            "aceito", "aceita" -> ctx.getString(R.string.historico_status_aceita) to Color.parseColor("#43A047")
+            "rejeitado", "rejeitada" -> ctx.getString(R.string.historico_status_rejeitada) to Color.parseColor("#D32F2F")
+            "vista" -> ctx.getString(R.string.historico_status_vista) to Color.parseColor("#1E88E5")
+            else -> ctx.getString(R.string.historico_status_enviada) to Color.parseColor("#FB8C00")
         }
 
         holder.cardStatus.setCardBackgroundColor(corChip)
@@ -91,9 +92,8 @@ class CandidaturaAdapter(
             if (passo3) corChip else Color.parseColor("#BDBDBD")
         )
 
-        holder.txtData.text = formatarData(item.timestamp)
+        holder.txtData.text = formatarData(ctx, item.timestamp)
 
-        // ⭐ Botão Avaliar Empresa (só se aceita e tiver empresa)
         val podeAvaliar = item.statusCandidatura.lowercase() in listOf("aceito", "aceita")
                 && item.empresaId.isNotEmpty()
 
@@ -103,10 +103,10 @@ class CandidaturaAdapter(
         holder.card.setOnClickListener { onClick(item) }
     }
 
-    private fun formatarData(timestamp: Long): String {
-        if (timestamp == 0L) return "Data desconhecida"
-        val formato = SimpleDateFormat("'Enviada em' dd/MM 'às' HH:mm", Locale.getDefault())
-        return formato.format(Date(timestamp))
+    private fun formatarData(context: android.content.Context, timestamp: Long): String {
+        if (timestamp == 0L) return context.getString(R.string.historico_data_desconhecida)
+        val formato = SimpleDateFormat("dd/MM 'às' HH:mm", Locale.getDefault())
+        return context.getString(R.string.historico_enviada_em, formato.format(Date(timestamp)))
     }
 
     override fun getItemCount(): Int = itens.size

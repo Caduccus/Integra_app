@@ -118,7 +118,12 @@ class HomeFragment : Fragment() {
         usuarioId = arguments?.getString("usuarioId") ?: auth.currentUser?.uid ?: ""
         nomeUsuario = arguments?.getString("nomeUsuario") ?: ""
 
-        txtBoasVindas.text = if (nomeUsuario.isEmpty()) "Olá!" else "Olá, $nomeUsuario!"
+        // ⭐ Traduzindo a saudação
+        txtBoasVindas.text = if (nomeUsuario.isEmpty()) {
+            getString(R.string.home_ola)
+        } else {
+            getString(R.string.home_ola_nome, nomeUsuario)
+        }
 
         configurarRecyclerView()
         configurarBotoes()
@@ -242,7 +247,6 @@ class HomeFragment : Fragment() {
         val uid = auth.currentUser?.uid ?: return
         val jaFavorito = trabalho.id in meusFavoritos
 
-        // ⭐ Haptic
         HapticHelper.media(requireContext())
 
         meusFavoritos = if (jaFavorito) meusFavoritos - trabalho.id else meusFavoritos + trabalho.id
@@ -311,30 +315,31 @@ class HomeFragment : Fragment() {
         adapter.atualizarLista(filtrados)
 
         if (filtrados.isEmpty()) {
+            // ⭐ Traduzindo os estados vazios
             when {
                 btnMeus.isChecked -> {
-                    txtEstadoVazioTitulo.text = "Nada publicado"
-                    txtEstadoVazio.text = "Você ainda não publicou nenhum trabalho"
+                    txtEstadoVazioTitulo.text = getString(R.string.home_vazio_meus_titulo)
+                    txtEstadoVazio.text = getString(R.string.home_vazio_meus_sub)
                     btnPublicarVazio.visibility = View.VISIBLE
                 }
                 btnInscritos.isChecked -> {
-                    txtEstadoVazioTitulo.text = "Sem inscrições"
-                    txtEstadoVazio.text = "Candidate-se a um trabalho para aparecer aqui"
+                    txtEstadoVazioTitulo.text = getString(R.string.home_vazio_inscritos_titulo)
+                    txtEstadoVazio.text = getString(R.string.home_vazio_inscritos_sub)
                     btnPublicarVazio.visibility = View.GONE
                 }
                 btnEmpresaFiltro.isChecked -> {
-                    txtEstadoVazioTitulo.text = "Sem trabalhos de empresa"
-                    txtEstadoVazio.text = "Nenhum trabalho das suas empresas por enquanto"
+                    txtEstadoVazioTitulo.text = getString(R.string.home_vazio_empresas_titulo)
+                    txtEstadoVazio.text = getString(R.string.home_vazio_empresas_sub)
                     btnPublicarVazio.visibility = View.GONE
                 }
                 btnFavoritos.isChecked -> {
-                    txtEstadoVazioTitulo.text = "Sem favoritos"
-                    txtEstadoVazio.text = "Toque no coração de um trabalho para salvá-lo aqui"
+                    txtEstadoVazioTitulo.text = getString(R.string.home_vazio_fav_titulo)
+                    txtEstadoVazio.text = getString(R.string.home_vazio_fav_sub)
                     btnPublicarVazio.visibility = View.GONE
                 }
                 else -> {
-                    txtEstadoVazioTitulo.text = "Nada por aqui ainda"
-                    txtEstadoVazio.text = "Seja o primeiro a publicar um trabalho!"
+                    txtEstadoVazioTitulo.text = getString(R.string.home_vazio_titulo)
+                    txtEstadoVazio.text = getString(R.string.home_vazio_sub)
                     btnPublicarVazio.visibility = View.VISIBLE
                 }
             }

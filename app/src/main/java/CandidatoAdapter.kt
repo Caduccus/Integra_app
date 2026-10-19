@@ -25,7 +25,7 @@ class CandidatoAdapter(
     private val onChatClick: (Candidato) -> Unit,
     private val onAceitar: (Candidato) -> Unit = {},
     private val onRejeitar: (Candidato) -> Unit = {},
-    private val onAvaliar: (Candidato) -> Unit = {}   // ⭐ NOVO
+    private val onAvaliar: (Candidato) -> Unit = {}
 ) : RecyclerView.Adapter<CandidatoAdapter.CandidatoViewHolder>() {
 
     class CandidatoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -48,17 +48,18 @@ class CandidatoAdapter(
 
     override fun onBindViewHolder(holder: CandidatoViewHolder, position: Int) {
         val candidato = candidatos[position]
+        val ctx = holder.itemView.context
 
         holder.txtNome.text = candidato.nome
 
         val formato = SimpleDateFormat("dd/MM 'às' HH:mm", Locale.getDefault())
-        holder.txtData.text = "Candidatou-se em ${formato.format(Date(candidato.timestamp))}"
+        holder.txtData.text = ctx.getString(R.string.candidatos_candidatou_se_em, formato.format(Date(candidato.timestamp)))
 
         val (textoChip, corChip) = when (candidato.status.lowercase()) {
-            "aceito", "aceita" -> "Aceito" to Color.parseColor("#43A047")
-            "rejeitado", "rejeitada" -> "Rejeitado" to Color.parseColor("#D32F2F")
-            "vista" -> "Vista" to Color.parseColor("#1E88E5")
-            else -> "Pendente" to Color.parseColor("#FB8C00")
+            "aceito", "aceita" -> ctx.getString(R.string.candidatos_status_aceito) to Color.parseColor("#43A047")
+            "rejeitado", "rejeitada" -> ctx.getString(R.string.candidatos_status_rejeitado) to Color.parseColor("#D32F2F")
+            "vista" -> ctx.getString(R.string.candidatos_status_vista) to Color.parseColor("#1E88E5")
+            else -> ctx.getString(R.string.candidatos_status_pendente) to Color.parseColor("#FB8C00")
         }
         holder.cardStatus.setCardBackgroundColor(corChip)
         holder.txtStatus.text = textoChip
@@ -68,7 +69,6 @@ class CandidatoAdapter(
         )
         val aceito = candidato.status.lowercase() in listOf("aceito", "aceita")
 
-        // Botões aceitar/rejeitar somem se já decidido
         if (decidido) {
             holder.btnAceitar.visibility = View.GONE
             holder.btnRejeitar.visibility = View.GONE
@@ -77,7 +77,6 @@ class CandidatoAdapter(
             holder.btnRejeitar.visibility = View.VISIBLE
         }
 
-        // ⭐ Botão Avaliar só aparece se aceito
         holder.btnAvaliar.visibility = if (aceito) View.VISIBLE else View.GONE
 
         holder.btnChat.setOnClickListener { onChatClick(candidato) }
