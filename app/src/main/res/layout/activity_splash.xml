@@ -48,7 +48,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="Trabalho remoto, sem limites"
+            android:text="@string/sobre_slogan"
             android:textColor="#B3FFFFFF"
             android:textSize="14sp" />
     </LinearLayout>

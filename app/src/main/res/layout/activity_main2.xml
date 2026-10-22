@@ -29,7 +29,7 @@
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:clickable="true"
                 android:focusable="true"
-                android:contentDescription="Voltar"
+                android:contentDescription="@string/geral_voltar"
                 android:src="@drawable/ic_arrow_back"
                 app:tint="@color/white" />
 
@@ -38,7 +38,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_marginStart="8dp"
-                android:text="Detalhes do Trabalho"
+                android:text="@string/trabalho_detalhes_titulo"
                 android:textColor="@color/white"
                 android:textSize="22sp"
                 android:textStyle="bold" />
@@ -102,7 +102,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Descrição"
+                    android:text="@string/trabalho_secao_descricao"
                     android:textColor="#CCFFFFFF"
                     android:textSize="12sp"
                     android:textStyle="bold" />
@@ -119,7 +119,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Categoria"
+                    android:text="@string/publicar_hint_categoria"
                     android:textColor="#CCFFFFFF"
                     android:textSize="12sp"
                     android:textStyle="bold" />
@@ -129,7 +129,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
-                    android:text="Categoria"
+                    android:text="@string/publicar_hint_categoria"
                     android:textColor="@color/white"
                     android:textSize="15sp" />
 
@@ -142,7 +142,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Nível de Experiência"
+                    android:text="@string/trabalho_secao_nivel"
                     android:textColor="#CCFFFFFF"
                     android:textSize="12sp"
                     android:textStyle="bold" />
@@ -159,7 +159,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Prazo"
+                    android:text="@string/trabalho_secao_prazo"
                     android:textColor="#CCFFFFFF"
                     android:textSize="12sp"
                     android:textStyle="bold" />
@@ -168,7 +168,7 @@
                     android:id="@+id/txtPrazoDetalhe"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Prazo"
+                    android:text="@string/trabalho_secao_prazo"
                     android:textColor="@color/white"
                     android:textSize="15sp" />
             </LinearLayout>
@@ -224,7 +224,7 @@
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:backgroundTint="#43A047"
-            android:text="CADASTRAR-SE NO TRABALHO"
+            android:text="@string/trabalho_btn_candidatar"
             android:textColor="#FFFFFF"
             android:textSize="14sp"
             android:textStyle="bold"

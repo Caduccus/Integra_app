@@ -83,7 +83,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Membros"
+                            android:text="@string/gerenciar_tab_membros"
                             android:textColor="#B3FFFFFF"
                             android:textSize="12sp" />
                     </LinearLayout>
@@ -108,7 +108,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Trabalhos"
+                            android:text="@string/admin_lista_trabalhos"
                             android:textColor="#B3FFFFFF"
                             android:textSize="12sp" />
                     </LinearLayout>
@@ -158,7 +158,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Pendentes"
+                            android:text="@string/gerenciar_tab_pendentes"
                             android:textColor="#B3FFFFFF"
                             android:textSize="12sp" />
                     </LinearLayout>

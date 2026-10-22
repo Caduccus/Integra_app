@@ -34,7 +34,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_weight="1"
-                android:text="Painel administrativo"
+                android:text="@string/perfil_painel_admin"
                 android:textColor="@color/white"
                 android:textSize="18sp"
                 android:textStyle="bold" />
@@ -83,7 +83,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Usuários"
+                            android:text="@string/admin_lista_usuarios"
                             android:textColor="#B3FFFFFF"
                             android:textSize="11sp" />
                     </LinearLayout>
@@ -119,7 +119,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Empresas"
+                            android:text="@string/empresas_titulo"
                             android:textColor="#B3FFFFFF"
                             android:textSize="11sp" />
                     </LinearLayout>
@@ -162,7 +162,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Trabalhos"
+                            android:text="@string/admin_lista_trabalhos"
                             android:textColor="#B3FFFFFF"
                             android:textSize="11sp" />
                     </LinearLayout>
@@ -211,7 +211,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
                 android:layout_marginBottom="8dp"
-                android:text="GERENCIAR"
+                android:text="@string/admin_secao_gerenciar"
                 android:textColor="#B3FFFFFF"
                 android:textSize="11sp"
                 android:textStyle="bold" />
@@ -253,7 +253,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Gerenciar usuários"
+                            android:text="@string/admin_btn_usuarios"
                             android:textColor="@color/white"
                             android:textSize="15sp" />
 
@@ -293,7 +293,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Gerenciar empresas"
+                            android:text="@string/admin_btn_empresas"
                             android:textColor="@color/white"
                             android:textSize="15sp" />
 
@@ -333,7 +333,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Gerenciar trabalhos"
+                            android:text="@string/admin_btn_trabalhos"
                             android:textColor="@color/white"
                             android:textSize="15sp" />
 

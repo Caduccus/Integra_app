@@ -77,7 +77,7 @@
                     android:background="#43A047"
                     android:paddingHorizontal="6dp"
                     android:paddingVertical="2dp"
-                    android:text="ADMIN"
+                    android:text="@string/gerenciar_badge_admin"
                     android:textColor="@color/white"
                     android:textSize="9sp"
                     android:textStyle="bold"

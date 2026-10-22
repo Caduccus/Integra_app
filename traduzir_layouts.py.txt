@@ -1,0 +1,81 @@
+import os
+import re
+import xml.etree.ElementTree as ET
+
+# Mapeamento manual dos textos que você quer substituir (texto original -> chave no strings.xml)
+# O script vai varrer os XMLs e trocar se achar esses textos exatos.
+MAPA_STRINGS = {
+    "Empresas": "empresas_titulo",
+    "Perfil": "perfil_titulo",
+    "Mensagens": "chat_titulo",
+    "Trabalhos disponíveis": "home_titulo_trabalhos",
+    "Buscar trabalho...": "home_busca_hint",
+    "Todos": "home_filtro_todos",
+    "Meus": "home_filtro_meus",
+    "Insc.": "home_filtro_inscritos",
+    "Empr.": "home_filtro_empresas",
+    "Fav.": "home_filtro_favoritos",
+    "Publicar trabalho": "publicar_titulo",
+    "Preencha os dados abaixo": "publicar_subtitulo",
+    "SOBRE O TRABALHO": "publicar_secao_sobre",
+    "DETALHES": "publicar_secao_detalhes",
+    "VISIBILIDADE": "publicar_secao_visibilidade",
+    "Título do trabalho": "publicar_hint_titulo",
+    "Descrição detalhada": "publicar_hint_descricao",
+    "Categoria": "publicar_hint_categoria",
+    "Nível de experiência": "publicar_hint_nivel",
+    "Prazo (ex: 30 dias)": "publicar_hint_prazo",
+    "Publicar como": "publicar_hint_como",
+    "PUBLICAR TRABALHO": "publicar_btn",
+    "Pessoal (sem empresa)": "publicar_pessoal",
+    "Acessibilidade": "acess_titulo",
+    "Ajuste o aplicativo para sua melhor experiência.": "acess_subtitulo",
+    "TAMANHO DA FONTE": "acess_secao_fonte",
+    "Normal": "acess_fonte_normal",
+    "Grande": "acess_fonte_grande",
+    "Extra grande": "acess_fonte_extra",
+    "OUTRAS OPÇÕES": "acess_secao_outras",
+    "Reduzir animações": "acess_reduzir_animacoes",
+    "Remove transições entre telas": "acess_reduzir_animacoes_sub",
+    "Alto contraste": "acess_alto_contraste",
+    "Fundo preto + textos mais legíveis": "acess_alto_contraste_sub",
+    "Sobre": "sobre_titulo",
+    "Desenvolvido por": "sobre_autores",
+    "Código-fonte": "sobre_github",
+    "Termos de uso": "sobre_termos",
+    "Política de privacidade": "sobre_politica",
+    "Fechar": "geral_fechar",
+    "Salvar": "geral_salvar",
+    "Cancelar": "geral_cancelar",
+    "Excluir": "geral_excluir"
+}
+
+def processar_xml(caminho_arquivo):
+    with open(caminho_arquivo, 'r', encoding='utf-8') as f:
+        conteudo = f.read()
+    
+    modificado = False
+    for texto_pt, chave_string in MAPA_STRINGS.items():
+        # Regex para achar android:text="Texto" ou android:hint="Texto"
+        padrao_text = r'android:text="' + re.escape(texto_pt) + r'"'
+        padrao_hint = r'android:hint="' + re.escape(texto_pt) + r'"'
+        
+        if re.search(padrao_text, conteudo):
+            conteudo = re.sub(padrao_text, f'android:text="@string/{chave_string}"', conteudo)
+            modificado = True
+        if re.search(padrao_hint, conteudo):
+            conteudo = re.sub(padrao_hint, f'android:hint="@string/{chave_string}"', conteudo)
+            modificado = True
+
+    if modificado:
+        with open(caminho_arquivo, 'w', encoding='utf-8') as f:
+            f.write(conteudo)
+        print(f"✅ Traduzido: {caminho_arquivo}")
+
+# Varre as pastas de layout do projeto
+for root, dirs, files in os.walk('app/src/main/res'):
+    for file in files:
+        if file.endswith('.xml'):
+            processar_xml(os.path.join(root, file))
+
+print("🎉 Todos os arquivos XML foram processados!")

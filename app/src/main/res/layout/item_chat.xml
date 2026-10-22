@@ -64,7 +64,7 @@
                         android:ellipsize="end"
                         android:maxLines="1"
                         android:padding="2dp"
-                        android:text="Nome do Chat"
+                        android:text="@string/chat_header_titulo"
                         android:textColor="#0D226B"
                         android:textSize="16sp"
                         android:textStyle="bold" />

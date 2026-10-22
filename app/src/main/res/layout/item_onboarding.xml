@@ -41,7 +41,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="Descrição"
+        android:text="@string/trabalho_secao_descricao"
         android:textAlignment="center"
         android:textColor="#B3FFFFFF"
         android:textSize="15sp"

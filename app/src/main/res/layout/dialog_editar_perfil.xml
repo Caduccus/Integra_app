@@ -18,7 +18,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        android:hint="E-mail"
+        android:hint="@string/cadastro_hint_email"
         android:inputType="textEmailAddress" />
 
     <EditText
@@ -26,7 +26,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        android:hint="Profissão"
+        android:hint="@string/cadastro_hint_profissao"
         android:inputType="text" />
 
     <EditText

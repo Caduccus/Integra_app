@@ -30,7 +30,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_weight="1"
-            android:text="Notificações"
+            android:text="@string/perfil_notificacoes"
             android:textColor="@color/white"
             android:textSize="18sp"
             android:textStyle="bold" />

@@ -35,7 +35,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_weight="1"
-                android:text="Perfil"
+                android:text="@string/perfil_titulo"
                 android:textColor="@color/white"
                 android:textSize="18sp"
                 android:textStyle="bold" />
@@ -126,7 +126,7 @@
                         android:layout_height="wrap_content"
                         android:paddingHorizontal="16dp"
                         android:paddingVertical="6dp"
-                        android:text="Profissão"
+                        android:text="@string/cadastro_hint_profissao"
                         android:textColor="@color/white"
                         android:textSize="13sp"
                         android:textStyle="bold" />
@@ -138,7 +138,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
                     android:layout_marginHorizontal="16dp"
-                    android:text="Sem bio ainda"
+                    android:text="@string/perfil_bio_vazia"
                     android:textAlignment="center"
                     android:textColor="#B3FFFFFF"
                     android:textSize="13sp"
@@ -194,7 +194,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="16dp"
-                    android:text="Nenhum link adicionado"
+                    android:text="@string/perfil_sem_links"
                     android:textAlignment="center"
                     android:textColor="#80FFFFFF"
                     android:textSize="13sp"
@@ -208,7 +208,7 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="16dp"
             android:layout_marginBottom="8dp"
-            android:text="CURRÍCULO"
+            android:text="@string/perfil_secao_curriculo"
             android:textColor="#B3FFFFFF"
             android:textSize="12sp"
             android:textStyle="bold"
@@ -263,7 +263,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Toque para abrir"
+                        android:text="@string/perfil_curriculo_toque_abrir"
                         android:textColor="#B3FFFFFF"
                         android:textSize="11sp" />
                 </LinearLayout>

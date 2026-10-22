@@ -29,7 +29,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_weight="1"
-            android:text="Idioma"
+            android:text="@string/perfil_idioma"
             android:textColor="@color/white"
             android:textSize="18sp"
             android:textStyle="bold" />
@@ -45,7 +45,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            android:text="Escolha o idioma do aplicativo"
+            android:text="@string/idioma_subtitulo"
             android:textColor="#B3FFFFFF"
             android:textSize="14sp" />
 

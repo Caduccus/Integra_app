@@ -22,7 +22,7 @@
         android:layout_margin="16dp"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:clickable="true"
-        android:contentDescription="Fechar"
+        android:contentDescription="@string/sobre_fechar"
         android:focusable="true"
         android:padding="8dp"
         android:src="@drawable/ic_arrow_back"

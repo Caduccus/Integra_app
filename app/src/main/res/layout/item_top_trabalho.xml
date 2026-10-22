@@ -25,7 +25,7 @@
         android:layout_weight="1"
         android:ellipsize="end"
         android:maxLines="1"
-        android:text="Título do trabalho"
+        android:text="@string/publicar_hint_titulo"
         android:textColor="@color/white"
         android:textSize="14sp" />
 

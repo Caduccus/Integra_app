@@ -94,7 +94,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:text="Trabalho remoto, sem limites"
+                    android:text="@string/sobre_slogan"
                     android:textColor="#B3FFFFFF"
                     android:textSize="13sp"
                     android:textStyle="italic" />
@@ -141,7 +141,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Desenvolvido por"
+                                android:text="@string/sobre_autores"
                                 android:textColor="#B3FFFFFF"
                                 android:textSize="11sp"
                                 android:textStyle="bold" />
@@ -198,7 +198,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Código-fonte"
+                                android:text="@string/sobre_github"
                                 android:textColor="#B3FFFFFF"
                                 android:textSize="11sp"
                                 android:textStyle="bold" />
@@ -248,7 +248,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Termos de uso"
+                            android:text="@string/sobre_termos"
                             android:textColor="@color/white"
                             android:textSize="15sp" />
 
@@ -289,7 +289,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Política de privacidade"
+                            android:text="@string/sobre_politica"
                             android:textColor="@color/white"
                             android:textSize="15sp" />
 

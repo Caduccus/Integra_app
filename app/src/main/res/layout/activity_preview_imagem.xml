@@ -21,7 +21,7 @@
             android:layout_height="40dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:clickable="true"
-            android:contentDescription="Cancelar"
+            android:contentDescription="@string/geral_cancelar"
             android:focusable="true"
             android:padding="8dp"
             android:src="@drawable/ic_arrow_back"

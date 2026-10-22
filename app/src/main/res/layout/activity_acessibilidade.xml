@@ -27,7 +27,7 @@
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:clickable="true"
                 android:focusable="true"
-                android:contentDescription="Voltar"
+                android:contentDescription="@string/geral_voltar"
                 android:src="@drawable/ic_arrow_back"
                 app:tint="@color/white" />
 
@@ -36,7 +36,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_weight="1"
-                android:text="Acessibilidade"
+                android:text="@string/perfil_acessibilidade"
                 android:textColor="@color/white"
                 android:textSize="18sp"
                 android:textStyle="bold" />
@@ -52,7 +52,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp"
-                android:text="Ajuste o aplicativo para sua melhor experiência."
+                android:text="@string/acess_subtitulo"
                 android:textColor="#B3FFFFFF"
                 android:textSize="14sp" />
 
@@ -61,7 +61,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
-                android:text="TAMANHO DA FONTE"
+                android:text="@string/acess_secao_fonte"
                 android:textColor="#B3FFFFFF"
                 android:textSize="12sp"
                 android:textStyle="bold" />
@@ -98,7 +98,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Normal"
+                            android:text="@string/acess_fonte_normal"
                             android:textColor="@color/white"
                             android:textSize="16sp" />
 
@@ -133,7 +133,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Grande"
+                            android:text="@string/acess_fonte_grande"
                             android:textColor="@color/white"
                             android:textSize="19sp" />
 
@@ -168,7 +168,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Extra grande"
+                            android:text="@string/acess_fonte_extra"
                             android:textColor="@color/white"
                             android:textSize="22sp" />
 
@@ -188,7 +188,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
-                android:text="OUTRAS OPÇÕES"
+                android:text="@string/acess_secao_outras"
                 android:textColor="#B3FFFFFF"
                 android:textSize="12sp"
                 android:textStyle="bold" />
@@ -224,7 +224,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Reduzir animações"
+                                android:text="@string/acess_reduzir_animacoes"
                                 android:textColor="@color/white"
                                 android:textSize="15sp" />
 
@@ -232,7 +232,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
-                                android:text="Remove transições entre telas"
+                                android:text="@string/acess_reduzir_animacoes_sub"
                                 android:textColor="#B3FFFFFF"
                                 android:textSize="12sp" />
                         </LinearLayout>
@@ -265,7 +265,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Alto contraste"
+                                android:text="@string/acess_alto_contraste"
                                 android:textColor="@color/white"
                                 android:textSize="15sp" />
 
@@ -273,7 +273,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
-                                android:text="Fundo preto + textos mais legíveis"
+                                android:text="@string/acess_alto_contraste_sub"
                                 android:textColor="#B3FFFFFF"
                                 android:textSize="12sp" />
                         </LinearLayout>

@@ -22,7 +22,7 @@
             android:padding="8dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:clickable="true"
-            android:contentDescription="Voltar"
+            android:contentDescription="@string/geral_voltar"
             android:focusable="true"
             android:src="@drawable/ic_arrow_back"
             app:tint="@color/white" />
@@ -230,7 +230,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@drawable/borda_arredondada"
-            android:hint="Digite uma mensagem..."
+            android:hint="@string/chat_input_hint"
             android:inputType="textMultiLine|textCapSentences"
             android:maxLines="4"
             android:paddingHorizontal="16dp"

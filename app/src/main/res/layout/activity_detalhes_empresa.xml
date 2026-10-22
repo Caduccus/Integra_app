@@ -31,7 +31,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_weight="1"
-            android:text="Detalhes da empresa"
+            android:text="@string/empresa_detalhes_titulo"
             android:textColor="@color/white"
             android:textSize="18sp"
             android:textStyle="bold" />
@@ -160,7 +160,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Sobre a empresa"
+                        android:text="@string/empresa_sobre"
                         android:textColor="#CCFFFFFF"
                         android:textSize="12sp"
                         android:textStyle="bold" />
@@ -185,7 +185,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="CNPJ"
+                            android:text="@string/empresa_cnpj"
                             android:textColor="#CCFFFFFF"
                             android:textSize="12sp"
                             android:textStyle="bold" />
@@ -210,7 +210,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Endereço"
+                            android:text="@string/empresa_endereco"
                             android:textColor="#CCFFFFFF"
                             android:textSize="12sp"
                             android:textStyle="bold" />
@@ -235,7 +235,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="E-mail"
+                            android:text="@string/cadastro_hint_email"
                             android:textColor="#CCFFFFFF"
                             android:textSize="12sp"
                             android:textStyle="bold" />
@@ -265,7 +265,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Membros"
+                                android:text="@string/gerenciar_tab_membros"
                                 android:textColor="#CCFFFFFF"
                                 android:textSize="12sp"
                                 android:textStyle="bold" />
@@ -292,7 +292,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Pedidos"
+                                android:text="@string/empresas_filtro_pedidos"
                                 android:textColor="#FFB74D"
                                 android:textSize="12sp"
                                 android:textStyle="bold" />
@@ -315,7 +315,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:text="Membros"
+                android:text="@string/gerenciar_tab_membros"
                 android:textColor="#B3FFFFFF"
                 android:textSize="14sp"
                 android:textStyle="bold" />
@@ -332,7 +332,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:text="Trabalhos da empresa"
+                android:text="@string/empresa_secao_trabalhos"
                 android:textColor="#B3FFFFFF"
                 android:textSize="14sp"
                 android:textStyle="bold" />
@@ -350,7 +350,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingVertical="16dp"
-                android:text="Nenhum trabalho publicado ainda"
+                android:text="@string/empresa_sem_trabalhos"
                 android:textAlignment="center"
                 android:textColor="#80FFFFFF"
                 android:textSize="13sp"
@@ -385,7 +385,7 @@
         android:layout_margin="16dp"
         android:insetTop="0dp"
         android:insetBottom="0dp"
-        android:text="PEDIR PRA ENTRAR"
+        android:text="@string/empresa_btn_pedir_entrar"
         android:textColor="@color/white"
         android:textSize="15sp"
         android:textStyle="bold"

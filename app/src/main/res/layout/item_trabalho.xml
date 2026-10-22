@@ -146,7 +146,7 @@
                     android:id="@+id/txtCategoria"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Categoria"
+                    android:text="@string/publicar_hint_categoria"
                     android:textColor="#333333"
                     android:textSize="13sp" />
             </LinearLayout>
@@ -208,7 +208,7 @@
                     android:id="@+id/txtPrazo"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Prazo"
+                    android:text="@string/trabalho_secao_prazo"
                     android:textColor="#333333"
                     android:textSize="13sp" />
             </LinearLayout>

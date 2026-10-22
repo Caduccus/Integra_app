@@ -31,7 +31,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_weight="1"
-            android:text="Candidatos"
+            android:text="@string/candidatos_titulo"
             android:textColor="@color/white"
             android:textSize="18sp"
             android:textStyle="bold" />
@@ -92,7 +92,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Ninguém se candidatou ainda"
+                    android:text="@string/candidatos_vazio"
                     android:textAlignment="center"
                     android:textColor="@color/white"
                     android:textSize="20sp"
@@ -102,7 +102,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="Quando alguém se candidatar, aparece aqui"
+                    android:text="@string/candidatos_vazio_sub"
                     android:textAlignment="center"
                     android:textColor="#B3FFFFFF"
                     android:textSize="14sp" />
