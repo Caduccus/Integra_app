@@ -26,12 +26,11 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Olá!"
+            android:text="@string/home_ola"
             android:textColor="@color/white"
             android:textSize="26sp"
             android:textStyle="bold" />
 
-        <!-- ⭐ Lupa busca global -->
         <ImageView
             android:id="@+id/btnBuscaGlobal"
             android:layout_width="40dp"
@@ -44,7 +43,6 @@
             android:src="@android:drawable/ic_menu_search"
             app:tint="@color/white" />
 
-        <!-- Sino (o que você já tem) -->
         <FrameLayout
             android:layout_width="40dp"
             android:layout_height="40dp"
@@ -83,7 +81,7 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:clickable="true"
             android:focusable="true"
-            android:contentDescription="Sair"
+            android:contentDescription="@string/perfil_sair"
             android:src="@drawable/ic_logout"
             app:tint="@color/white" />
     </LinearLayout>
@@ -105,7 +103,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Trabalhos disponíveis"
+            android:text="@string/home_titulo_trabalhos"
             android:textColor="#B3FFFFFF"
             android:textSize="18sp"
             android:textStyle="bold" />
@@ -116,7 +114,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="12dp"
-        android:hint="Buscar trabalho..."
+        android:hint="@string/home_busca_hint"
         android:textColorHint="#B3FFFFFF"
         app:boxStrokeColor="@color/white"
         app:boxStrokeWidth="1.5dp"
@@ -148,7 +146,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:paddingHorizontal="2dp"
-            android:text="Todos"
+            android:text="@string/home_filtro_todos"
             android:textColor="@color/white"
             android:textSize="9sp"
             android:checked="true"
@@ -163,7 +161,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:paddingHorizontal="2dp"
-            android:text="Meus"
+            android:text="@string/home_filtro_meus"
             android:textColor="@color/white"
             android:textSize="9sp"
             app:cornerRadius="20dp"
@@ -177,7 +175,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:paddingHorizontal="2dp"
-            android:text="Insc."
+            android:text="@string/home_filtro_inscritos"
             android:textColor="@color/white"
             android:textSize="9sp"
             app:cornerRadius="20dp"
@@ -191,7 +189,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:paddingHorizontal="2dp"
-            android:text="Empr."
+            android:text="@string/home_filtro_empresas"
             android:textColor="@color/white"
             android:textSize="9sp"
             app:cornerRadius="20dp"
@@ -205,7 +203,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:paddingHorizontal="2dp"
-            android:text="Fav."
+            android:text="@string/home_filtro_favoritos"
             android:textColor="@color/white"
             android:textSize="9sp"
             app:cornerRadius="20dp"
@@ -219,7 +217,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
-        android:text="📋  Ver histórico de candidaturas"
+        android:text="@string/home_btn_historico"
         android:textColor="#B3FFFFFF"
         android:textSize="13sp"
         android:visibility="gone" />
@@ -277,7 +275,7 @@
                     android:id="@+id/txtEstadoVazioTitulo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Nada por aqui ainda"
+                    android:text="@string/home_vazio_titulo"
                     android:textAlignment="center"
                     android:textColor="@color/white"
                     android:textSize="20sp"
@@ -289,7 +287,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="24dp"
-                    android:text="Seja o primeiro a publicar um trabalho!"
+                    android:text="@string/home_vazio_sub"
                     android:textAlignment="center"
                     android:textColor="#B3FFFFFF"
                     android:textSize="14sp" />
@@ -301,7 +299,7 @@
                     android:insetTop="0dp"
                     android:insetBottom="0dp"
                     android:paddingHorizontal="24dp"
-                    android:text="PUBLICAR PRIMEIRO"
+                    android:text="@string/home_btn_publicar_primeiro"
                     android:textColor="@color/white"
                     android:textSize="13sp"
                     android:textStyle="bold"
@@ -312,7 +310,6 @@
                     app:iconPadding="6dp"
                     app:iconSize="18dp"
                     app:iconTint="@color/white" />
-
             </LinearLayout>
 
             <LinearLayout
@@ -332,12 +329,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:text="Carregando trabalhos..."
+                    android:text="@string/home_carregando"
                     android:textColor="#B3FFFFFF"
                     android:textSize="14sp" />
             </LinearLayout>
-
         </FrameLayout>
     </com.google.android.material.card.MaterialCardView>
-
 </LinearLayout>

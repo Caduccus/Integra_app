@@ -84,6 +84,7 @@ class PublishFragment : Fragment() {
     }
 
     private fun configurarDropdownCategoria() {
+        // Nota: O ideal num app 100% traduzido seria colocar essas categorias num string-array
         val opcoes = arrayOf(
             "Tecnologia", "Design", "Marketing", "Vendas",
             "Suporte", "Educação", "Saúde", "Finanças",
@@ -112,12 +113,12 @@ class PublishFragment : Fragment() {
     private fun carregarEmpresas() {
         lifecycleScope.launch {
             try {
-                edtPublicarComo.setText("Pessoal (sem empresa)", false)
+                edtPublicarComo.setText(getString(R.string.publicar_pessoal), false)
 
                 minhasEmpresas = empresaRepository.listarMinhas()
 
                 val nomes = mutableListOf<String>()
-                nomes.add("Pessoal (sem empresa)")
+                nomes.add(getString(R.string.publicar_pessoal))
                 minhasEmpresas.forEach { nomes.add(it.nome) }
 
                 val adapter = ArrayAdapter(
@@ -126,7 +127,7 @@ class PublishFragment : Fragment() {
                     nomes
                 )
                 edtPublicarComo.setAdapter(adapter)
-                edtPublicarComo.setText("Pessoal (sem empresa)", false)
+                edtPublicarComo.setText(getString(R.string.publicar_pessoal), false)
                 empresaSelecionada = null
                 atualizarInfoVisibilidade()
 
@@ -136,22 +137,19 @@ class PublishFragment : Fragment() {
                     atualizarInfoVisibilidade()
                 }
             } catch (e: Exception) {
-                edtPublicarComo.setText("Pessoal (sem empresa)", false)
+                edtPublicarComo.setText(getString(R.string.publicar_pessoal), false)
                 empresaSelecionada = null
                 atualizarInfoVisibilidade()
             }
         }
     }
 
-    // ⭐ Atualiza a caixa de info baseada no que está selecionado
     private fun atualizarInfoVisibilidade() {
         if (empresaSelecionada == null) {
-            txtInfoVisibilidade.text =
-                "Trabalho público: qualquer pessoa pode ver e se candidatar."
+            txtInfoVisibilidade.text = getString(R.string.publicar_info_publico)
             imgIconeVisibilidade.setImageResource(android.R.drawable.ic_menu_info_details)
         } else {
-            txtInfoVisibilidade.text =
-                "Trabalho privado: visível apenas para membros de ${empresaSelecionada!!.nome}. Ninguém de fora pode se candidatar."
+            txtInfoVisibilidade.text = getString(R.string.publicar_info_privado, empresaSelecionada!!.nome)
             imgIconeVisibilidade.setImageResource(android.R.drawable.ic_lock_lock)
         }
     }
@@ -166,18 +164,18 @@ class PublishFragment : Fragment() {
         if (titulo.isEmpty() || descricao.isEmpty() || categoria.isEmpty() ||
             nivel.isEmpty() || prazo.isEmpty()
         ) {
-            Toast.makeText(requireContext(), "Preencha todos os campos", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.publicar_erro_preencher), Toast.LENGTH_SHORT).show()
             return
         }
 
         val uid = auth.currentUser?.uid
         if (uid.isNullOrEmpty()) {
-            Toast.makeText(requireContext(), "Usuário não logado", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.publicar_erro_usuario), Toast.LENGTH_SHORT).show()
             return
         }
 
         btnPublicar.isEnabled = false
-        btnPublicar.text = "PUBLICANDO..."
+        btnPublicar.text = getString(R.string.publicar_publicando)
 
         lifecycleScope.launch {
             val nomeCriador = buscarNomeUsuario(uid) ?: nomeUsuario
@@ -198,18 +196,18 @@ class PublishFragment : Fragment() {
 
             val sucesso = repository.publicar(trabalho)
             btnPublicar.isEnabled = true
-            btnPublicar.text = "PUBLICAR TRABALHO"
+            btnPublicar.text = getString(R.string.publicar_btn)
 
             if (sucesso) {
                 val msg = if (empresaSelecionada != null) {
-                    "Trabalho privado publicado em ${empresaSelecionada!!.nome}!"
+                    getString(R.string.publicar_sucesso_empresa, empresaSelecionada!!.nome)
                 } else {
-                    "Trabalho publicado!"
+                    getString(R.string.publicar_sucesso)
                 }
                 Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
                 limparFormulario()
             } else {
-                Toast.makeText(requireContext(), "Erro ao publicar", Toast.LENGTH_LONG).show()
+                Toast.makeText(requireContext(), getString(R.string.geral_erro, ""), Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -227,7 +225,7 @@ class PublishFragment : Fragment() {
         edtCategoria.text?.clear()
         edtNivel.text?.clear()
         edtPrazo.text?.clear()
-        edtPublicarComo.setText("Pessoal (sem empresa)", false)
+        edtPublicarComo.setText(getString(R.string.publicar_pessoal), false)
         empresaSelecionada = null
         atualizarInfoVisibilidade()
     }

@@ -12,7 +12,6 @@
         android:orientation="vertical"
         android:padding="24dp">
 
-        <!-- ⭐ Cabeçalho (id pra esconder na EditarTrabalhoActivity) -->
         <LinearLayout
             android:id="@+id/layoutHeaderPublicar"
             android:layout_width="match_parent"
@@ -32,7 +31,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Publicar trabalho"
+                android:text="@string/publicar_titulo"
                 android:textColor="@color/white"
                 android:textSize="24sp"
                 android:textStyle="bold" />
@@ -41,12 +40,11 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Preencha os dados abaixo"
+            android:text="@string/publicar_subtitulo"
             android:textColor="#B3FFFFFF"
             android:textSize="15sp"
             android:layout_marginBottom="24dp" />
 
-        <!-- Card Container do Formulário -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -63,23 +61,21 @@
                 android:orientation="vertical"
                 android:padding="20dp">
 
-                <!-- Seção: Sobre o trabalho -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="12dp"
-                    android:text="SOBRE O TRABALHO"
+                    android:text="@string/publicar_secao_sobre"
                     android:textColor="#B3FFFFFF"
                     android:textSize="11sp"
                     android:textStyle="bold" />
 
-                <!-- Título -->
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
-                    android:hint="Título do trabalho"
+                    android:hint="@string/publicar_hint_titulo"
                     android:textColorHint="#B3FFFFFF"
                     app:boxStrokeColor="@color/white"
                     app:boxStrokeWidth="1.5dp"
@@ -96,13 +92,12 @@
                         android:textColor="@color/white" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- Descrição -->
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="20dp"
-                    android:hint="Descrição detalhada"
+                    android:hint="@string/publicar_hint_descricao"
                     android:textColorHint="#B3FFFFFF"
                     app:boxStrokeColor="@color/white"
                     app:boxStrokeWidth="1.5dp"
@@ -120,30 +115,27 @@
                         android:textColor="@color/white" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- Divisor -->
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:layout_marginBottom="20dp"
                     android:background="#33FFFFFF" />
 
-                <!-- Seção: Detalhes -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="12dp"
-                    android:text="DETALHES"
+                    android:text="@string/publicar_secao_detalhes"
                     android:textColor="#B3FFFFFF"
                     android:textSize="11sp"
                     android:textStyle="bold" />
 
-                <!-- Categoria -->
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
-                    android:hint="Categoria"
+                    android:hint="@string/publicar_hint_categoria"
                     android:textColorHint="#B3FFFFFF"
                     app:boxStrokeColor="@color/white"
                     app:boxStrokeWidth="1.5dp"
@@ -161,13 +153,12 @@
                         android:textColor="@color/white" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- Nível -->
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
-                    android:hint="Nível de experiência"
+                    android:hint="@string/publicar_hint_nivel"
                     android:textColorHint="#B3FFFFFF"
                     app:boxStrokeColor="@color/white"
                     app:boxStrokeWidth="1.5dp"
@@ -186,13 +177,12 @@
                         android:textColor="@color/white" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- Prazo -->
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="20dp"
-                    android:hint="Prazo (ex: 30 dias)"
+                    android:hint="@string/publicar_hint_prazo"
                     android:textColorHint="#B3FFFFFF"
                     app:boxStrokeColor="@color/white"
                     app:boxStrokeWidth="1.5dp"
@@ -209,32 +199,29 @@
                         android:textColor="@color/white" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- Divisor -->
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:layout_marginBottom="20dp"
                     android:background="#33FFFFFF" />
 
-                <!-- ⭐ Seção: Visibilidade (id pra esconder na edição) -->
                 <TextView
                     android:id="@+id/txtSecaoVisibilidade"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="12dp"
-                    android:text="VISIBILIDADE"
+                    android:text="@string/publicar_secao_visibilidade"
                     android:textColor="#B3FFFFFF"
                     android:textSize="11sp"
                     android:textStyle="bold" />
 
-                <!-- ⭐ Publicar como (id pra esconder na edição) -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/tilPublicarComo"
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="12dp"
-                    android:hint="Publicar como"
+                    android:hint="@string/publicar_hint_como"
                     android:textColorHint="#B3FFFFFF"
                     app:boxStrokeColor="@color/white"
                     app:boxStrokeWidth="1.5dp"
@@ -252,7 +239,6 @@
                         android:textColor="@color/white" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- Info box dinâmica -->
                 <LinearLayout
                     android:id="@+id/layoutInfoVisibilidade"
                     android:layout_width="match_parent"
@@ -275,20 +261,19 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Trabalho público: qualquer pessoa pode ver e se candidatar."
+                        android:text="@string/publicar_info_publico"
                         android:textColor="#B3FFFFFF"
                         android:textSize="12sp" />
                 </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Botão Publicar -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnPublicar"
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:backgroundTint="#0D226B"
-            android:text="PUBLICAR TRABALHO"
+            android:text="@string/publicar_btn"
             android:textColor="@color/white"
             android:textSize="16sp"
             android:textStyle="bold"

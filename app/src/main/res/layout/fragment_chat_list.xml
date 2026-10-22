@@ -7,7 +7,6 @@
     android:orientation="vertical"
     android:padding="16dp">
 
-    <!-- Header -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -26,7 +25,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Mensagens"
+            android:text="@string/chat_titulo"
             android:textColor="@color/white"
             android:textSize="24sp"
             android:textStyle="bold" />
@@ -37,7 +36,7 @@
             android:layout_height="40dp"
             android:insetTop="0dp"
             android:insetBottom="0dp"
-            android:text="+ GRUPO"
+            android:text="@string/chat_btn_novo_grupo"
             android:textColor="@color/white"
             android:textSize="11sp"
             android:textStyle="bold"
@@ -45,7 +44,6 @@
             app:cornerRadius="20dp" />
     </LinearLayout>
 
-    <!-- Card Container -->
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -68,7 +66,6 @@
                 android:visibility="gone"
                 tools:listitem="@layout/item_chat" />
 
-            <!-- Estado Vazio (NOVO) -->
             <LinearLayout
                 android:id="@+id/layoutEstadoVazio"
                 android:layout_width="match_parent"
@@ -99,7 +96,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Sem conversas ainda"
+                    android:text="@string/chat_vazio_titulo"
                     android:textAlignment="center"
                     android:textColor="@color/white"
                     android:textSize="20sp"
@@ -110,7 +107,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="24dp"
-                    android:text="Candidate-se a um trabalho ou crie um grupo para começar"
+                    android:text="@string/chat_vazio_sub"
                     android:textAlignment="center"
                     android:textColor="#B3FFFFFF"
                     android:textSize="14sp" />
@@ -122,7 +119,7 @@
                     android:insetTop="0dp"
                     android:insetBottom="0dp"
                     android:paddingHorizontal="24dp"
-                    android:text="CRIAR GRUPO"
+                    android:text="@string/chat_btn_criar_grupo"
                     android:textColor="@color/white"
                     android:textSize="13sp"
                     android:textStyle="bold"
@@ -133,10 +130,8 @@
                     app:iconPadding="6dp"
                     app:iconSize="18dp"
                     app:iconTint="@color/white" />
-
             </LinearLayout>
 
-            <!-- Loading -->
             <LinearLayout
                 android:id="@+id/layoutLoading"
                 android:layout_width="match_parent"

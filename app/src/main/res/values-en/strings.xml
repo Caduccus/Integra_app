@@ -21,6 +21,28 @@
     <string name="chat_erro_tocar">Error playing</string>
     <string name="admin_trabalho_por">%1$s • by %2$s</string>
     <string name="notif_data_formato">%1$s at %2$s</string>
+    <string name="comum_sobre_trabalho">About: %1$s</string>
+
+    <string-array name="array_categorias">
+        <item>Technology</item>
+        <item>Design</item>
+        <item>Marketing</item>
+        <item>Sales</item>
+        <item>Support</item>
+        <item>Education</item>
+        <item>Health</item>
+        <item>Finance</item>
+        <item>Human Resources</item>
+        <item>Administrative</item>
+        <item>Engineering</item>
+        <item>Others</item>
+    </string-array>
+    <string-array name="array_niveis">
+        <item>Junior</item>
+        <item>Mid-level</item>
+        <item>Senior</item>
+        <item>Specialist</item>
+    </string-array>
 
     <!-- LOGIN -->
     <string name="login_titulo">Integra</string>

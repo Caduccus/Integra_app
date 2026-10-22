@@ -21,7 +21,28 @@
     <string name="chat_erro_tocar">Erro ao tocar</string>
     <string name="admin_trabalho_por">%1$s • por %2$s</string>
     <string name="notif_data_formato">%1$s às %2$s</string>
+    <string name="comum_sobre_trabalho">Sobre: %1$s</string>
 
+    <string-array name="array_categorias">
+        <item>Tecnologia</item>
+        <item>Design</item>
+        <item>Marketing</item>
+        <item>Vendas</item>
+        <item>Suporte</item>
+        <item>Educação</item>
+        <item>Saúde</item>
+        <item>Finanças</item>
+        <item>Recursos Humanos</item>
+        <item>Administrativo</item>
+        <item>Engenharia</item>
+        <item>Outros</item>
+    </string-array>
+    <string-array name="array_niveis">
+        <item>Júnior</item>
+        <item>Pleno</item>
+        <item>Sênior</item>
+        <item>Especialista</item>
+    </string-array>
 
     <!-- LOGIN -->
     <string name="login_titulo">Integra</string>

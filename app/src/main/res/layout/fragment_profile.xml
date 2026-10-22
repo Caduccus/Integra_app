@@ -13,7 +13,6 @@
         android:paddingTop="20dp"
         android:paddingBottom="32dp">
 
-        <!-- ═══════ HEADER ═══════ -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -32,13 +31,12 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Perfil"
+                android:text="@string/perfil_titulo"
                 android:textColor="@color/white"
                 android:textSize="24sp"
                 android:textStyle="bold" />
         </LinearLayout>
 
-        <!-- ═══════ CARD DO PERFIL ═══════ -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -109,7 +107,7 @@
                     android:id="@+id/txtNomePerfil"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Nome do Usuário"
+                    android:text="@string/perfil_carregando"
                     android:textColor="@color/white"
                     android:textSize="22sp"
                     android:textStyle="bold" />
@@ -139,7 +137,7 @@
                         android:layout_height="wrap_content"
                         android:paddingHorizontal="16dp"
                         android:paddingVertical="6dp"
-                        android:text="Profissão"
+                        android:text="@string/perfil_editar_profissao"
                         android:textColor="@color/white"
                         android:textSize="13sp"
                         android:textStyle="bold" />
@@ -177,7 +175,7 @@
                             android:id="@+id/txtStatusPerfil"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Online"
+                            android:text="@string/status_online"
                             android:textColor="@color/white"
                             android:textSize="13sp"
                             android:textStyle="bold" />
@@ -190,7 +188,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="14dp"
                     android:paddingHorizontal="16dp"
-                    android:text="Sem bio ainda"
+                    android:text="@string/perfil_bio_vazia"
                     android:textAlignment="center"
                     android:textColor="#B3FFFFFF"
                     android:textSize="13sp"
@@ -198,13 +196,12 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- ═══════ SEÇÃO: MEU PERFIL ═══════ -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
             android:layout_marginBottom="8dp"
-            android:text="MEU PERFIL"
+            android:text="@string/perfil_secao_meu_perfil"
             android:textColor="#B3FFFFFF"
             android:textSize="11sp"
             android:textStyle="bold" />
@@ -247,7 +244,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Editar informações"
+                        android:text="@string/perfil_editar_info"
                         android:textColor="@color/white"
                         android:textSize="15sp" />
 
@@ -287,7 +284,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Quem viu meu perfil"
+                        android:text="@string/perfil_quem_viu"
                         android:textColor="@color/white"
                         android:textSize="15sp" />
 
@@ -301,13 +298,12 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- ═══════ SEÇÃO: CURRÍCULO ═══════ -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
             android:layout_marginBottom="8dp"
-            android:text="CURRÍCULO"
+            android:text="@string/perfil_secao_curriculo"
             android:textColor="#B3FFFFFF"
             android:textSize="11sp"
             android:textStyle="bold" />
@@ -350,7 +346,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Anexar currículo (PDF)"
+                        android:text="@string/perfil_anexar_curriculo"
                         android:textColor="@color/white"
                         android:textSize="15sp" />
                 </LinearLayout>
@@ -391,7 +387,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Toque para abrir"
+                            android:text="@string/perfil_curriculo_toque_abrir"
                             android:textColor="#B3FFFFFF"
                             android:textSize="11sp" />
                     </LinearLayout>
@@ -410,13 +406,12 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- ═══════ SEÇÃO: LINKS DE CONTATO ═══════ -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
             android:layout_marginBottom="8dp"
-            android:text="LINKS DE CONTATO"
+            android:text="@string/perfil_secao_links"
             android:textColor="#B3FFFFFF"
             android:textSize="11sp"
             android:textStyle="bold" />
@@ -448,7 +443,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="14dp"
-                    android:text="Nenhum link adicionado"
+                    android:text="@string/perfil_sem_links"
                     android:textAlignment="center"
                     android:textColor="#80FFFFFF"
                     android:textSize="13sp"
@@ -475,20 +470,19 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Adicionar link"
+                        android:text="@string/perfil_add_link"
                         android:textColor="@color/white"
                         android:textSize="15sp" />
                 </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- ═══════ SEÇÃO: PREFERÊNCIAS ═══════ -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
             android:layout_marginBottom="8dp"
-            android:text="PREFERÊNCIAS"
+            android:text="@string/perfil_secao_preferencias"
             android:textColor="#B3FFFFFF"
             android:textSize="11sp"
             android:textStyle="bold" />
@@ -509,7 +503,6 @@
                 android:orientation="vertical"
                 android:padding="6dp">
 
-                <!-- Tema -->
                 <LinearLayout
                     android:id="@+id/opcaoTema"
                     android:layout_width="match_parent"
@@ -532,7 +525,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Tema do aplicativo"
+                        android:text="@string/perfil_tema"
                         android:textColor="@color/white"
                         android:textSize="15sp" />
 
@@ -550,7 +543,6 @@
                     android:layout_marginHorizontal="14dp"
                     android:background="#26FFFFFF" />
 
-                <!-- Notificações -->
                 <LinearLayout
                     android:id="@+id/opcaoNotificacoes"
                     android:layout_width="match_parent"
@@ -573,7 +565,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Notificações"
+                        android:text="@string/perfil_notificacoes"
                         android:textColor="@color/white"
                         android:textSize="15sp" />
 
@@ -582,7 +574,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="8dp"
-                        android:text="Ativado"
+                        android:text="@string/perfil_notificacoes_ativado"
                         android:textColor="#B3FFFFFF"
                         android:textSize="13sp" />
 
@@ -593,12 +585,6 @@
                         android:rotation="180"
                         app:tint="#80FFFFFF" />
                 </LinearLayout>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginHorizontal="14dp"
-                    android:background="#26FFFFFF" />
 
                 <View
                     android:layout_width="match_parent"
@@ -628,7 +614,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Idioma"
+                        android:text="@string/perfil_idioma"
                         android:textColor="@color/white"
                         android:textSize="15sp" />
 
@@ -640,7 +626,12 @@
                         app:tint="#80FFFFFF" />
                 </LinearLayout>
 
-                <!-- Acessibilidade -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginHorizontal="14dp"
+                    android:background="#26FFFFFF" />
+
                 <LinearLayout
                     android:id="@+id/opcaoAcessibilidade"
                     android:layout_width="match_parent"
@@ -663,7 +654,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Acessibilidade"
+                        android:text="@string/perfil_acessibilidade"
                         android:textColor="@color/white"
                         android:textSize="15sp" />
 
@@ -677,13 +668,12 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- ═══════ SEÇÃO: SOBRE ═══════ -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
             android:layout_marginBottom="8dp"
-            android:text="SOBRE"
+            android:text="@string/perfil_secao_sobre"
             android:textColor="#B3FFFFFF"
             android:textSize="11sp"
             android:textStyle="bold" />
@@ -726,7 +716,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Sobre o aplicativo"
+                        android:text="@string/perfil_sobre"
                         android:textColor="@color/white"
                         android:textSize="15sp" />
 
@@ -740,7 +730,6 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- ⭐ ADMIN (só aparece pro admin) -->
         <LinearLayout
             android:id="@+id/secaoAdmin"
             android:layout_width="match_parent"
@@ -753,7 +742,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
                 android:layout_marginBottom="8dp"
-                android:text="ADMIN"
+                android:text="@string/perfil_secao_admin"
                 android:textColor="#FFB74D"
                 android:textSize="11sp"
                 android:textStyle="bold" />
@@ -795,7 +784,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Painel administrativo"
+                            android:text="@string/perfil_painel_admin"
                             android:textColor="#FFB74D"
                             android:textSize="15sp"
                             android:textStyle="bold" />
@@ -804,7 +793,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
-                            android:text="Gerenciar usuários, empresas, trabalhos"
+                            android:text="@string/perfil_painel_admin_sub"
                             android:textColor="#CCFFB74D"
                             android:textSize="11sp" />
                     </LinearLayout>
@@ -819,13 +808,12 @@
             </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
 
-        <!-- ═══════ SEÇÃO: CONTA ═══════ -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
             android:layout_marginBottom="8dp"
-            android:text="CONTA"
+            android:text="@string/perfil_secao_conta"
             android:textColor="#B3FFFFFF"
             android:textSize="11sp"
             android:textStyle="bold" />
@@ -868,7 +856,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Sair da conta"
+                        android:text="@string/perfil_sair"
                         android:textColor="@color/white"
                         android:textSize="15sp" />
 
@@ -908,7 +896,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Excluir conta"
+                        android:text="@string/perfil_excluir_conta"
                         android:textColor="#EF5350"
                         android:textSize="15sp"
                         android:textStyle="bold" />
@@ -927,7 +915,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="A exclusão de conta é permanente e não pode ser desfeita"
+            android:text="@string/perfil_excluir_aviso"
             android:textAlignment="center"
             android:textColor="#80FFFFFF"
             android:textSize="11sp"

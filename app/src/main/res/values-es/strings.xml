@@ -21,6 +21,28 @@
     <string name="chat_erro_tocar">Error al reproducir</string>
     <string name="admin_trabalho_por">%1$s • por %2$s</string>
     <string name="notif_data_formato">%1$s a las %2$s</string>
+    <string name="comum_sobre_trabalho">Sobre: %1$s</string>
+
+    <string-array name="array_categorias">
+        <item>Tecnología</item>
+        <item>Diseño</item>
+        <item>Marketing</item>
+        <item>Ventas</item>
+        <item>Soporte</item>
+        <item>Educación</item>
+        <item>Salud</item>
+        <item>Finanzas</item>
+        <item>Recursos Humanos</item>
+        <item>Administrativo</item>
+        <item>Ingeniería</item>
+        <item>Otros</item>
+    </string-array>
+    <string-array name="array_niveis">
+        <item>Junior</item>
+        <item>Intermedio</item>
+        <item>Senior</item>
+        <item>Especialista</item>
+    </string-array>
 
     <!-- LOGIN -->
     <string name="login_titulo">Integra</string>
