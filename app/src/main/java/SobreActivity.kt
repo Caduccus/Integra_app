@@ -17,7 +17,7 @@ class SobreActivity : BaseActivity() {
         findViewById<ImageView>(R.id.btnVoltarSobre).setOnClickListener { finish() }
 
         val txtVersao = findViewById<TextView>(R.id.txtVersaoSobre)
-        txtVersao.text = "Versão ${BuildConfig.VERSION_NAME}"
+        txtVersao.text = getString(R.string.sobre_versao, BuildConfig.VERSION_NAME)
 
         findViewById<android.view.View>(R.id.btnGitHub).setOnClickListener {
             HapticHelper.leve(this)
@@ -26,12 +26,12 @@ class SobreActivity : BaseActivity() {
 
         findViewById<android.view.View>(R.id.btnTermos).setOnClickListener {
             HapticHelper.leve(this)
-            abrirDialogTexto("Termos de uso", TERMOS_USO)
+            abrirDialogTexto(getString(R.string.sobre_termos), TERMOS_USO)
         }
 
         findViewById<android.view.View>(R.id.btnPolitica).setOnClickListener {
             HapticHelper.leve(this)
-            abrirDialogTexto("Política de privacidade", POLITICA_PRIVACIDADE)
+            abrirDialogTexto(getString(R.string.sobre_politica), POLITICA_PRIVACIDADE)
         }
 
         ThemeManager.aplicarCores(this, findViewById(android.R.id.content))
@@ -42,11 +42,10 @@ class SobreActivity : BaseActivity() {
         try {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
         } catch (_: Exception) {
-            Toast.makeText(this, "Não foi possível abrir o link", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.sobre_link_erro), Toast.LENGTH_SHORT).show()
         }
     }
 
-    // ⭐ Dialog com fundo branco fixo — sempre legível em qualquer tema
     private fun abrirDialogTexto(titulo: String, texto: String) {
         val view = layoutInflater.inflate(R.layout.dialog_sobre_texto, null)
         val corpo = view.findViewById<TextView>(R.id.txtDialogSobreCorpo)
@@ -55,7 +54,7 @@ class SobreActivity : BaseActivity() {
         AlertDialog.Builder(this)
             .setTitle(titulo)
             .setView(view)
-            .setPositiveButton("Fechar", null)
+            .setPositiveButton(getString(R.string.sobre_fechar), null)
             .show()
     }
 

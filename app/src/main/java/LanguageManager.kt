@@ -21,7 +21,15 @@ object LanguageManager {
 
     fun setIdioma(context: Context, idioma: String) {
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-            .edit().putString(KEY, idioma).commit()   // ← commit em vez de apply
+            .edit().putString(KEY, idioma).commit()
+
+        // ⭐ Salva o idioma no Firestore para o Helper conseguir traduzir a Push
+        val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
+        if (uid != null) {
+            com.google.firebase.firestore.FirebaseFirestore.getInstance()
+                .collection("usuarios").document(uid)
+                .update("idioma", idioma)
+        }
     }
 
     fun getNomeAmigavel(idioma: String): String = when (idioma) {

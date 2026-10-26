@@ -81,12 +81,44 @@ class MensagemAdapter(
             holder.txtEditada.visibility = View.GONE
 
             holder.txtTexto.visibility = View.VISIBLE
-            holder.txtTexto.text = msg.texto
             holder.txtTexto.setTextColor(0xFF888888.toInt())
             holder.txtTexto.textSize = 12f
             holder.txtTexto.gravity = Gravity.CENTER
             holder.txtTexto.setTypeface(null, Typeface.ITALIC)
             holder.txtHora.visibility = View.GONE
+
+            // ⭐ TRADUÇÃO DE MENSAGENS DE SISTEMA
+            val txt = msg.texto
+            if (txt.startsWith("@SYS@")) {
+                try {
+                    val json = org.json.JSONObject(txt.substring(5))
+                    val key = json.getString("key")
+                    val paramsArray = json.getJSONArray("params")
+                    val paramsList = mutableListOf<String>()
+                    for (i in 0 until paramsArray.length()) {
+                        paramsList.add(paramsArray.getString(i))
+                    }
+
+                    val resId = when (key) {
+                        "sys_entrou_grupo" -> R.string.sys_entrou_grupo
+                        "sys_removido_grupo" -> R.string.sys_removido_grupo
+                        "sys_agora_admin" -> R.string.sys_agora_admin
+                        "sys_nao_admin" -> R.string.sys_nao_admin
+                        "sys_foto_atualizada" -> R.string.sys_foto_atualizada
+                        else -> 0
+                    }
+
+                    if (resId != 0) {
+                        holder.txtTexto.text = ctx.getString(resId, *paramsList.toTypedArray())
+                    } else {
+                        holder.txtTexto.text = txt
+                    }
+                } catch (e: Exception) {
+                    holder.txtTexto.text = txt // Fallback se der erro no JSON
+                }
+            } else {
+                holder.txtTexto.text = txt // Mensagens de sistema antigas (já salvas em texto puro)
+            }
             return
         }
 

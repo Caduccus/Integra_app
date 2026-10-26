@@ -315,12 +315,15 @@ class EmpresaRepository {
         } catch (e: Exception) { null }
     }
 
-    private suspend fun enviarMensagemSistema(chatId: String, texto: String) {
+    private suspend fun enviarMensagemSistema(chatId: String, chave: String, params: List<String> = emptyList()) {
         try {
+            val paramsJson = org.json.JSONArray(params).toString()
+            val textoJson = "@SYS@{\"key\":\"$chave\",\"params\":$paramsJson}"
+
             val msg = hashMapOf(
                 "remetenteId" to "sistema",
                 "nomeRemetente" to "Sistema",
-                "texto" to texto,
+                "texto" to textoJson,
                 "tipo" to "sistema",
                 "urlMidia" to "",
                 "duracaoMs" to 0L,
@@ -408,5 +411,23 @@ class EmpresaRepository {
 
             ref.delete().await()
         } catch (_: Exception) { }
+    }
+    // ⭐ Adiciona um candidato aceito diretamente como membro da empresa
+    suspend fun adicionarMembroAceito(empresaId: String, uidNovo: String): Boolean {
+        return try {
+            val empresa = buscarPorId(empresaId) ?: return false
+            if (uidNovo in empresa.membros) return true // já é membro
+
+            db.collection("empresas").document(empresaId).update(
+                "pendentes", FieldValue.arrayRemove(uidNovo),
+                "membros", FieldValue.arrayUnion(uidNovo)
+            ).await()
+
+            entrarNoGrupoGeral(empresaId, uidNovo)
+            true
+        } catch (e: Exception) {
+            Log.e(TAG, "❌ Erro ao adicionar membro aceito: ${e.message}")
+            false
+        }
     }
 }

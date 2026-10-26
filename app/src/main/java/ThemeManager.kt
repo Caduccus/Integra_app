@@ -170,23 +170,16 @@ object ThemeManager {
 
     private fun aplicarTextoForcado(view: View, primaryText: Int, secondaryText: Int) {
         if (view is BottomNavigationView) {
-            val states = arrayOf(
-                intArrayOf(android.R.attr.state_checked),
-                intArrayOf()
-            )
+            val states = arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf())
             val colors = intArrayOf(TEXTO_BRANCO, TEXTO_BRANCO)
-            val colorStateList = ColorStateList(states, colors)
-            view.itemIconTintList = colorStateList
-            view.itemTextColor = colorStateList
+            view.itemIconTintList = ColorStateList(states, colors)
+            view.itemTextColor = ColorStateList(states, colors)
             return
         }
 
         if (view is TextInputLayout) {
             try {
-                val states = arrayOf(
-                    intArrayOf(android.R.attr.state_focused),
-                    intArrayOf()
-                )
+                val states = arrayOf(intArrayOf(android.R.attr.state_focused), intArrayOf())
                 val colors = intArrayOf(primaryText, secondaryText)
                 view.setBoxStrokeColorStateList(ColorStateList(states, colors))
                 view.boxStrokeWidth = 2
@@ -199,14 +192,13 @@ object ThemeManager {
                     et.setTextColor(primaryText)
                     et.setHintTextColor(secondaryText)
                 }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
+            } catch (e: Exception) {}
         }
 
         if (view is MaterialButton) {
             val corFundo = view.backgroundTintList?.defaultColor ?: Color.TRANSPARENT
             val alpha = Color.alpha(corFundo)
+            // Se o botão for transparente (TextButton), usa a cor do texto principal. Se for colorido, mantém branco.
             if (alpha < 50) {
                 view.setTextColor(primaryText)
             } else {
@@ -215,6 +207,7 @@ object ThemeManager {
             return
         }
 
+        // ⭐ Não pinta de branco se o elemento for um Card ou container que não seja texto
         if (view is ImageView) {
             if (view.imageTintList != null) {
                 view.imageTintList = ColorStateList.valueOf(primaryText)

@@ -22,6 +22,11 @@
     <string name="admin_trabalho_por">%1$s • by %2$s</string>
     <string name="notif_data_formato">%1$s at %2$s</string>
     <string name="comum_sobre_trabalho">About: %1$s</string>
+    <string name="sys_entrou_grupo">%1$s joined the group</string>
+    <string name="sys_removido_grupo">%1$s was removed from the group by %2$s</string>
+    <string name="sys_agora_admin">%1$s is now admin</string>
+    <string name="sys_nao_admin">%1$s is no longer admin</string>
+    <string name="sys_foto_atualizada">%1$s updated the company photo</string>
 
     <string-array name="array_categorias">
         <item>Technology</item>
