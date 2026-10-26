@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Integraa</string>
-    <string name="trabalho_btn_candidatos">CANDIDATES</string>
-    <string name="trabalho_badge_candidatos">%1$d pending</string>
 
-    <!-- GERAL -->
+    <!-- GENERAL -->
     <string name="geral_ok">OK</string>
     <string name="geral_cancelar">Cancel</string>
     <string name="geral_salvar">Save</string>
@@ -15,39 +13,7 @@
     <string name="geral_erro">Error: %1$s</string>
     <string name="geral_aguarde">Please wait...</string>
     <string name="geral_depois">Later</string>
-    <string name="chat_segure_excluir">Hold a personal conversation to delete</string>
-    <string name="chat_tempo_esgotado">Timeout — try again</string>
-    <string name="chat_erro_mic">Error starting recording. Check microphone permission.</string>
-    <string name="chat_erro_tocar">Error playing</string>
-    <string name="admin_trabalho_por">%1$s • by %2$s</string>
-    <string name="notif_data_formato">%1$s at %2$s</string>
     <string name="comum_sobre_trabalho">About: %1$s</string>
-    <string name="sys_entrou_grupo">%1$s joined the group</string>
-    <string name="sys_removido_grupo">%1$s was removed from the group by %2$s</string>
-    <string name="sys_agora_admin">%1$s is now admin</string>
-    <string name="sys_nao_admin">%1$s is no longer admin</string>
-    <string name="sys_foto_atualizada">%1$s updated the company photo</string>
-
-    <string-array name="array_categorias">
-        <item>Technology</item>
-        <item>Design</item>
-        <item>Marketing</item>
-        <item>Sales</item>
-        <item>Support</item>
-        <item>Education</item>
-        <item>Health</item>
-        <item>Finance</item>
-        <item>Human Resources</item>
-        <item>Administrative</item>
-        <item>Engineering</item>
-        <item>Others</item>
-    </string-array>
-    <string-array name="array_niveis">
-        <item>Junior</item>
-        <item>Mid-level</item>
-        <item>Senior</item>
-        <item>Specialist</item>
-    </string-array>
 
     <!-- LOGIN -->
     <string name="login_titulo">Integra</string>
@@ -67,18 +33,18 @@
     <string name="login_erro_token">Error: null token</string>
     <string name="login_tema_desc">Change theme</string>
 
-    <!-- RECUPERAR SENHA -->
+    <!-- RESET PASSWORD -->
     <string name="recuperar_titulo">Reset password</string>
     <string name="recuperar_msg">Enter your registered email. We will send you a link to reset your password.</string>
     <string name="recuperar_btn_enviar">Send</string>
     <string name="recuperar_btn_cancelar">Cancel</string>
     <string name="recuperar_ok">OK</string>
     <string name="recuperar_email_invalido">Enter a valid email</string>
-    <string name="recuperar_email_enviado_titulo">Email sent</string>
+    <string name="recuperar_email_enviado_titulo">Email sent ✅</string>
     <string name="recuperar_email_enviado_msg">We sent a recovery link to:\n\n%1$s\n\nCheck your inbox and spam folder.</string>
     <string name="recuperar_erro">Could not send: %1$s</string>
 
-    <!-- CADASTRO -->
+    <!-- SIGN UP -->
     <string name="cadastro_titulo">Create account</string>
     <string name="cadastro_subtitulo">Fill in the data below to get started</string>
     <string name="cadastro_hint_nome">Full name</string>
@@ -105,7 +71,7 @@
     <string name="home_filtro_inscritos">Applied</string>
     <string name="home_filtro_empresas">Comp.</string>
     <string name="home_filtro_favoritos">Fav.</string>
-    <string name="home_btn_historico">View application history</string>
+    <string name="home_btn_historico">📋  View application history</string>
     <string name="home_btn_publicar_primeiro">PUBLISH FIRST</string>
     <string name="home_ola">Hello!</string>
     <string name="home_ola_nome">Hello, %1$s!</string>
@@ -139,9 +105,11 @@
     <string name="chat_btn_criar_grupo">CREATE GROUP</string>
     <string name="chat_menu_excluir">Delete conversation</string>
     <string name="chat_excluir_titulo">Delete conversation</string>
-    <string name="chat_excluir_msg">The conversation with %1$s will be removed from your list.\n\nThe other person will still see the history. If either of you sends a new message, the conversation reappears.</string>
+    <string name="chat_excluir_msg">The conversation with %1$s will be removed from your list.\n\nThe other person will still see the history.</string>
     <string name="chat_excluido">Conversation deleted</string>
     <string name="chat_ultima_vazia">No messages yet</string>
+    <string name="chat_segure_excluir">Hold a personal conversation to delete</string>
+    <string name="chat_tempo_esgotado">Timeout — try again</string>
 
     <!-- CHAT -->
     <string name="chat_header_titulo">Chat</string>
@@ -151,8 +119,8 @@
     <string name="chat_input_bloqueado">You blocked this user</string>
     <string name="chat_input_nao_pode">You cannot send messages</string>
     <string name="chat_reply_voce">You</string>
-    <string name="chat_reply_imagem">Image</string>
-    <string name="chat_reply_audio">Audio</string>
+    <string name="chat_reply_imagem">📷 Image</string>
+    <string name="chat_reply_audio">🎤 Audio</string>
     <string name="chat_reply_texto_placeholder">Replied text</string>
     <string name="chat_editar_titulo">Edit message</string>
     <string name="chat_editar_hint">New message</string>
@@ -164,7 +132,7 @@
     <string name="chat_menu_deletar">Delete</string>
     <string name="chat_audio_curto">Audio too short</string>
     <string name="chat_enviando_audio">Sending audio...</string>
-    <string name="chat_audio_salvo">Image saved to gallery!</string>
+    <string name="chat_audio_salvo">Image saved to gallery! ✅</string>
     <string name="chat_erro_enviar">Error sending</string>
     <string name="chat_erro_editar">Error editing</string>
     <string name="chat_erro_deletar">Error deleting</string>
@@ -183,14 +151,24 @@
     <string name="chat_arquivo_sem_app">No app to open %1$s</string>
     <string name="chat_arquivo_enviando">Sending %1$s...</string>
     <string name="chat_editada">edited</string>
+    <string name="chat_erro_mic">Error starting recording. Check microphone permission.</string>
+    <string name="chat_erro_tocar">Error playing</string>
 
-    <!-- PREVIEW ÁUDIO -->
+    <!-- SYSTEM MESSAGES (CHAT) -->
+    <string name="sys_entrou_grupo">%1$s joined the group</string>
+    <string name="sys_removido_grupo">%1$s was removed from the group by %2$s</string>
+    <string name="sys_agora_admin">%1$s is now admin</string>
+    <string name="sys_nao_admin">%1$s is no longer admin</string>
+    <string name="sys_foto_atualizada">%1$s updated the company photo</string>
+    <string name="sys_trabalho_encerrado">Job closed</string>
+
+    <!-- AUDIO PREVIEW -->
     <string name="audio_preview_toque_ouvir">Tap to listen</string>
     <string name="audio_preview_cancelar">CANCEL</string>
     <string name="audio_preview_enviar">SEND</string>
     <string name="audio_preview_erro_abrir">Error opening preview</string>
 
-    <!-- PREVIEW IMAGEM -->
+    <!-- IMAGE PREVIEW -->
     <string name="imagem_preview_titulo">Preview</string>
     <string name="imagem_preview_legenda_hint">Add a caption...</string>
     <string name="imagem_preview_cancelar">Cancel</string>
@@ -198,21 +176,21 @@
     <string name="imagem_preview_enviando">Sending...</string>
     <string name="imagem_preview_erro_enviar">Error sending</string>
 
-    <!-- IMAGEM CHEIA -->
+    <!-- FULL IMAGE -->
     <string name="imagem_cheia_fechar">Close</string>
     <string name="imagem_cheia_baixar">Download</string>
 
-    <!-- FOTO PERFIL SHEET -->
+    <!-- PROFILE PHOTO SHEET -->
     <string name="foto_sheet_titulo">Profile photo</string>
     <string name="foto_sheet_galeria">Choose from gallery</string>
     <string name="foto_sheet_remover">Remove photo</string>
 
-    <!-- ANEXO SHEET -->
+    <!-- ATTACH SHEET -->
     <string name="anexo_titulo">Attach</string>
     <string name="anexo_imagem">Image</string>
     <string name="anexo_arquivo">File (PDF, ZIP, DOCX...)</string>
 
-    <!-- PERFIL -->
+    <!-- PROFILE -->
     <string name="perfil_titulo">Profile</string>
     <string name="perfil_bio_vazia">No bio yet</string>
     <string name="perfil_secao_meu_perfil">MY PROFILE</string>
@@ -254,7 +232,7 @@
     <string name="perfil_excluir_conta">Delete account</string>
     <string name="perfil_excluir_aviso">Account deletion is permanent and cannot be undone</string>
     <string name="perfil_excluir_titulo">Delete account</string>
-    <string name="perfil_excluir_msg">Are you SURE you want to delete your account?\n\nThis will PERMANENTLY delete:\n\n- Your profile\n- All your published jobs\n- All your applications\n- Your participation in chats and groups\n\nThis action CANNOT be undone!</string>
+    <string name="perfil_excluir_msg">Are you SURE you want to delete your account?\n\nThis will PERMANENTLY delete:\n• Your profile\n• All your published jobs\n• All your applications\n• Your participation in chats and groups\n\nThis action CANNOT be undone!</string>
     <string name="perfil_excluir_btn">DELETE EVERYTHING</string>
     <string name="perfil_excluindo">Deleting account...</string>
     <string name="perfil_excluida">Account deleted</string>
@@ -287,7 +265,7 @@
     <string name="status_nao_pertube">Do not disturb</string>
     <string name="status_invisivel">Invisible</string>
 
-    <!-- TEMAS -->
+    <!-- THEMES -->
     <string name="tema_escolha">Choose a theme</string>
     <string name="tema_padrao">Default (Purple)</string>
     <string name="tema_vermelho">Red</string>
@@ -297,7 +275,7 @@
     <string name="tema_branco">White</string>
     <string name="tema_amarelo">Yellow</string>
 
-    <!-- ACESSIBILIDADE -->
+    <!-- ACCESSIBILITY -->
     <string name="acess_titulo">Accessibility</string>
     <string name="acess_subtitulo">Adjust the app for your best experience.</string>
     <string name="acess_secao_fonte">FONT SIZE</string>
@@ -312,21 +290,21 @@
     <string name="acess_reiniciar_titulo">Apply %1$s?</string>
     <string name="acess_reiniciar_msg">The app will restart to apply the change across all screens.</string>
     <string name="acess_reiniciar">Restart</string>
-    <string name="acess_aviso">Tip: if you use TalkBack, all screens have voice descriptions.</string>
+    <string name="acess_aviso">💡 Tip: if you use TalkBack, all screens have voice descriptions.</string>
     <string name="acess_motivo_fonte">Font size</string>
     <string name="acess_motivo_contraste">High contrast</string>
 
-    <!-- IDIOMA -->
+    <!-- LANGUAGE -->
     <string name="idioma_titulo">Language</string>
     <string name="idioma_subtitulo">Choose the app language</string>
-    <string name="idioma_sistema">System (default)</string>
-    <string name="idioma_pt">Português</string>
-    <string name="idioma_en">English</string>
-    <string name="idioma_es">Español</string>
+    <string name="idioma_sistema">🌐  System (default)</string>
+    <string name="idioma_pt">🇧🇷  Português</string>
+    <string name="idioma_en">🇺🇸  English</string>
+    <string name="idioma_es">🇪🇸  Español</string>
     <string name="idioma_reiniciar_titulo">Apply language</string>
     <string name="idioma_reiniciar_msg">The app will restart to apply.</string>
 
-    <!-- SOBRE -->
+    <!-- ABOUT -->
     <string name="sobre_titulo">About</string>
     <string name="sobre_versao">Version %1$s</string>
     <string name="sobre_slogan">Remote work, no limits</string>
@@ -338,7 +316,7 @@
     <string name="sobre_fechar">Close</string>
     <string name="sobre_link_erro">Could not open link</string>
 
-    <!-- EMPRESAS -->
+    <!-- COMPANIES -->
     <string name="empresas_titulo">Companies</string>
     <string name="empresas_btn_criar">+ CREATE</string>
     <string name="empresas_filtro_descobrir">Discover</string>
@@ -357,7 +335,7 @@
     <string name="empresas_pedido_cancelado">Request cancelled</string>
     <string name="empresas_erro_pedir">Error requesting</string>
 
-    <!-- DETALHES EMPRESA -->
+    <!-- COMPANY DETAILS -->
     <string name="empresa_detalhes_titulo">Company details</string>
     <string name="empresa_sobre">About the company</string>
     <string name="empresa_cnpj">Tax ID</string>
@@ -378,7 +356,7 @@
     <string name="empresa_nao_encontrada">Company not found</string>
     <string name="empresa_ver_estatisticas">View statistics</string>
 
-    <!-- GERENCIAR EMPRESA -->
+    <!-- MANAGE COMPANY -->
     <string name="gerenciar_titulo">Manage: %1$s</string>
     <string name="gerenciar_tab_membros">Members</string>
     <string name="gerenciar_tab_pendentes">Pending</string>
@@ -403,13 +381,13 @@
     <string name="gerenciar_remover_msg">Remove %1$s from the group?</string>
     <string name="gerenciar_removido">Removed</string>
     <string name="gerenciar_excluir_titulo">Delete company</string>
-    <string name="gerenciar_excluir_msg">Are you SURE you want to delete the company?\n\nThis will delete:\n\n- The company\n- The General chat group\n- All group messages\n\nPublished jobs will remain.\n\nThis action CANNOT be undone!</string>
+    <string name="gerenciar_excluir_msg">Are you SURE you want to delete the company?\n\nThis will delete:\n• The company\n• The General chat group\n• All group messages\n\nPublished jobs will remain.\n\nThis action CANNOT be undone!</string>
     <string name="gerenciar_excluindo">Deleting company...</string>
     <string name="gerenciar_excluida">Company deleted</string>
     <string name="gerenciar_erro_aprovar">Error approving</string>
     <string name="gerenciar_erro_excluir">Error deleting company</string>
 
-    <!-- CADASTRO EMPRESA -->
+    <!-- CREATE COMPANY -->
     <string name="nova_empresa_titulo">Create company</string>
     <string name="nova_empresa_logo">Tap to add logo (optional)</string>
     <string name="nova_empresa_hint_nome">Company name</string>
@@ -431,7 +409,7 @@
     <string name="nova_empresa_criando">CREATING...</string>
     <string name="nova_empresa_erro_geral">Error creating company. Check your connection.</string>
 
-    <!-- GRUPOS -->
+    <!-- GROUPS -->
     <string name="info_grupo_titulo">Group info</string>
     <string name="info_grupo_nome_placeholder">Group name</string>
     <string name="info_grupo_total">%1$d members</string>
@@ -447,7 +425,7 @@
     <string name="info_grupo_saiu">You left the group</string>
     <string name="info_grupo_so_admin_sai">You can only leave if a company admin removes you</string>
     <string name="info_grupo_apagar_titulo">Delete group</string>
-    <string name="info_grupo_apagar_msg">Are you SURE you want to delete this group?\n\nThis will delete:\n\n- The group\n- All messages\n- All members will be removed\n\nThis action CANNOT be undone!</string>
+    <string name="info_grupo_apagar_msg">Are you SURE you want to delete this group?\n\nThis will delete:\n• The group\n• All messages\n• All members will be removed\n\nThis action CANNOT be undone!</string>
     <string name="info_grupo_apagando">Deleting group...</string>
     <string name="info_grupo_apagado">Group deleted!</string>
     <string name="info_grupo_erro_abrir">Error opening group</string>
@@ -456,10 +434,10 @@
     <string name="info_grupo_placeholder_grupo">Group</string>
     <string name="info_grupo_enviando_foto">Uploading photo...</string>
 
-    <!-- ADICIONAR MEMBROS -->
+    <!-- ADD MEMBERS -->
     <string name="add_membros_titulo">Add members</string>
     <string name="add_membros_btn_confirmar">ADD</string>
-    <string name="add_membros_busca">Search by name or @username</string>
+    <string name="add_membros_busca">Search by name or \@username</string>
     <string name="add_membros_selecionados">Selected: %1$d</string>
     <string name="add_membros_selecionados_count">Selected: %1$d</string>
     <string name="add_membros_vazio">All users are already in the group</string>
@@ -471,11 +449,11 @@
     <string name="add_membros_notif_titulo">Added to a group</string>
     <string name="add_membros_notif_msg">%1$s added you to the group %2$s</string>
 
-    <!-- NOVO GRUPO -->
+    <!-- NEW GROUP -->
     <string name="novo_grupo_titulo">New group</string>
     <string name="novo_grupo_btn_criar">CREATE</string>
     <string name="novo_grupo_hint_nome">Group name</string>
-    <string name="novo_grupo_busca">Search by name or @username</string>
+    <string name="novo_grupo_busca">Search by name or \@username</string>
     <string name="novo_grupo_vazio">No user found</string>
     <string name="novo_grupo_vazio_usuarios">No user found</string>
     <string name="novo_grupo_criando">CREATING...</string>
@@ -485,7 +463,7 @@
     <string name="novo_grupo_erro">Error creating group</string>
     <string name="novo_grupo_selecionados_count">Selected: %1$d</string>
 
-    <!-- TRABALHO -->
+    <!-- JOB -->
     <string name="trabalho_detalhes_titulo">Job Details</string>
     <string name="trabalho_publicado_por">Published by: %1$s</string>
     <string name="trabalho_secao_descricao">Description</string>
@@ -495,6 +473,7 @@
     <string name="trabalho_btn_excluir">DELETE</string>
     <string name="trabalho_btn_editar">EDIT</string>
     <string name="trabalho_btn_chat">CHAT</string>
+    <string name="trabalho_btn_candidatos">CANDIDATES</string>
     <string name="trabalho_btn_candidatar">APPLY FOR JOB</string>
     <string name="trabalho_btn_abrir_chat">OPEN CHAT WITH CREATOR</string>
     <string name="trabalho_btn_enviando">SENDING...</string>
@@ -510,15 +489,17 @@
     <string name="trabalho_aguarde_carregar">Wait for the job to load</string>
     <string name="trabalho_erro_chat">Error opening chat</string>
     <string name="trabalho_logado_necessario">You must be logged in</string>
-    <string name="trabalho_notif_nova_titulo">New application</string>
+    <string name="trabalho_notif_nova_titulo">New application! 🎯</string>
     <string name="trabalho_notif_nova_msg">%1$s applied for %2$s</string>
-    <string name="trabalho_notif_enviada_titulo">Application sent</string>
+    <string name="trabalho_notif_enviada_titulo">Application sent ✅</string>
     <string name="trabalho_notif_enviada_msg">You applied for %1$s</string>
+    <string name="trabalho_notif_excluido_msg">The job \'%1$s\' was deleted by the creator.</string>
     <string name="trabalho_share_extra">Category: %1$s</string>
     <string name="trabalho_share_nivel">Level: %1$s</string>
     <string name="trabalho_share_prazo">Deadline: %1$s</string>
+    <string name="trabalho_badge_candidatos">%1$d pending</string>
 
-    <!-- EDITAR TRABALHO -->
+    <!-- EDIT JOB -->
     <string name="editar_trabalho_titulo">Edit job</string>
     <string name="editar_trabalho_btn_salvar">SAVE CHANGES</string>
     <string name="editar_trabalho_salvando">SAVING...</string>
@@ -526,7 +507,7 @@
     <string name="editar_trabalho_erro">Error saving</string>
     <string name="editar_trabalho_nao_encontrado">Job does not exist</string>
 
-    <!-- PUBLICAR -->
+    <!-- PUBLISH -->
     <string name="publicar_titulo">Publish job</string>
     <string name="publicar_subtitulo">Fill in the data below</string>
     <string name="publicar_secao_sobre">ABOUT THE JOB</string>
@@ -548,7 +529,7 @@
     <string name="publicar_erro_preencher">Fill in all fields</string>
     <string name="publicar_erro_usuario">User not logged in</string>
 
-    <!-- CANDIDATOS -->
+    <!-- CANDIDATES -->
     <string name="candidatos_titulo">Candidates</string>
     <string name="candidatos_vazio">No candidates yet</string>
     <string name="candidatos_vazio_sub">When someone applies, they appear here</string>
@@ -567,12 +548,12 @@
     <string name="candidatos_atualizado">Updated!</string>
     <string name="candidatos_erro_trabalho">Job not found</string>
     <string name="candidatos_candidatou_se_em">Applied on %1$s</string>
-    <string name="candidatos_aceito_notif_titulo">You were accepted!</string>
+    <string name="candidatos_aceito_notif_titulo">You were accepted! 🎉</string>
     <string name="candidatos_aceito_notif_msg">Congrats! Your application for %1$s was accepted.</string>
     <string name="candidatos_rejeitado_notif_titulo">Application rejected</string>
     <string name="candidatos_rejeitado_notif_msg">Your application for %1$s was not accepted this time.</string>
 
-    <!-- HISTÓRICO CANDIDATURAS -->
+    <!-- APPLICATION HISTORY -->
     <string name="historico_titulo">My applications</string>
     <string name="historico_vazio_titulo">No applications yet</string>
     <string name="historico_vazio_sub">Apply to a job to track it here</string>
@@ -588,11 +569,12 @@
     <string name="historico_sem_titulo">Untitled</string>
     <string name="historico_avaliar_empresa">RATE COMPANY</string>
 
-    <!-- NOTIFICAÇÕES -->
+    <!-- NOTIFICATIONS -->
     <string name="notif_titulo">Notifications</string>
     <string name="notif_vazio">No notifications</string>
+    <string name="notif_data_formato">%1$s at %2$s</string>
 
-    <!-- VISUALIZAÇÕES -->
+    <!-- PROFILE VIEWS -->
     <string name="visualizacoes_titulo">Who viewed your profile</string>
     <string name="visualizacoes_vazio">No one has viewed yet</string>
     <string name="visualizacoes_vazio_sub">When someone opens your profile, it appears here</string>
@@ -601,7 +583,7 @@
     <string name="visualizacoes_horas_atras">%1$dh ago</string>
     <string name="visualizacoes_dias_atras">%1$dd ago</string>
 
-    <!-- BUSCA GLOBAL -->
+    <!-- GLOBAL SEARCH -->
     <string name="busca_titulo">Search</string>
     <string name="busca_hint">Search jobs, companies, people...</string>
     <string name="busca_vazio_titulo">Type to search</string>
@@ -612,9 +594,9 @@
     <string name="busca_secao_empresas">COMPANIES</string>
     <string name="busca_secao_pessoas">PEOPLE</string>
 
-    <!-- PERFIL DE USUÁRIO -->
+    <!-- USER PROFILE -->
     <string name="perfil_usuario_titulo">Profile</string>
-    <string name="perfil_usuario_username">@%1$s</string>
+    <string name="perfil_usuario_username">\@%1$s</string>
     <string name="perfil_usuario_bio_vazia">No bio yet</string>
     <string name="perfil_usuario_secao_links">LINKS</string>
     <string name="perfil_usuario_sem_links">No links added</string>
@@ -658,13 +640,13 @@
     <string name="admin_btn_usuarios">Manage users</string>
     <string name="admin_btn_empresas">Manage companies</string>
     <string name="admin_btn_trabalhos">Manage jobs</string>
-    <string name="admin_aviso">Admin actions affect the whole app. Use carefully.</string>
+    <string name="admin_aviso">⚠️ Admin actions affect the whole app. Use carefully.</string>
     <string name="admin_lista_usuarios">Users</string>
     <string name="admin_lista_empresas">Companies</string>
     <string name="admin_lista_trabalhos">Jobs</string>
     <string name="admin_lista_titulo">Admin</string>
     <string name="admin_excluir_usuario_titulo">Delete user</string>
-    <string name="admin_excluir_usuario_msg">Delete this user?\n\nThis will delete:\n\n- Profile\n- Published jobs\n- Applications\n- Created companies\n\nLogin account remains.</string>
+    <string name="admin_excluir_usuario_msg">Delete this user?\n\nThis will delete:\n• Profile\n• Published jobs\n• Applications\n• Created companies\n\nLogin account remains.</string>
     <string name="admin_excluir_empresa_titulo">Delete company</string>
     <string name="admin_excluir_empresa_msg">Delete this company?\n\nThis will delete the company, the General group and all messages.</string>
     <string name="admin_excluir_trabalho_titulo">Delete job</string>
@@ -677,8 +659,9 @@
     <string name="admin_usuario_padrao">User</string>
     <string name="admin_erro">Error: %1$s</string>
     <string name="admin_membros_count">%1$s • %2$d members</string>
+    <string name="admin_trabalho_por">%1$s • by %2$s</string>
 
-    <!-- ESTATÍSTICAS EMPRESA -->
+    <!-- COMPANY STATS -->
     <string name="estat_titulo">Statistics</string>
     <string name="estat_membros">Members</string>
     <string name="estat_trabalhos">Jobs</string>
@@ -698,7 +681,7 @@
     <string name="estat_dia_sex">Fri</string>
     <string name="estat_dia_sab">Sat</string>
 
-    <!-- AVALIAÇÕES -->
+    <!-- REVIEWS -->
     <string name="avaliar_titulo">Rate %1$s</string>
     <string name="avaliar_dialog_titulo">Leave a review</string>
     <string name="avaliar_sua_nota">Your rating</string>
@@ -731,7 +714,11 @@
     <string name="splash_nome">Integra</string>
     <string name="splash_slogan">Remote work, no limits</string>
 
-    <!-- ERROS GENÉRICOS -->
+    <!-- GENERIC ERRORS -->
     <string name="erro_generico">Error: %1$s</string>
     <string name="erro_conexao">Check your connection</string>
+
+    <!-- TERMOS E PRIVACIDADE -->
+    <string name="termos_uso_texto" formatted="false">Last updated: October 09, 2026\n\n1. ACCEPTANCE OF TERMS\nBy creating an account and using the Integra application, you fully agree to these Terms of Use. If you do not agree, do not use the application.\n\n2. SERVICE DESCRIPTION\nIntegra is a platform that connects professionals to remote work opportunities and allows the creation and management of companies, teams, and recruitment processes.\n\n3. REGISTRATION\nYou agree to provide true, complete, and updated information at the time of registration. You are responsible for maintaining the confidentiality of your password.\n\n4. USER CONDUCT\nYou agree not to:\n• Publish false, offensive, or illegal content\n• Harass, threaten, or harm other users\n• Use the platform for fraudulent purposes\n• Violate copyright or intellectual property rights\n\n5. JOBS AND APPLICATIONS\nIntegra is only a connection platform. We are not responsible for negotiations, contracts, or employment relationships established between users and companies.\n\n6. USER CONTENT\nYou retain the rights to the content you publish, but grant Integra a license to display it within the platform.\n\n7. ACCOUNT SUSPENSION\nWe reserve the right to suspend or terminate accounts that violate these Terms.\n\n8. CHANGES\nWe may update these Terms at any time. We recommend periodic review.\n\n9. CONTACT\nQuestions: contato\@integra.app</string>
+    <string name="politica_privacidade_texto" formatted="false">Last updated: October 09, 2026\n\n1. INFORMATION WE COLLECT\n• Registration data: name, email, username, profession, bio\n• Profile photo and resume (optional)\n• Messages exchanged on the platform\n• Information about jobs, applications, and companies\n• Usage data (screens visited, actions taken)\n\n2. HOW WE USE DATA\nWe use your information to:\n• Provide and improve the service\n• Enable connections between candidates and companies\n• Send relevant notifications\n• Ensure platform security\n\n3. SHARING\nWe do not sell your data. We only share:\n• With other users, when you make information public\n• With technical service providers (Firebase, Cloudinary) to operate the app\n• When required by law\n\n4. STORAGE\nYour data is stored on secure Google Firebase servers. Photos and documents are hosted on Cloudinary.\n\n5. YOUR RIGHTS\nYou can at any time:\n• Access your data through the app itself\n• Edit or delete your information in your profile\n• Permanently delete your account\n\n6. COOKIES AND TRACKING\nWe do not use third-party cookies for advertising. We only use anonymous internal usage data.\n\n7. SECURITY\nWe take technical measures to protect your data. No system is 100\% secure, but we do our best.\n\n8. MINORS\nIntegra is intended for individuals over 16 years of age.\n\n9. CONTACT\nData protection officer: privacidade\@integra.app</string>
 </resources>

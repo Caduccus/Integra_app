@@ -4,69 +4,69 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#0B141A"
     android:orientation="vertical">
 
     <!-- HEADER -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#1A000000"
+        android:background="#1F2C34"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:padding="12dp">
+        android:padding="8dp">
 
         <ImageView
             android:id="@+id/btnVoltarChat"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:padding="8dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:clickable="true"
-            android:contentDescription="@string/geral_voltar"
-            android:focusable="true"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:padding="6dp"
             android:src="@drawable/ic_arrow_back"
-            app:tint="@color/white" />
+            app:tint="#AEBAC1" />
 
-        <com.google.android.material.card.MaterialCardView
+        <ImageView
+            android:id="@+id/imgFotoChatHeader"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="10dp"
-            app:cardBackgroundColor="#33FFFFFF"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="0dp"
-            app:strokeWidth="1dp"
-            app:strokeColor="#66FFFFFF">
-
-            <ImageView
-                android:id="@+id/imgFotoChatHeader"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:padding="8dp"
-                android:src="@drawable/ic_person"
-                app:tint="@color/white" />
-        </com.google.android.material.card.MaterialCardView>
+            android:layout_marginStart="4dp"
+            android:src="@drawable/ic_person"
+            app:tint="#AEBAC1" />
 
         <TextView
             android:id="@+id/txtNomeChat"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
             android:layout_weight="1"
-            android:text="Chat"
-            android:textColor="@color/white"
-            android:textSize="17sp"
+            android:text="@string/chat_header_titulo"
+            android:textColor="#E9EDEF"
+            android:textSize="18sp"
             android:textStyle="bold" />
+
+        <!-- ⭐ Desativado conforme pedido -->
+        <ImageView
+            android:id="@+id/btnVideoCall"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:padding="8dp"
+            android:src="@android:drawable/ic_menu_camera"
+            android:visibility="gone" /> <!-- ADICIONE ISSO -->
+
+        <ImageView
+            android:id="@+id/btnVoiceCall"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:padding="8dp"
+            android:src="@android:drawable/ic_menu_call"
+            android:visibility="gone" /> <!-- ADICIONE ISSO -->
 
         <ImageView
             android:id="@+id/btnInfoChat"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:padding="8dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:clickable="true"
-            android:focusable="true"
-            android:src="@drawable/ic_person"
-            app:tint="@color/white" />
+            android:src="@drawable/ic_more_vert"
+            app:tint="#AEBAC1" />
     </LinearLayout>
 
     <!-- LISTA DE MENSAGENS -->
@@ -79,12 +79,12 @@
         android:paddingVertical="8dp"
         tools:listitem="@layout/item_mensagem" />
 
-    <!-- ⭐ REPLY BAR (aparece quando responde) -->
+    <!-- REPLY BAR -->
     <LinearLayout
         android:id="@+id/layoutReplyBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#1A000000"
+        android:background="#1F2C34"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingHorizontal="12dp"
@@ -94,7 +94,7 @@
         <View
             android:layout_width="4dp"
             android:layout_height="match_parent"
-            android:background="#43A047" />
+            android:background="#1E88E5" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -102,24 +102,22 @@
             android:layout_marginStart="12dp"
             android:layout_weight="1"
             android:orientation="vertical">
-
             <TextView
                 android:id="@+id/txtReplyBarNome"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Nome"
-                android:textColor="#43A047"
+                android:textColor="#1E88E5"
                 android:textSize="12sp"
                 android:textStyle="bold" />
-
             <TextView
                 android:id="@+id/txtReplyBarTexto"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:text="Texto respondido"
-                android:textColor="#B3FFFFFF"
+                android:text="Texto"
+                android:textColor="#8696A0"
                 android:textSize="13sp" />
         </LinearLayout>
 
@@ -127,133 +125,140 @@
             android:id="@+id/btnFecharReply"
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:clickable="true"
-            android:focusable="true"
             android:padding="6dp"
             android:src="@drawable/ic_close"
-            app:tint="@color/white" />
+            app:tint="#AEBAC1" />
     </LinearLayout>
 
-    <!-- ⭐ ÁUDIO PRONTO (aparece quando termina de gravar) -->
+    <!-- GRAVAÇÃO -->
     <LinearLayout
-        android:id="@+id/layoutAudioReady"
+        android:id="@+id/layoutGravando"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#1A000000"
+        android:background="#1F2C34"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingHorizontal="12dp"
-        android:paddingVertical="12dp"
+        android:padding="12dp"
         android:visibility="gone">
 
         <ImageView
-            android:id="@+id/btnCancelarAudioReady"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:clickable="true"
-            android:focusable="true"
-            android:padding="6dp"
+            android:id="@+id/btnCancelarGravacao"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:padding="8dp"
             android:src="@drawable/ic_delete"
-            app:tint="#D32F2F" />
+            app:tint="#EF5350" />
 
-        <ImageView
-            android:id="@+id/btnPlayAudioReady"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:layout_marginStart="8dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:clickable="true"
-            android:focusable="true"
-            android:padding="6dp"
-            android:src="@drawable/ic_send"
-            app:tint="@color/white" />
-
-        <ProgressBar
-            android:id="@+id/progressAudioReady"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_weight="1"
-            android:max="100"
-            android:progress="0"
-            android:progressTint="@color/white" />
+        <View
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:layout_marginHorizontal="8dp"
+            android:background="@drawable/bg_status_dot"
+            android:backgroundTint="#EF5350" />
 
         <TextView
-            android:id="@+id/txtDuracaoReady"
+            android:id="@+id/txtTempoGravando"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:text="00:00"
-            android:textColor="@color/white"
-            android:textSize="13sp" />
+            android:text="0:00"
+            android:textColor="#E9EDEF"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <com.example.plataformaremota.AudioWaveformView
+            android:id="@+id/waveformGravando"
+            android:layout_width="0dp"
+            android:layout_height="28dp"
+            android:layout_marginHorizontal="12dp"
+            android:layout_weight="1" />
+
+        <ImageView
+            android:id="@+id/btnEnviarAudioGravado"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_status_dot"
+            android:backgroundTint="#0D226B"
+            android:padding="12dp"
+            android:src="@drawable/ic_send"
+            app:tint="#FFFFFF" />
     </LinearLayout>
 
     <!-- BARRA DE INPUT -->
     <LinearLayout
+        android:id="@+id/layoutInputMensagem"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#33000000"
+        android:background="#0B141A"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:padding="12dp">
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="6dp">
 
-        <ImageView
-            android:id="@+id/btnAnexar"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginEnd="4dp"
-            android:padding="8dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:clickable="true"
-            android:focusable="true"
-            android:src="@drawable/ic_add"
-            app:tint="@color/white" />
-
-        <ImageView
-            android:id="@+id/btnGravarAudio"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginEnd="4dp"
-            android:padding="8dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:clickable="true"
-            android:focusable="true"
-            android:src="@drawable/ic_mic"
-            app:tint="@color/white" />
-
-        <EditText
-            android:id="@+id/edtMensagem"
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@drawable/borda_arredondada"
-            android:hint="@string/chat_input_hint"
-            android:inputType="textMultiLine|textCapSentences"
-            android:maxLines="4"
-            android:paddingHorizontal="16dp"
-            android:paddingVertical="12dp"
-            android:textColor="@color/white"
-            android:textColorHint="#80FFFFFF"
-            android:textSize="15sp" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="8dp">
+
+            <ImageView
+                android:id="@+id/btnAnexar"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:padding="6dp"
+                android:src="@drawable/ic_add"
+                app:tint="#8696A0" />
+
+            <EditText
+                android:id="@+id/edtMensagem"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:hint="@string/chat_input_hint"
+                android:inputType="textMultiLine|textCapSentences"
+                android:maxLines="4"
+                android:paddingVertical="10dp"
+                android:textColor="#E9EDEF"
+                android:textColorHint="#8696A0"
+                android:textSize="15sp" />
+
+            <ImageView
+                android:id="@+id/btnCamera"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:padding="6dp"
+                android:src="@android:drawable/ic_menu_camera"
+                app:tint="#8696A0" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/btnGravarAudio"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="4dp"
+            android:background="@drawable/bg_status_dot"
+            android:backgroundTint="#0D226B"
+            android:padding="12dp"
+            android:src="@drawable/ic_mic"
+            app:tint="#FFFFFF" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnEnviar"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="4dp"
             android:insetTop="0dp"
             android:insetBottom="0dp"
+            android:visibility="gone"
             app:backgroundTint="#0D226B"
             app:cornerRadius="24dp"
-            app:elevation="4dp"
             app:icon="@drawable/ic_send"
             app:iconGravity="textStart"
             app:iconPadding="0dp"
             app:iconSize="22dp"
-            app:iconTint="@color/white" />
+            app:iconTint="#FFFFFF" />
     </LinearLayout>
-
 </LinearLayout>

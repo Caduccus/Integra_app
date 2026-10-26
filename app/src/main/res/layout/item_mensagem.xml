@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingHorizontal="8dp"
-    android:paddingVertical="4dp">
+    android:paddingVertical="2dp">
 
     <LinearLayout
         android:id="@+id/linhaMensagem"
@@ -14,6 +14,7 @@
         android:orientation="horizontal"
         android:gravity="bottom">
 
+        <!-- Foto do Remetente (Oculta no 1 a 1, mas mantida para o código não quebrar) -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardFotoRemetente"
             android:layout_width="28dp"
@@ -23,7 +24,6 @@
             app:cardBackgroundColor="#33FFFFFF"
             app:cardCornerRadius="14dp"
             app:cardElevation="0dp">
-
             <ImageView
                 android:id="@+id/imgFotoRemetente"
                 android:layout_width="match_parent"
@@ -38,114 +38,111 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:maxWidth="280dp"
-            android:paddingHorizontal="14dp"
-            android:paddingVertical="10dp"
-            android:background="@drawable/bubble_outra">
+            android:maxWidth="300dp"
+            android:padding="6dp"
+            android:background="@drawable/bg_msg_in">
 
             <TextView
                 android:id="@+id/txtNomeRemetente"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="4dp"
+                android:layout_marginBottom="2dp"
                 android:text="Nome"
-                android:textColor="#0D226B"
-                android:textSize="12sp"
+                android:textColor="#1E88E5"
+                android:textSize="13sp"
                 android:textStyle="bold"
                 android:visibility="gone" />
 
+            <!-- Citação (Reply) -->
             <LinearLayout
                 android:id="@+id/layoutReply"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="6dp"
-                android:background="#33FFFFFF"
-                android:orientation="vertical"
-                android:padding="8dp"
+                android:layout_marginBottom="4dp"
+                android:background="#1AFFFFFF"
+                android:orientation="horizontal"
                 android:visibility="gone">
 
-                <TextView
-                    android:id="@+id/txtReplyNome"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Nome"
-                    android:textColor="#0D226B"
-                    android:textSize="11sp"
-                    android:textStyle="bold" />
+                <View
+                    android:layout_width="4dp"
+                    android:layout_height="match_parent"
+                    android:background="#1E88E5" />
 
-                <TextView
-                    android:id="@+id/txtReplyTexto"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:ellipsize="end"
-                    android:maxLines="1"
-                    android:text="Mensagem respondida"
-                    android:textColor="#666666"
-                    android:textSize="12sp" />
+                    android:orientation="vertical"
+                    android:padding="6dp">
+                    <TextView
+                        android:id="@+id/txtReplyNome"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Nome"
+                        android:textColor="#1E88E5"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+                    <TextView
+                        android:id="@+id/txtReplyTexto"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:maxLines="2"
+                        android:text="Mensagem respondida"
+                        android:textColor="#8696A0"
+                        android:textSize="13sp" />
+                </LinearLayout>
             </LinearLayout>
 
+            <!-- Imagem -->
             <ImageView
                 android:id="@+id/imgMensagem"
-                android:layout_width="220dp"
+                android:layout_width="250dp"
                 android:layout_height="wrap_content"
                 android:adjustViewBounds="true"
-                android:maxHeight="400dp"
-                android:minHeight="100dp"
                 android:scaleType="fitCenter"
                 android:visibility="gone" />
 
+            <!-- Áudio -->
             <LinearLayout
                 android:id="@+id/layoutAudio"
-                android:layout_width="220dp"
+                android:layout_width="240dp"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
                 android:visibility="gone">
-
                 <ImageView
                     android:id="@+id/btnPlayAudio"
                     android:layout_width="36dp"
                     android:layout_height="36dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:padding="6dp"
-                    android:src="@drawable/ic_send"
-                    app:tint="@color/white" />
-
-                <ProgressBar
-                    android:id="@+id/progressAudio"
-                    style="?android:attr/progressBarStyleHorizontal"
+                    android:src="@drawable/ic_play"
+                    app:tint="#8696A0" />
+                <com.example.plataformaremota.AudioWaveformView
+                    android:id="@+id/waveformAudio"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:layout_weight="1"
-                    android:max="100"
-                    android:progress="0" />
-
+                    android:layout_height="26dp"
+                    android:layout_marginHorizontal="8dp"
+                    android:layout_weight="1" />
                 <TextView
                     android:id="@+id/txtDuracaoAudio"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:text="00:00"
-                    android:textColor="@color/white"
+                    android:text="0:00"
+                    android:textColor="#8696A0"
                     android:textSize="12sp" />
             </LinearLayout>
 
-            <!-- ⭐ Arquivo -->
+            <!-- Arquivo -->
             <LinearLayout
                 android:id="@+id/layoutArquivo"
                 android:layout_width="220dp"
                 android:layout_height="wrap_content"
-                android:background="#33FFFFFF"
+                android:background="#1AFFFFFF"
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
                 android:padding="10dp"
                 android:visibility="gone">
-
                 <ImageView
                     android:id="@+id/imgIconeArquivo"
                     android:layout_width="36dp"
@@ -153,14 +150,12 @@
                     android:layout_marginEnd="10dp"
                     android:padding="6dp"
                     android:src="@drawable/ic_file"
-                    app:tint="#0D226B" />
-
+                    app:tint="#1E88E5" />
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:orientation="vertical">
-
                     <TextView
                         android:id="@+id/txtNomeArquivo"
                         android:layout_width="match_parent"
@@ -168,50 +163,69 @@
                         android:ellipsize="middle"
                         android:maxLines="1"
                         android:text="arquivo.pdf"
-                        android:textColor="#0D226B"
+                        android:textColor="#E9EDEF"
                         android:textSize="13sp"
                         android:textStyle="bold" />
-
                     <TextView
                         android:id="@+id/txtTamanhoArquivo"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
                         android:text="120 KB"
-                        android:textColor="#666666"
+                        android:textColor="#8696A0"
                         android:textSize="11sp" />
                 </LinearLayout>
             </LinearLayout>
 
+            <!-- Texto -->
             <TextView
                 android:id="@+id/txtTextoMensagem"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
+                android:layout_marginTop="2dp"
+                android:paddingHorizontal="4dp"
                 android:text="Mensagem"
-                android:textColor="#FFFFFF"
+                android:textColor="#E9EDEF"
                 android:textSize="15sp" />
 
-            <TextView
-                android:id="@+id/txtEditada"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:text="editada"
-                android:textColor="#999999"
-                android:textSize="10sp"
-                android:textStyle="italic"
-                android:visibility="gone" />
-
-            <TextView
-                android:id="@+id/txtHora"
+            <!-- Rodapé (Hora + Check) -->
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
-                android:layout_marginTop="4dp"
-                android:text="12:00"
-                android:textColor="#B3FFFFFF"
-                android:textSize="10sp" />
+                android:layout_marginTop="2dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="4dp">
+
+                <TextView
+                    android:id="@+id/txtEditada"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="4dp"
+                    android:text="editada"
+                    android:textColor="#8696A0"
+                    android:textSize="11sp"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/txtHora"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="12:00"
+                    android:textColor="#8696A0"
+                    android:textSize="11sp" />
+
+                <!-- Check Azul Integra -->
+                <ImageView
+                    android:id="@+id/imgCheck"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_marginStart="4dp"
+                    android:src="@drawable/ic_done_all"
+                    app:tint="#1E88E5"
+                    android:visibility="gone" />
+            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 </FrameLayout>

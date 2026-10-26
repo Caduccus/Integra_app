@@ -42,6 +42,15 @@ class AudioRecorderHelper(private val context: Context) {
         }
     }
 
+    // ⭐ Pega o volume atual (de 0 a 32767)
+    fun getAmplitude(): Int {
+        return try {
+            recorder?.maxAmplitude ?: 0
+        } catch (e: Exception) {
+            0
+        }
+    }
+
     fun pararGravacao(): Pair<File?, Long> {
         return try {
             val duracao = System.currentTimeMillis() - inicioMs
@@ -57,9 +66,7 @@ class AudioRecorderHelper(private val context: Context) {
     }
 
     fun cancelar() {
-        try {
-            recorder?.stop()
-        } catch (_: Exception) { }
+        try { recorder?.stop() } catch (_: Exception) { }
         recorder?.release()
         recorder = null
         arquivoAtual?.delete()

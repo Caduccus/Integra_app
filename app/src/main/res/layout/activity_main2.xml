@@ -43,7 +43,7 @@
                 android:textSize="22sp"
                 android:textStyle="bold" />
 
-            <!-- ⭐ Compartilhar -->
+            <!-- Compartilhar -->
             <ImageView
                 android:id="@+id/btnCompartilhar"
                 android:layout_width="40dp"
@@ -52,7 +52,7 @@
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:clickable="true"
                 android:focusable="true"
-                android:contentDescription="Compartilhar"
+                android:contentDescription="@string/trabalho_share_titulo"
                 android:src="@drawable/ic_share"
                 app:tint="@color/white" />
         </LinearLayout>
@@ -79,7 +79,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="12dp"
-                    android:text="Publicado por: ..."
+                    android:text="@string/trabalho_publicado_por"
                     android:textColor="#CCFFFFFF"
                     android:textSize="13sp" />
 
@@ -88,7 +88,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
-                    android:text="Título do Trabalho"
+                    android:text="@string/publicar_hint_titulo"
                     android:textColor="@color/white"
                     android:textSize="24sp"
                     android:textStyle="bold" />
@@ -112,14 +112,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
-                    android:text="Descrição do trabalho..."
+                    android:text="@string/publicar_hint_descricao"
                     android:textColor="@color/white"
                     android:textSize="15sp" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/publicar_hint_categoria"
+                    android:text="@string/trabalho_secao_categoria"
                     android:textColor="#CCFFFFFF"
                     android:textSize="12sp"
                     android:textStyle="bold" />
@@ -152,7 +152,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
-                    android:text="Júnior"
+                    android:text="@string/publicar_hint_nivel"
                     android:textColor="@color/white"
                     android:textSize="15sp" />
 
@@ -168,55 +168,103 @@
                     android:id="@+id/txtPrazoDetalhe"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/trabalho_secao_prazo"
+                    android:text="@string/publicar_hint_prazo"
                     android:textColor="@color/white"
                     android:textSize="15sp" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
         <!-- BOTÕES DO CRIADOR -->
-        <FrameLayout
-            android:layout_width="0dp"
-            android:layout_height="52dp"
-            android:layout_weight="1"
-            android:layout_marginStart="4dp">
+        <LinearLayout
+            android:id="@+id/layoutBotoesCriador"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="3"
+            android:visibility="gone">
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnChat"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:backgroundTint="#43A047"
-                android:text="@string/trabalho_btn_candidatos"
+                android:id="@+id/btnExcluir"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="4dp"
+                android:backgroundTint="#D32F2F"
+                android:text="@string/trabalho_btn_excluir"
                 android:textColor="#FFFFFF"
                 android:textSize="11sp"
                 android:textStyle="bold"
                 android:maxLines="1"
-                android:insetTop="0dp"
-                android:insetBottom="0dp"
                 app:cornerRadius="12dp"
-                app:icon="@drawable/ic_person"
+                app:icon="@drawable/ic_delete"
                 app:iconGravity="textStart"
                 app:iconPadding="4dp"
                 app:iconTint="#FFFFFF"
                 app:iconSize="18dp" />
 
-            <TextView
-                android:id="@+id/badgeCandidatos"
-                android:layout_width="wrap_content"
-                android:layout_height="20dp"
-                android:layout_gravity="top|end"
-                android:layout_marginTop="4dp"
-                android:layout_marginEnd="4dp"
-                android:minWidth="20dp"
-                android:paddingHorizontal="6dp"
-                android:background="@drawable/badge_background"
-                android:gravity="center"
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnEditar"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:layout_marginHorizontal="4dp"
+                android:backgroundTint="#0D226B"
+                android:text="@string/trabalho_btn_editar"
                 android:textColor="#FFFFFF"
                 android:textSize="11sp"
                 android:textStyle="bold"
-                android:visibility="gone"
-                tools:text="3" />
-        </FrameLayout>
+                android:maxLines="1"
+                app:cornerRadius="12dp"
+                app:icon="@drawable/ic_edit"
+                app:iconGravity="textStart"
+                app:iconPadding="4dp"
+                app:iconTint="#FFFFFF"
+                app:iconSize="18dp" />
+
+            <!-- Botão Candidatos + Badge -->
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:layout_marginStart="4dp">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnChat"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:backgroundTint="#43A047"
+                    android:text="@string/trabalho_btn_candidatos"
+                    android:textColor="#FFFFFF"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:maxLines="1"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    app:cornerRadius="12dp"
+                    app:icon="@drawable/ic_person"
+                    app:iconGravity="textStart"
+                    app:iconPadding="4dp"
+                    app:iconTint="#FFFFFF"
+                    app:iconSize="18dp" />
+
+                <TextView
+                    android:id="@+id/badgeCandidatos"
+                    android:layout_width="wrap_content"
+                    android:layout_height="20dp"
+                    android:layout_gravity="top|end"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginEnd="4dp"
+                    android:minWidth="20dp"
+                    android:paddingHorizontal="6dp"
+                    android:background="@drawable/badge_background"
+                    android:gravity="center"
+                    android:textColor="#FFFFFF"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:visibility="gone"
+                    tools:text="3" />
+            </FrameLayout>
+        </LinearLayout>
 
         <!-- BOTÃO DO CANDIDATO -->
         <com.google.android.material.button.MaterialButton

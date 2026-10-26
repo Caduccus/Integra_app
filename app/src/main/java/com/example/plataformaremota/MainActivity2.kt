@@ -22,9 +22,6 @@ class MainActivity2 : BaseActivity() {
     private var souMembroDaEmpresa: Boolean = false
 
     // Variáveis de UI
-    private lateinit var layoutBotoesCriador: View
-    private lateinit var btnExcluir: MaterialButton
-    private lateinit var btnEditar: MaterialButton
     private lateinit var btnVoltar: ImageView
     private lateinit var btnCompartilhar: ImageView
     private lateinit var txtCriador: TextView
@@ -34,9 +31,13 @@ class MainActivity2 : BaseActivity() {
     private lateinit var txtTipoContratoDetalhe: TextView
     private lateinit var txtNivelDetalhe: TextView
     private lateinit var txtPrazoDetalhe: TextView
+
+    private lateinit var layoutBotoesCriador: View
+    private lateinit var btnExcluir: MaterialButton
+    private lateinit var btnEditar: MaterialButton
     private lateinit var btnChat: MaterialButton
     private lateinit var btnCandidatar: MaterialButton
-    private lateinit var badgeCandidatos: TextView // Variável do Badge
+    private lateinit var badgeCandidatos: TextView
 
     private lateinit var repository: TrabalhoRepository
     private lateinit var chatRepository: ChatRepository
@@ -68,6 +69,9 @@ class MainActivity2 : BaseActivity() {
         txtNivelDetalhe = findViewById(R.id.txtNivelDetalhe)
         txtPrazoDetalhe = findViewById(R.id.txtPrazoDetalhe)
 
+        layoutBotoesCriador = findViewById(R.id.layoutBotoesCriador)
+        btnExcluir = findViewById(R.id.btnExcluir) // ⭐ AQUI
+        btnEditar = findViewById(R.id.btnEditar)
         btnChat = findViewById(R.id.btnChat)
         btnCandidatar = findViewById(R.id.btnCandidatar)
         badgeCandidatos = findViewById(R.id.badgeCandidatos)
@@ -76,7 +80,7 @@ class MainActivity2 : BaseActivity() {
 
         btnVoltar.setOnClickListener { finish() }
         btnCompartilhar.setOnClickListener { compartilharTrabalho() }
-        btnExcluir.setOnClickListener { confirmarExclusao() }
+        btnExcluir.setOnClickListener { confirmarExclusao() } // ⭐ AQUI DA ERRO SE NÃO ACHAR ACIMA
 
         btnEditar.setOnClickListener {
             val intent = Intent(this, EditarTrabalhoActivity::class.java)
@@ -84,7 +88,6 @@ class MainActivity2 : BaseActivity() {
             startActivity(intent)
         }
 
-        // O botão que antes se chamava CHAT, agora abre a lista de candidatos
         btnChat.setOnClickListener {
             val intent = Intent(this, CandidatosActivity::class.java)
             intent.putExtra("trabalhoId", trabalhoId)
@@ -107,7 +110,7 @@ class MainActivity2 : BaseActivity() {
 
     private fun carregarTrabalho() {
         if (trabalhoId.isEmpty()) {
-            Toast.makeText(this, "Trabalho não encontrado", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.trabalho_nao_encontrado), Toast.LENGTH_SHORT).show()
             finish()
             return
         }
@@ -115,7 +118,7 @@ class MainActivity2 : BaseActivity() {
         lifecycleScope.launch {
             val trabalho = repository.buscarPorId(trabalhoId)
             if (trabalho == null) {
-                Toast.makeText(this@MainActivity2, "Trabalho não encontrado", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@MainActivity2, getString(R.string.trabalho_nao_encontrado), Toast.LENGTH_SHORT).show()
                 finish()
                 return@launch
             }
@@ -132,7 +135,7 @@ class MainActivity2 : BaseActivity() {
             txtNivelDetalhe.text = trabalho.nivel
             txtPrazoDetalhe.text = trabalho.prazo
 
-            txtCriador.text = "Publicado por: ${nomeCriador.ifEmpty { "Usuário" }}"
+            txtCriador.text = getString(R.string.trabalho_publicado_por, nomeCriador.ifEmpty { getString(R.string.admin_usuario_padrao) })
 
             val uidAtual = auth.currentUser?.uid ?: ""
             val ehCriador = uidAtual == criadorId
@@ -140,7 +143,7 @@ class MainActivity2 : BaseActivity() {
             if (ehCriador) {
                 layoutBotoesCriador.visibility = View.VISIBLE
                 btnCandidatar.visibility = View.GONE
-                atualizarBadgeCandidatos() // <-- Chama o badge aqui
+                atualizarBadgeCandidatos()
             } else {
                 layoutBotoesCriador.visibility = View.GONE
 
@@ -154,9 +157,6 @@ class MainActivity2 : BaseActivity() {
         }
     }
 
-    // ─────────────────────────────────────────────
-    // BADGE DE CANDIDATOS
-    // ─────────────────────────────────────────────
     private fun atualizarBadgeCandidatos() {
         lifecycleScope.launch {
             try {
@@ -166,7 +166,6 @@ class MainActivity2 : BaseActivity() {
                     .get()
                     .await()
 
-                // Conta apenas quem ainda não foi aceito nem rejeitado
                 val pendentes = snap.documents.count { doc ->
                     val status = doc.getString("status")?.lowercase() ?: "pendente"
                     status !in listOf("aceito", "aceita", "rejeitado", "rejeitada")
@@ -184,12 +183,9 @@ class MainActivity2 : BaseActivity() {
         }
     }
 
-    // ─────────────────────────────────────────────
-    // COMPARTILHAR
-    // ─────────────────────────────────────────────
     private fun compartilharTrabalho() {
         if (tituloTrabalho.isEmpty()) {
-            Toast.makeText(this, "Aguarde o trabalho carregar", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.trabalho_aguarde_carregar), Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -199,16 +195,16 @@ class MainActivity2 : BaseActivity() {
                 append(txtDescricaoDetalhe.text).append("\n\n")
             }
             if (txtCategoriaDetalhe.text.isNotEmpty()) {
-                append("📍 Categoria: ").append(txtCategoriaDetalhe.text).append("\n")
+                append(getString(R.string.trabalho_share_extra, txtCategoriaDetalhe.text)).append("\n")
             }
             if (txtNivelDetalhe.text.isNotEmpty()) {
-                append("⭐ Nível: ").append(txtNivelDetalhe.text).append("\n")
+                append(getString(R.string.trabalho_share_nivel, txtNivelDetalhe.text)).append("\n")
             }
             if (txtPrazoDetalhe.text.isNotEmpty()) {
-                append("⏱ Prazo: ").append(txtPrazoDetalhe.text).append("\n")
+                append(getString(R.string.trabalho_share_prazo, txtPrazoDetalhe.text)).append("\n")
             }
             append("\n")
-            append("Encontrado no Integra.app")
+            append(getString(R.string.trabalho_share_encontrado))
         }
 
         val shareIntent = Intent(Intent.ACTION_SEND).apply {
@@ -217,12 +213,9 @@ class MainActivity2 : BaseActivity() {
             putExtra(Intent.EXTRA_TEXT, texto)
         }
 
-        startActivity(Intent.createChooser(shareIntent, "Compartilhar trabalho"))
+        startActivity(Intent.createChooser(shareIntent, getString(R.string.trabalho_share_titulo)))
     }
 
-    // ─────────────────────────────────────────────
-    // CANDIDATURA (VISÃO DO CANDIDATO)
-    // ─────────────────────────────────────────────
     private suspend fun verificarCandidatura(uid: String) {
         try {
             val doc = db.collection("trabalhos")
@@ -236,7 +229,7 @@ class MainActivity2 : BaseActivity() {
                 HapticHelper.media(this@MainActivity2)
                 jaCandidatou = true
                 btnCandidatar.isEnabled = true
-                btnCandidatar.text = "ABRIR CHAT COM O CRIADOR"
+                btnCandidatar.text = getString(R.string.trabalho_btn_abrir_chat)
                 btnCandidatar.setBackgroundColor(android.graphics.Color.parseColor("#0D226B"))
             } else {
                 jaCandidatou = false
@@ -257,7 +250,7 @@ class MainActivity2 : BaseActivity() {
                 intent.putExtra("chatId", chatId)
                 startActivity(intent)
             } else {
-                Toast.makeText(this@MainActivity2, "Erro ao abrir chat", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@MainActivity2, getString(R.string.trabalho_erro_chat), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -271,7 +264,7 @@ class MainActivity2 : BaseActivity() {
                 btnCandidatar.visibility = View.GONE
                 Toast.makeText(
                     this@MainActivity2,
-                    "Este trabalho é privado da empresa. Só membros podem se candidatar.",
+                    getString(R.string.empresa_privada_msg),
                     Toast.LENGTH_LONG
                 ).show()
                 return
@@ -287,17 +280,17 @@ class MainActivity2 : BaseActivity() {
     private fun cadastrarSeNoTrabalho() {
         val uid = auth.currentUser?.uid
         if (uid.isNullOrEmpty()) {
-            Toast.makeText(this, "Você precisa estar logado", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.trabalho_logado_necessario), Toast.LENGTH_SHORT).show()
             return
         }
 
         btnCandidatar.isEnabled = false
-        btnCandidatar.text = "ENVIANDO..."
+        btnCandidatar.text = getString(R.string.trabalho_btn_enviando)
 
         lifecycleScope.launch {
             try {
                 val docUsuario = db.collection("usuarios").document(uid).get().await()
-                val nomeUsuario = docUsuario.getString("nome") ?: "Usuário"
+                val nomeUsuario = docUsuario.getString("nome") ?: getString(R.string.admin_usuario_padrao)
 
                 val candidatura = hashMapOf(
                     "usuarioId" to uid,
@@ -314,46 +307,43 @@ class MainActivity2 : BaseActivity() {
 
                 NotificacaoHelper.enviar(
                     uidDestino = criadorId,
-                    titulo = "Nova candidatura! 🎯",
-                    mensagem = "$nomeUsuario se candidatou para '$tituloTrabalho'"
+                    titulo = getString(R.string.trabalho_notif_nova_titulo),
+                    mensagem = getString(R.string.trabalho_notif_nova_msg, nomeUsuario, tituloTrabalho)
                 )
                 NotificacaoHelper.salvarInApp(
                     uidDestino = criadorId,
-                    titulo = "Nova candidatura! 🎯",
-                    mensagem = "$nomeUsuario se candidatou para '$tituloTrabalho'",
+                    titulo = getString(R.string.trabalho_notif_nova_titulo),
+                    mensagem = getString(R.string.trabalho_notif_nova_msg, nomeUsuario, tituloTrabalho),
                     tipo = "candidatura",
                     refId = trabalhoId
                 )
 
                 NotificacaoHelper.enviar(
                     uidDestino = uid,
-                    titulo = "Candidatura enviada ✅",
-                    mensagem = "Você se candidatou para '$tituloTrabalho'"
+                    titulo = getString(R.string.trabalho_notif_enviada_titulo),
+                    mensagem = getString(R.string.trabalho_notif_enviada_msg, tituloTrabalho)
                 )
 
                 jaCandidatou = true
                 btnCandidatar.isEnabled = true
-                btnCandidatar.text = "ABRIR CHAT COM O CRIADOR"
+                btnCandidatar.text = getString(R.string.trabalho_btn_abrir_chat)
                 btnCandidatar.setBackgroundColor(android.graphics.Color.parseColor("#0D226B"))
 
-                Toast.makeText(this@MainActivity2, "Candidatura enviada!", Toast.LENGTH_LONG).show()
+                Toast.makeText(this@MainActivity2, getString(R.string.trabalho_candidatura_enviada), Toast.LENGTH_LONG).show()
             } catch (e: Exception) {
                 btnCandidatar.isEnabled = true
-                btnCandidatar.text = "CADASTRAR-SE NO TRABALHO"
-                Toast.makeText(this@MainActivity2, "Erro: ${e.message}", Toast.LENGTH_LONG).show()
+                btnCandidatar.text = getString(R.string.trabalho_btn_candidatar)
+                Toast.makeText(this@MainActivity2, getString(R.string.geral_erro, e.message ?: ""), Toast.LENGTH_LONG).show()
             }
         }
     }
 
-    // ─────────────────────────────────────────────
-    // EXCLUSÃO (VISÃO DO CRIADOR)
-    // ─────────────────────────────────────────────
     private fun confirmarExclusao() {
         AlertDialog.Builder(this)
-            .setTitle("Excluir trabalho")
-            .setMessage("Tem certeza que quer excluir este trabalho?")
-            .setPositiveButton("Excluir") { _, _ -> excluirTrabalho() }
-            .setNegativeButton("Cancelar", null)
+            .setTitle(getString(R.string.trabalho_excluir_titulo))
+            .setMessage(getString(R.string.trabalho_excluir_msg))
+            .setPositiveButton(getString(R.string.trabalho_btn_excluir)) { _, _ -> excluirTrabalho() }
+            .setNegativeButton(getString(R.string.geral_cancelar), null)
             .show()
     }
 
@@ -364,10 +354,10 @@ class MainActivity2 : BaseActivity() {
 
             if (sucesso) {
                 notificarCandidatosExclusao(candidatos)
-                Toast.makeText(this@MainActivity2, "Trabalho excluído!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@MainActivity2, getString(R.string.trabalho_excluido), Toast.LENGTH_SHORT).show()
                 finish()
             } else {
-                Toast.makeText(this@MainActivity2, "Erro ao excluir", Toast.LENGTH_LONG).show()
+                Toast.makeText(this@MainActivity2, getString(R.string.trabalho_erro_excluir), Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -392,8 +382,8 @@ class MainActivity2 : BaseActivity() {
         lifecycleScope.launch {
             NotificacaoHelper.enviarParaVarios(
                 uidsDestino = uids,
-                titulo = "Trabalho encerrado",
-                mensagem = "O trabalho '$tituloTrabalho' foi excluído pelo criador."
+                titulo = getString(R.string.sys_trabalho_encerrado), // Usando a string traduzida
+                mensagem = getString(R.string.trabalho_notif_excluido_msg, tituloTrabalho)
             )
         }
     }

@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Integraa</string>
-    <string name="trabalho_btn_candidatos">CANDIDATOS</string>
-    <string name="trabalho_badge_candidatos">%1$d pendentes</string>
 
     <!-- GERAL -->
     <string name="geral_ok">OK</string>
@@ -15,39 +13,7 @@
     <string name="geral_erro">Erro: %1$s</string>
     <string name="geral_aguarde">Aguarde...</string>
     <string name="geral_depois">Depois</string>
-    <string name="chat_segure_excluir">Segure uma conversa pessoal para excluir</string>
-    <string name="chat_tempo_esgotado">Tempo esgotado — tente novamente</string>
-    <string name="chat_erro_mic">Erro ao iniciar gravação. Verifique permissão de microfone.</string>
-    <string name="chat_erro_tocar">Erro ao tocar</string>
-    <string name="admin_trabalho_por">%1$s • por %2$s</string>
-    <string name="notif_data_formato">%1$s às %2$s</string>
     <string name="comum_sobre_trabalho">Sobre: %1$s</string>
-    <string name="sys_entrou_grupo">%1$s entrou no grupo</string>
-    <string name="sys_removido_grupo">%1$s foi removido do grupo por %2$s</string>
-    <string name="sys_agora_admin">%1$s agora é admin</string>
-    <string name="sys_nao_admin">%1$s não é mais admin</string>
-    <string name="sys_foto_atualizada">%1$s atualizou a foto da empresa</string>
-
-    <string-array name="array_categorias">
-        <item>Tecnologia</item>
-        <item>Design</item>
-        <item>Marketing</item>
-        <item>Vendas</item>
-        <item>Suporte</item>
-        <item>Educação</item>
-        <item>Saúde</item>
-        <item>Finanças</item>
-        <item>Recursos Humanos</item>
-        <item>Administrativo</item>
-        <item>Engenharia</item>
-        <item>Outros</item>
-    </string-array>
-    <string-array name="array_niveis">
-        <item>Júnior</item>
-        <item>Pleno</item>
-        <item>Sênior</item>
-        <item>Especialista</item>
-    </string-array>
 
     <!-- LOGIN -->
     <string name="login_titulo">Integra</string>
@@ -74,7 +40,7 @@
     <string name="recuperar_btn_cancelar">Cancelar</string>
     <string name="recuperar_ok">OK</string>
     <string name="recuperar_email_invalido">Digite um e-mail válido</string>
-    <string name="recuperar_email_enviado_titulo">E-mail enviado</string>
+    <string name="recuperar_email_enviado_titulo">E-mail enviado ✅</string>
     <string name="recuperar_email_enviado_msg">Enviamos um link de recuperação para:\n\n%1$s\n\nVerifique sua caixa de entrada e a pasta de spam.</string>
     <string name="recuperar_erro">Não foi possível enviar: %1$s</string>
 
@@ -105,7 +71,7 @@
     <string name="home_filtro_inscritos">Insc.</string>
     <string name="home_filtro_empresas">Empr.</string>
     <string name="home_filtro_favoritos">Fav.</string>
-    <string name="home_btn_historico">Ver histórico de candidaturas</string>
+    <string name="home_btn_historico">📋  Ver histórico de candidaturas</string>
     <string name="home_btn_publicar_primeiro">PUBLICAR PRIMEIRO</string>
     <string name="home_ola">Olá!</string>
     <string name="home_ola_nome">Olá, %1$s!</string>
@@ -142,6 +108,8 @@
     <string name="chat_excluir_msg">A conversa com %1$s será removida da sua lista.\n\nO outro participante ainda continuará vendo o histórico. Se qualquer um de vocês mandar uma nova mensagem, a conversa volta a aparecer.</string>
     <string name="chat_excluido">Conversa excluída</string>
     <string name="chat_ultima_vazia">Nenhuma mensagem ainda</string>
+    <string name="chat_segure_excluir">Segure uma conversa pessoal para excluir</string>
+    <string name="chat_tempo_esgotado">Tempo esgotado — tente novamente</string>
 
     <!-- CHAT -->
     <string name="chat_header_titulo">Chat</string>
@@ -151,8 +119,8 @@
     <string name="chat_input_bloqueado">Você bloqueou este usuário</string>
     <string name="chat_input_nao_pode">Você não pode enviar mensagens</string>
     <string name="chat_reply_voce">Você</string>
-    <string name="chat_reply_imagem">Imagem</string>
-    <string name="chat_reply_audio">Áudio</string>
+    <string name="chat_reply_imagem">📷 Imagem</string>
+    <string name="chat_reply_audio">🎤 Áudio</string>
     <string name="chat_reply_texto_placeholder">Texto respondido</string>
     <string name="chat_editar_titulo">Editar mensagem</string>
     <string name="chat_editar_hint">Nova mensagem</string>
@@ -164,7 +132,7 @@
     <string name="chat_menu_deletar">Deletar</string>
     <string name="chat_audio_curto">Áudio muito curto</string>
     <string name="chat_enviando_audio">Enviando áudio...</string>
-    <string name="chat_audio_salvo">Imagem salva na galeria!</string>
+    <string name="chat_audio_salvo">Imagem salva na galeria! ✅</string>
     <string name="chat_erro_enviar">Erro ao enviar</string>
     <string name="chat_erro_editar">Erro ao editar</string>
     <string name="chat_erro_deletar">Erro ao deletar</string>
@@ -183,6 +151,16 @@
     <string name="chat_arquivo_sem_app">Nenhum app para abrir %1$s</string>
     <string name="chat_arquivo_enviando">Enviando %1$s...</string>
     <string name="chat_editada">editada</string>
+    <string name="chat_erro_mic">Erro ao iniciar gravação. Verifique permissão de microfone.</string>
+    <string name="chat_erro_tocar">Erro ao tocar</string>
+
+    <!-- MENSAGENS DE SISTEMA (CHAT) -->
+    <string name="sys_entrou_grupo">%1$s entrou no grupo</string>
+    <string name="sys_removido_grupo">%1$s foi removido do grupo por %2$s</string>
+    <string name="sys_agora_admin">%1$s agora é admin</string>
+    <string name="sys_nao_admin">%1$s não é mais admin</string>
+    <string name="sys_foto_atualizada">%1$s atualizou a foto da empresa</string>
+    <string name="sys_trabalho_encerrado">Trabalho encerrado</string>
 
     <!-- PREVIEW ÁUDIO -->
     <string name="audio_preview_toque_ouvir">Toque para ouvir</string>
@@ -254,7 +232,7 @@
     <string name="perfil_excluir_conta">Excluir conta</string>
     <string name="perfil_excluir_aviso">A exclusão de conta é permanente e não pode ser desfeita</string>
     <string name="perfil_excluir_titulo">Excluir conta</string>
-    <string name="perfil_excluir_msg">Tem CERTEZA que quer excluir sua conta?\n\nIsso vai apagar PERMANENTEMENTE:\n\n- Seu perfil\n- Todos os seus trabalhos publicados\n- Todas as suas candidaturas\n- Sua participação em chats e grupos\n\nEssa ação NÃO pode ser desfeita!</string>
+    <string name="perfil_excluir_msg">Tem CERTEZA que quer excluir sua conta?\n\nIsso vai apagar PERMANENTEMENTE:\n• Seu perfil\n• Todos os seus trabalhos publicados\n• Todas as suas candidaturas\n• Sua participação em chats e grupos\n\nEssa ação NÃO pode ser desfeita!</string>
     <string name="perfil_excluir_btn">EXCLUIR TUDO</string>
     <string name="perfil_excluindo">Excluindo conta...</string>
     <string name="perfil_excluida">Conta excluída</string>
@@ -312,17 +290,17 @@
     <string name="acess_reiniciar_titulo">Aplicar %1$s?</string>
     <string name="acess_reiniciar_msg">O app vai reiniciar para aplicar a mudança em todas as telas.</string>
     <string name="acess_reiniciar">Reiniciar</string>
-    <string name="acess_aviso">Dica: se você usa TalkBack, todas as telas têm descrições em voz.</string>
+    <string name="acess_aviso">💡 Dica: se você usa TalkBack, todas as telas têm descrições em voz.</string>
     <string name="acess_motivo_fonte">Tamanho da fonte</string>
     <string name="acess_motivo_contraste">Alto contraste</string>
 
     <!-- IDIOMA -->
     <string name="idioma_titulo">Idioma</string>
     <string name="idioma_subtitulo">Escolha o idioma do aplicativo</string>
-    <string name="idioma_sistema">Sistema (padrão)</string>
-    <string name="idioma_pt">Português</string>
-    <string name="idioma_en">English</string>
-    <string name="idioma_es">Español</string>
+    <string name="idioma_sistema">🌐  Sistema (padrão)</string>
+    <string name="idioma_pt">🇧🇷  Português</string>
+    <string name="idioma_en">🇺🇸  English</string>
+    <string name="idioma_es">🇪🇸  Español</string>
     <string name="idioma_reiniciar_titulo">Aplicar idioma</string>
     <string name="idioma_reiniciar_msg">O app vai reiniciar para aplicar.</string>
 
@@ -403,7 +381,7 @@
     <string name="gerenciar_remover_msg">Remover %1$s do grupo?</string>
     <string name="gerenciar_removido">Removido</string>
     <string name="gerenciar_excluir_titulo">Excluir empresa</string>
-    <string name="gerenciar_excluir_msg">Tem CERTEZA que quer excluir a empresa?\n\nIsso vai apagar:\n\n- A empresa\n- O grupo de chat Geral\n- Todas as mensagens do grupo\n\nOs trabalhos publicados vão continuar existindo.\n\nEssa ação NÃO pode ser desfeita!</string>
+    <string name="gerenciar_excluir_msg">Tem CERTEZA que quer excluir a empresa?\n\nIsso vai apagar:\n• A empresa\n• O grupo de chat Geral\n• Todas as mensagens do grupo\n\nOs trabalhos publicados vão continuar existindo.\n\nEssa ação NÃO pode ser desfeita!</string>
     <string name="gerenciar_excluindo">Excluindo empresa...</string>
     <string name="gerenciar_excluida">Empresa excluída</string>
     <string name="gerenciar_erro_aprovar">Erro ao aprovar</string>
@@ -447,7 +425,7 @@
     <string name="info_grupo_saiu">Você saiu do grupo</string>
     <string name="info_grupo_so_admin_sai">Você só pode sair se um admin da empresa te remover</string>
     <string name="info_grupo_apagar_titulo">Apagar grupo</string>
-    <string name="info_grupo_apagar_msg">Tem CERTEZA que quer apagar este grupo?\n\nIsso vai apagar:\n\n- O grupo\n- Todas as mensagens\n- Todos os membros serão removidos\n\nEssa ação NÃO pode ser desfeita!</string>
+    <string name="info_grupo_apagar_msg">Tem CERTEZA que quer apagar este grupo?\n\nIsso vai apagar:\n• O grupo\n• Todas as mensagens\n• Todos os membros serão removidos\n\nEssa ação NÃO pode ser desfeita!</string>
     <string name="info_grupo_apagando">Apagando grupo...</string>
     <string name="info_grupo_apagado">Grupo apagado!</string>
     <string name="info_grupo_erro_abrir">Erro ao abrir grupo</string>
@@ -459,7 +437,7 @@
     <!-- ADICIONAR MEMBROS -->
     <string name="add_membros_titulo">Adicionar membros</string>
     <string name="add_membros_btn_confirmar">ADICIONAR</string>
-    <string name="add_membros_busca">Buscar por nome ou @username</string>
+    <string name="add_membros_busca">Buscar por nome ou \@username</string>
     <string name="add_membros_selecionados">Selecionados: %1$d</string>
     <string name="add_membros_selecionados_count">Selecionados: %1$d</string>
     <string name="add_membros_vazio">Todos os usuários já estão no grupo</string>
@@ -475,7 +453,7 @@
     <string name="novo_grupo_titulo">Novo grupo</string>
     <string name="novo_grupo_btn_criar">CRIAR</string>
     <string name="novo_grupo_hint_nome">Nome do grupo</string>
-    <string name="novo_grupo_busca">Buscar por nome ou @username</string>
+    <string name="novo_grupo_busca">Buscar por nome ou \@username</string>
     <string name="novo_grupo_vazio">Nenhum usuário encontrado</string>
     <string name="novo_grupo_vazio_usuarios">Nenhum usuário encontrado</string>
     <string name="novo_grupo_criando">CRIANDO...</string>
@@ -495,6 +473,7 @@
     <string name="trabalho_btn_excluir">EXCLUIR</string>
     <string name="trabalho_btn_editar">EDITAR</string>
     <string name="trabalho_btn_chat">CHAT</string>
+    <string name="trabalho_btn_candidatos">CANDIDATOS</string>
     <string name="trabalho_btn_candidatar">CADASTRAR-SE NO TRABALHO</string>
     <string name="trabalho_btn_abrir_chat">ABRIR CHAT COM O CRIADOR</string>
     <string name="trabalho_btn_enviando">ENVIANDO...</string>
@@ -510,13 +489,15 @@
     <string name="trabalho_aguarde_carregar">Aguarde o trabalho carregar</string>
     <string name="trabalho_erro_chat">Erro ao abrir chat</string>
     <string name="trabalho_logado_necessario">Você precisa estar logado</string>
-    <string name="trabalho_notif_nova_titulo">Nova candidatura</string>
+    <string name="trabalho_notif_nova_titulo">Nova candidatura! 🎯</string>
     <string name="trabalho_notif_nova_msg">%1$s se candidatou para %2$s</string>
-    <string name="trabalho_notif_enviada_titulo">Candidatura enviada</string>
+    <string name="trabalho_notif_enviada_titulo">Candidatura enviada ✅</string>
     <string name="trabalho_notif_enviada_msg">Você se candidatou para %1$s</string>
+    <string name="trabalho_notif_excluido_msg">O trabalho \'%1$s\' foi excluído pelo criador.</string>
     <string name="trabalho_share_extra">Categoria: %1$s</string>
     <string name="trabalho_share_nivel">Nível: %1$s</string>
     <string name="trabalho_share_prazo">Prazo: %1$s</string>
+    <string name="trabalho_badge_candidatos">%1$d pendentes</string>
 
     <!-- EDITAR TRABALHO -->
     <string name="editar_trabalho_titulo">Editar trabalho</string>
@@ -567,7 +548,7 @@
     <string name="candidatos_atualizado">Atualizado!</string>
     <string name="candidatos_erro_trabalho">Trabalho não encontrado</string>
     <string name="candidatos_candidatou_se_em">Candidatou-se em %1$s</string>
-    <string name="candidatos_aceito_notif_titulo">Você foi aceito!</string>
+    <string name="candidatos_aceito_notif_titulo">Você foi aceito! 🎉</string>
     <string name="candidatos_aceito_notif_msg">Parabéns! Sua candidatura para %1$s foi aceita.</string>
     <string name="candidatos_rejeitado_notif_titulo">Candidatura rejeitada</string>
     <string name="candidatos_rejeitado_notif_msg">Sua candidatura para %1$s não foi aceita dessa vez.</string>
@@ -591,6 +572,7 @@
     <!-- NOTIFICAÇÕES -->
     <string name="notif_titulo">Notificações</string>
     <string name="notif_vazio">Sem notificações</string>
+    <string name="notif_data_formato">%1$s às %2$s</string>
 
     <!-- VISUALIZAÇÕES -->
     <string name="visualizacoes_titulo">Quem viu seu perfil</string>
@@ -614,7 +596,7 @@
 
     <!-- PERFIL DE USUÁRIO -->
     <string name="perfil_usuario_titulo">Perfil</string>
-    <string name="perfil_usuario_username">@%1$s</string>
+    <string name="perfil_usuario_username">\@%1$s</string>
     <string name="perfil_usuario_bio_vazia">Sem bio ainda</string>
     <string name="perfil_usuario_secao_links">LINKS</string>
     <string name="perfil_usuario_sem_links">Nenhum link adicionado</string>
@@ -658,13 +640,13 @@
     <string name="admin_btn_usuarios">Gerenciar usuários</string>
     <string name="admin_btn_empresas">Gerenciar empresas</string>
     <string name="admin_btn_trabalhos">Gerenciar trabalhos</string>
-    <string name="admin_aviso">Ações administrativas afetam o app inteiro. Use com cuidado.</string>
+    <string name="admin_aviso">⚠️ Ações administrativas afetam o app inteiro. Use com cuidado.</string>
     <string name="admin_lista_usuarios">Usuários</string>
     <string name="admin_lista_empresas">Empresas</string>
     <string name="admin_lista_trabalhos">Trabalhos</string>
     <string name="admin_lista_titulo">Admin</string>
     <string name="admin_excluir_usuario_titulo">Excluir usuário</string>
-    <string name="admin_excluir_usuario_msg">Excluir este usuário?\n\nVai apagar:\n\n- Perfil\n- Trabalhos publicados\n- Candidaturas\n- Empresas criadas\n\nA conta de login permanece.</string>
+    <string name="admin_excluir_usuario_msg">Excluir este usuário?\n\nVai apagar:\n• Perfil\n• Trabalhos publicados\n• Candidaturas\n• Empresas criadas\n\nA conta de login permanece.</string>
     <string name="admin_excluir_empresa_titulo">Excluir empresa</string>
     <string name="admin_excluir_empresa_msg">Excluir esta empresa?\n\nVai apagar a empresa, o grupo Geral e todas as mensagens.</string>
     <string name="admin_excluir_trabalho_titulo">Excluir trabalho</string>
@@ -677,6 +659,7 @@
     <string name="admin_usuario_padrao">Usuário</string>
     <string name="admin_erro">Erro: %1$s</string>
     <string name="admin_membros_count">%1$s • %2$d membros</string>
+    <string name="admin_trabalho_por">%1$s • por %2$s</string>
 
     <!-- ESTATÍSTICAS EMPRESA -->
     <string name="estat_titulo">Estatísticas</string>
@@ -724,7 +707,6 @@
     <string name="onboarding_titulo_4">Converse direto</string>
     <string name="onboarding_desc_4">Chat em tempo real com candidatos e empresas.\n\nEnvie texto, fotos, áudio e arquivos.</string>
 
-
     <!-- DIALOG SOBRE TEXTO -->
     <string name="dialog_sobre_placeholder">Texto</string>
 
@@ -735,4 +717,8 @@
     <!-- ERROS GENÉRICOS -->
     <string name="erro_generico">Erro: %1$s</string>
     <string name="erro_conexao">Verifique sua conexão</string>
+
+    <!-- TERMOS E PRIVACIDADE -->
+    <string name="termos_uso_texto" formatted="false">Última atualização: 09 de outubro de 2026\n\n1. ACEITAÇÃO DOS TERMOS\nAo criar uma conta e utilizar o aplicativo Integra, você concorda integralmente com estes Termos de Uso. Caso não concorde, não utilize o aplicativo.\n\n2. DESCRIÇÃO DO SERVIÇO\nO Integra é uma plataforma que conecta profissionais a oportunidades de trabalho remoto e permite a criação e gestão de empresas, equipes e processos seletivos.\n\n3. CADASTRO\nVocê se compromete a fornecer informações verdadeiras, completas e atualizadas no momento do cadastro. É de sua responsabilidade manter a confidencialidade da sua senha.\n\n4. CONDUTA DO USUÁRIO\nVocê concorda em não:\n• Publicar conteúdo falso, ofensivo ou ilegal\n• Assediar, ameaçar ou prejudicar outros usuários\n• Utilizar a plataforma para fins fraudulentos\n• Violar direitos autorais ou de propriedade intelectual\n\n5. TRABALHOS E CANDIDATURAS\nO Integra é apenas uma plataforma de conexão. Não somos responsáveis pelas negociações, contratos ou relações de trabalho firmadas entre usuários e empresas.\n\n6. CONTEÚDO DO USUÁRIO\nVocê mantém os direitos sobre o conteúdo que publica, mas concede ao Integra licença para exibi-lo dentro da plataforma.\n\n7. SUSPENSÃO DE CONTAS\nReservamo-nos o direito de suspender ou encerrar contas que violem estes Termos.\n\n8. ALTERAÇÕES\nPodemos atualizar estes Termos a qualquer momento. Recomendamos revisão periódica.\n\n9. CONTATO\nDúvidas: contato\@integra.app</string>
+    <string name="politica_privacidade_texto" formatted="false">Última atualização: 09 de outubro de 2026\n\n1. INFORMAÇÕES QUE COLETAMOS\n• Dados de cadastro: nome, e-mail, username, profissão, bio\n• Foto de perfil e currículo (opcional)\n• Mensagens trocadas na plataforma\n• Informações sobre trabalhos, candidaturas e empresas\n• Dados de uso (telas visitadas, ações realizadas)\n\n2. COMO USAMOS OS DADOS\nUtilizamos suas informações para:\n• Fornecer e melhorar o serviço\n• Permitir conexões entre candidatos e empresas\n• Enviar notificações relevantes\n• Garantir segurança da plataforma\n\n3. COMPARTILHAMENTO\nNão vendemos seus dados. Compartilhamos apenas:\n• Com outros usuários, quando você torna informações públicas\n• Com prestadores de serviço técnicos (Firebase, Cloudinary) para operar o app\n• Quando exigido por lei\n\n4. ARMAZENAMENTO\nSeus dados são armazenados em servidores seguros do Google Firebase. Fotos e documentos são hospedados no Cloudinary.\n\n5. SEUS DIREITOS\nVocê pode a qualquer momento:\n• Acessar seus dados pelo próprio app\n• Editar ou excluir suas informações no perfil\n• Excluir sua conta permanentemente\n\n6. COOKIES E RASTREAMENTO\nNão utilizamos cookies de terceiros para publicidade. Usamos apenas dados anônimos de uso interno.\n\n7. SEGURANÇA\nAdotamos medidas técnicas para proteger seus dados. Nenhum sistema é 100\% seguro, mas fazemos nosso melhor.\n\n8. MENORES DE IDADE\nO Integra é destinado a maiores de 16 anos.\n\n9. CONTATO\nEncarregado de dados: privacidade\@integra.app</string>
 </resources>

@@ -11,10 +11,10 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.example.plataformaremota.AudioWaveformView
 import com.example.plataformaremota.R
 import com.example.plataformaremota.data.entity.Mensagem
 import com.google.android.material.card.MaterialCardView
@@ -31,6 +31,10 @@ class MensagemAdapter(
     private val onArquivoClick: (Mensagem) -> Unit = {}
 ) : RecyclerView.Adapter<MensagemAdapter.MensagemViewHolder>() {
 
+    private var mediaPlayer: MediaPlayer? = null
+    private var handlerAudio: Handler? = null
+    private var posicaoTocando: Int = -1
+
     class MensagemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val container: FrameLayout = itemView.findViewById(R.id.containerMensagem)
         val linha: LinearLayout = itemView.findViewById(R.id.linhaMensagem)
@@ -44,7 +48,7 @@ class MensagemAdapter(
         val imgMensagem: ImageView = itemView.findViewById(R.id.imgMensagem)
         val layoutAudio: LinearLayout = itemView.findViewById(R.id.layoutAudio)
         val btnPlayAudio: ImageView = itemView.findViewById(R.id.btnPlayAudio)
-        val progressAudio: ProgressBar = itemView.findViewById(R.id.progressAudio)
+        val waveformAudio: AudioWaveformView = itemView.findViewById(R.id.waveformAudio)
         val txtDuracaoAudio: TextView = itemView.findViewById(R.id.txtDuracaoAudio)
         val layoutArquivo: LinearLayout = itemView.findViewById(R.id.layoutArquivo)
         val imgIconeArquivo: ImageView = itemView.findViewById(R.id.imgIconeArquivo)
@@ -53,12 +57,11 @@ class MensagemAdapter(
         val txtTexto: TextView = itemView.findViewById(R.id.txtTextoMensagem)
         val txtEditada: TextView = itemView.findViewById(R.id.txtEditada)
         val txtHora: TextView = itemView.findViewById(R.id.txtHora)
+        val imgCheck: ImageView = itemView.findViewById(R.id.imgCheck)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MensagemViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(
-            R.layout.item_mensagem, parent, false
-        )
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_mensagem, parent, false)
         return MensagemViewHolder(view)
     }
 
@@ -67,6 +70,11 @@ class MensagemAdapter(
         val uidAtual = FirebaseAuth.getInstance().currentUser?.uid ?: ""
         val ehMinha = msg.remetenteId == uidAtual
         val ctx = holder.itemView.context
+
+        if (posicaoTocando != position) {
+            holder.btnPlayAudio.setImageResource(R.drawable.ic_play)
+            holder.waveformAudio.setProgress(0f)
+        }
 
         if (msg.tipo == "sistema") {
             holder.linha.gravity = Gravity.CENTER
@@ -79,15 +87,15 @@ class MensagemAdapter(
             holder.layoutAudio.visibility = View.GONE
             holder.layoutArquivo.visibility = View.GONE
             holder.txtEditada.visibility = View.GONE
+            holder.imgCheck.visibility = View.GONE
 
             holder.txtTexto.visibility = View.VISIBLE
-            holder.txtTexto.setTextColor(0xFF888888.toInt())
-            holder.txtTexto.textSize = 12f
+            holder.txtTexto.setTextColor(0xFF8696A0.toInt())
+            holder.txtTexto.textSize = 13f
             holder.txtTexto.gravity = Gravity.CENTER
             holder.txtTexto.setTypeface(null, Typeface.ITALIC)
             holder.txtHora.visibility = View.GONE
 
-            // ⭐ TRADUÇÃO DE MENSAGENS DE SISTEMA
             val txt = msg.texto
             if (txt.startsWith("@SYS@")) {
                 try {
@@ -98,7 +106,6 @@ class MensagemAdapter(
                     for (i in 0 until paramsArray.length()) {
                         paramsList.add(paramsArray.getString(i))
                     }
-
                     val resId = when (key) {
                         "sys_entrou_grupo" -> R.string.sys_entrou_grupo
                         "sys_removido_grupo" -> R.string.sys_removido_grupo
@@ -107,17 +114,13 @@ class MensagemAdapter(
                         "sys_foto_atualizada" -> R.string.sys_foto_atualizada
                         else -> 0
                     }
-
-                    if (resId != 0) {
-                        holder.txtTexto.text = ctx.getString(resId, *paramsList.toTypedArray())
-                    } else {
-                        holder.txtTexto.text = txt
-                    }
+                    if (resId != 0) holder.txtTexto.text = ctx.getString(resId, *paramsList.toTypedArray())
+                    else holder.txtTexto.text = txt
                 } catch (e: Exception) {
-                    holder.txtTexto.text = txt // Fallback se der erro no JSON
+                    holder.txtTexto.text = txt
                 }
             } else {
-                holder.txtTexto.text = txt // Mensagens de sistema antigas (já salvas em texto puro)
+                holder.txtTexto.text = txt
             }
             return
         }
@@ -148,10 +151,8 @@ class MensagemAdapter(
         when (msg.tipo) {
             "imagem" -> {
                 holder.imgMensagem.visibility = View.VISIBLE
-                Glide.with(ctx)
-                    .load(msg.urlMidia).fitCenter().into(holder.imgMensagem)
+                Glide.with(ctx).load(msg.urlMidia).fitCenter().into(holder.imgMensagem)
                 holder.imgMensagem.setOnClickListener { onImagemClick(msg.urlMidia) }
-
                 if (msg.texto.isNotBlank()) {
                     holder.txtTexto.visibility = View.VISIBLE
                     holder.txtTexto.text = msg.texto
@@ -159,20 +160,20 @@ class MensagemAdapter(
             }
             "audio" -> {
                 holder.layoutAudio.visibility = View.VISIBLE
-                holder.txtDuracaoAudio.text = formatarDuracao(msg.duracaoMs)
-                holder.progressAudio.progress = 0
+                val seg = (msg.duracaoMs / 1000).toInt()
+                holder.txtDuracaoAudio.text = String.format("%d:%02d", seg / 60, seg % 60)
+                holder.waveformAudio.setProgress(0f)
+                holder.btnPlayAudio.setImageResource(R.drawable.ic_play)
+
                 holder.btnPlayAudio.setOnClickListener {
-                    tocarAudio(holder, msg.urlMidia)
+                    tocarAudio(holder, position, msg.urlMidia)
                 }
             }
             "arquivo" -> {
                 holder.layoutArquivo.visibility = View.VISIBLE
                 holder.txtNomeArquivo.text = msg.nomeArquivo.ifEmpty { ctx.getString(R.string.chat_arquivo_indisponivel) }
                 holder.txtTamanhoArquivo.text = formatarTamanho(ctx, msg.tamanhoArquivo)
-
-                holder.layoutArquivo.setOnClickListener {
-                    onArquivoClick(msg)
-                }
+                holder.layoutArquivo.setOnClickListener { onArquivoClick(msg) }
             }
             else -> {
                 holder.txtTexto.visibility = View.VISIBLE
@@ -185,60 +186,124 @@ class MensagemAdapter(
             holder.txtEditada.text = ctx.getString(R.string.chat_editada)
         }
 
+        // ⭐ CONFIGURAÇÃO DE CORES (INTEGRA BLUE)
         if (ehMinha) {
             holder.linha.gravity = Gravity.END
-            holder.cardFoto.visibility = View.GONE
-            holder.bubble.setBackgroundResource(R.drawable.bubble_minha)
-            holder.txtTexto.setTextColor(android.graphics.Color.WHITE)
-            holder.txtHora.setTextColor(0xB3FFFFFF.toInt())
+            holder.bubble.setBackgroundResource(R.drawable.bg_msg_out) // Azul Escuro Integra
+            holder.txtTexto.setTextColor(0xFFE9EDEF.toInt()) // Texto Branco
             holder.txtNome.visibility = View.GONE
-            holder.txtDuracaoAudio.setTextColor(android.graphics.Color.WHITE)
-            holder.txtReplyNome.setTextColor(android.graphics.Color.WHITE)
-            holder.txtReplyTexto.setTextColor(0xCCFFFFFF.toInt())
-            holder.txtNomeArquivo.setTextColor(android.graphics.Color.WHITE)
-            holder.txtTamanhoArquivo.setTextColor(0xCCFFFFFF.toInt())
-            holder.imgIconeArquivo.imageTintList =
-                android.content.res.ColorStateList.valueOf(android.graphics.Color.WHITE)
+
+            holder.txtHora.setTextColor(0xFF99FFFFFF.toInt()) // Branco transparente
+            holder.txtEditada.setTextColor(0xFF99FFFFFF.toInt())
+
+            // ⭐ CHECK DE ENVIADO (Tique único branco/cinza)
+            holder.imgCheck.visibility = View.VISIBLE
+            holder.imgCheck.setImageResource(R.drawable.ic_check) // Ícone de 1 check
+            holder.imgCheck.imageTintList = android.content.res.ColorStateList.valueOf(0xFF99FFFFFF.toInt())
+
+            // Cores do Áudio (Minha)
+            holder.txtDuracaoAudio.setTextColor(0xFF99FFFFFF.toInt())
+            holder.btnPlayAudio.imageTintList = android.content.res.ColorStateList.valueOf(0xFFE9EDEF.toInt())
+            holder.waveformAudio.corTocada = 0xFFE9EDEF.toInt() // Onda Branca
+            holder.waveformAudio.corNaoTocada = 0x66FFFFFF // Branco transparente
+
             params.marginStart = 40
             params.marginEnd = 0
+
         } else {
             holder.linha.gravity = Gravity.START
-            holder.bubble.setBackgroundResource(R.drawable.bubble_outra)
-            holder.txtTexto.setTextColor(0xFF333333.toInt())
-            holder.txtHora.setTextColor(0xFF888888.toInt())
-            holder.txtDuracaoAudio.setTextColor(0xFF333333.toInt())
-            holder.txtReplyNome.setTextColor(0xFF0D226B.toInt())
-            holder.txtReplyTexto.setTextColor(0xFF666666.toInt())
-            holder.txtNomeArquivo.setTextColor(0xFF0D226B.toInt())
-            holder.txtTamanhoArquivo.setTextColor(0xFF666666.toInt())
-            holder.imgIconeArquivo.imageTintList =
-                android.content.res.ColorStateList.valueOf(0xFF0D226B.toInt())
+            holder.bubble.setBackgroundResource(R.drawable.bg_msg_in) // Cinza Escuro WhatsApp
+            holder.txtTexto.setTextColor(0xFFE9EDEF.toInt()) // Texto Branco
+            holder.txtNome.visibility = View.VISIBLE
 
-            holder.cardFoto.visibility = View.VISIBLE
-            val fotoUrl = fotosUsuarios[msg.remetenteId] ?: ""
-            if (fotoUrl.isNotEmpty()) {
-                Glide.with(ctx)
-                    .load(fotoUrl).circleCrop().into(holder.imgFoto)
-            } else {
-                holder.imgFoto.setImageResource(R.drawable.ic_person)
-            }
+            holder.txtHora.setTextColor(0xFF8696A0.toInt()) // Cinza claro
+            holder.txtEditada.setTextColor(0xFF8696A0.toInt())
 
-            if (msg.nomeRemetente.isNotEmpty()) {
-                holder.txtNome.visibility = View.VISIBLE
-                holder.txtNome.text = msg.nomeRemetente
-            } else {
-                holder.txtNome.visibility = View.GONE
-            }
+            // Não mostra check nas mensagens recebidas
+            holder.imgCheck.visibility = View.GONE
+
+            // Cores do Áudio (Do outro) - Azul Claro do Integra
+            holder.txtDuracaoAudio.setTextColor(0xFF8696A0.toInt())
+            holder.btnPlayAudio.imageTintList = android.content.res.ColorStateList.valueOf(0xFF1E88E5.toInt()) // Azul
+            holder.waveformAudio.corTocada = 0xFF1E88E5.toInt() // Onda Azul Claro
+            holder.waveformAudio.corNaoTocada = 0xFF8696A0.toInt() // Cinza
+
+            holder.cardFoto.visibility = View.GONE // Esconde a foto em conversas privadas
 
             params.marginStart = 0
             params.marginEnd = 40
         }
 
         holder.bubble.layoutParams = params
-
         holder.bubble.setOnLongClickListener {
             onLongClick(msg)
             true
+        }
+    }
+
+    private fun tocarAudio(holder: MensagemViewHolder, position: Int, url: String) {
+        try {
+            if (posicaoTocando == position) {
+                pararAudioAtual()
+                return
+            }
+
+            pararAudioAtual()
+
+            posicaoTocando = position
+            holder.btnPlayAudio.setImageResource(R.drawable.ic_pause)
+            holder.waveformAudio.setProgress(0f)
+
+            mediaPlayer = MediaPlayer()
+            mediaPlayer?.setDataSource(url)
+            mediaPlayer?.prepareAsync()
+
+            mediaPlayer?.setOnPreparedListener { mp ->
+                mp.start()
+                val duracao = mp.duration
+                handlerAudio = Handler(Looper.getMainLooper())
+
+                handlerAudio?.post(object : Runnable {
+                    override fun run() {
+                        try {
+                            if (mp.isPlaying) {
+                                val progresso = mp.currentPosition.toFloat() / duracao.toFloat()
+                                holder.waveformAudio.setProgress(progresso)
+                                handlerAudio?.postDelayed(this, 50)
+                            }
+                        } catch (_: Exception) {}
+                    }
+                })
+            }
+
+            mediaPlayer?.setOnCompletionListener { mp ->
+                pararAudioAtual()
+                mp.release()
+            }
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun pararAudioAtual() {
+        handlerAudio?.removeCallbacksAndMessages(null)
+        mediaPlayer?.let {
+            if (it.isPlaying) it.stop()
+            it.release()
+        }
+        mediaPlayer = null
+
+        if (posicaoTocando != -1) {
+            notifyItemChanged(posicaoTocando)
+            posicaoTocando = -1
+        }
+    }
+
+    override fun onViewRecycled(holder: MensagemViewHolder) {
+        super.onViewRecycled(holder)
+        if (holder.adapterPosition == posicaoTocando) {
+            pararAudioAtual()
         }
     }
 
@@ -251,47 +316,6 @@ class MensagemAdapter(
             kb >= 1 -> String.format("%.0f KB", kb)
             else -> "$bytes B"
         }
-    }
-
-    private fun tocarAudio(holder: MensagemViewHolder, url: String) {
-        try {
-            val mp = MediaPlayer()
-            mp.setDataSource(url)
-            mp.prepare()
-            mp.start()
-
-            holder.btnPlayAudio.rotation = 90f
-
-            val handler = Handler(Looper.getMainLooper())
-            val duracao = mp.duration
-
-            handler.post(object : Runnable {
-                override fun run() {
-                    try {
-                        if (mp.isPlaying) {
-                            holder.progressAudio.progress = (mp.currentPosition * 100 / duracao)
-                            handler.postDelayed(this, 200)
-                        }
-                    } catch (_: Exception) { }
-                }
-            })
-
-            mp.setOnCompletionListener {
-                holder.progressAudio.progress = 0
-                holder.btnPlayAudio.rotation = 0f
-                mp.release()
-                handler.removeCallbacksAndMessages(null)
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
-
-    private fun formatarDuracao(ms: Long): String {
-        val seg = (ms / 1000).toInt()
-        val min = seg / 60
-        val s = seg % 60
-        return String.format("%02d:%02d", min, s)
     }
 
     override fun getItemCount(): Int = mensagens.size

@@ -1,13 +1,15 @@
 package com.example.plataformaremota
 
+import android.Manifest
 import android.app.Dialog
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.provider.OpenableColumns
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.Window
@@ -15,12 +17,12 @@ import android.view.WindowManager
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -41,30 +43,42 @@ import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.io.File
+import java.util.Timer
+import java.util.TimerTask
 
 class ChatActivity : BaseActivity() {
 
+    // UI - Header
     private lateinit var btnVoltar: ImageView
     private lateinit var btnInfo: ImageView
-    private lateinit var btnAnexar: ImageView
-    private lateinit var btnGravarAudio: ImageView
+    private lateinit var btnVideoCall: ImageView
+    private lateinit var btnVoiceCall: ImageView
     private lateinit var imgFotoHeader: ImageView
     private lateinit var txtNomeChat: TextView
+
+    // UI - Lista e Input
     private lateinit var rvMensagens: RecyclerView
     private lateinit var edtMensagem: EditText
     private lateinit var btnEnviar: MaterialButton
+    private lateinit var btnAnexar: ImageView
+    private lateinit var btnCamera: ImageView
+    private lateinit var btnGravarAudio: ImageView
+    private lateinit var layoutInputMensagem: LinearLayout
 
+    // UI - Reply
     private lateinit var layoutReplyBar: LinearLayout
     private lateinit var txtReplyBarNome: TextView
     private lateinit var txtReplyBarTexto: TextView
     private lateinit var btnFecharReply: ImageView
 
-    private lateinit var layoutAudioReady: LinearLayout
-    private lateinit var btnCancelarAudioReady: ImageView
-    private lateinit var btnPlayAudioReady: ImageView
-    private lateinit var progressAudioReady: ProgressBar
-    private lateinit var txtDuracaoReady: TextView
+    // UI - Gravação
+    private lateinit var layoutGravando: LinearLayout
+    private lateinit var txtTempoGravando: TextView
+    private lateinit var waveformGravando: AudioWaveformView
+    private lateinit var btnCancelarGravacao: ImageView
+    private lateinit var btnEnviarAudioGravado: ImageView
 
+    // Lógica e Dados
     private lateinit var adapter: MensagemAdapter
     private lateinit var repository: ChatRepository
 
@@ -81,18 +95,16 @@ class ChatActivity : BaseActivity() {
     private var mensagensAtuais: List<Mensagem> = emptyList()
 
     private var mensagemRespondendo: Mensagem? = null
-
-    private var estaGravando: Boolean = false
-    private var arquivoAudio: File? = null
-    private var duracaoAudio: Long = 0L
-    private var recorderHelper: AudioRecorderHelper? = null
-
-    private var mediaPlayerPreview: MediaPlayer? = null
-    private var tocandoPreview: Boolean = false
-    private val handler = Handler(Looper.getMainLooper())
-
     private var estaBloqueado: Boolean = false
 
+    // Gravação de Áudio
+    private var estaGravando: Boolean = false
+    private var arquivoAudio: File? = null
+    private var recorderHelper: AudioRecorderHelper? = null
+    private var timerGravacao: Timer? = null
+    private var tempoGravacaoMs: Long = 0L
+
+    // Launchers
     private val pickImageLauncher = registerForActivityResult(
         ActivityResultContracts.PickVisualMedia()
     ) { uri ->
@@ -112,33 +124,21 @@ class ChatActivity : BaseActivity() {
         }
     }
 
+    private val recordAudioPermLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { concedido ->
+        if (concedido) {
+            iniciarGravacao()
+        } else {
+            Toast.makeText(this, getString(R.string.chat_erro_mic), Toast.LENGTH_SHORT).show()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat)
 
         repository = ChatRepository()
-
-        btnVoltar = findViewById(R.id.btnVoltarChat)
-        btnInfo = findViewById(R.id.btnInfoChat)
-        btnAnexar = findViewById(R.id.btnAnexar)
-        btnGravarAudio = findViewById(R.id.btnGravarAudio)
-        imgFotoHeader = findViewById(R.id.imgFotoChatHeader)
-        txtNomeChat = findViewById(R.id.txtNomeChat)
-        rvMensagens = findViewById(R.id.rvMensagens)
-        edtMensagem = findViewById(R.id.edtMensagem)
-        btnEnviar = findViewById(R.id.btnEnviar)
-
-        layoutReplyBar = findViewById(R.id.layoutReplyBar)
-        txtReplyBarNome = findViewById(R.id.txtReplyBarNome)
-        txtReplyBarTexto = findViewById(R.id.txtReplyBarTexto)
-        btnFecharReply = findViewById(R.id.btnFecharReply)
-
-        layoutAudioReady = findViewById(R.id.layoutAudioReady)
-        btnCancelarAudioReady = findViewById(R.id.btnCancelarAudioReady)
-        btnPlayAudioReady = findViewById(R.id.btnPlayAudioReady)
-        progressAudioReady = findViewById(R.id.progressAudioReady)
-        txtDuracaoReady = findViewById(R.id.txtDuracaoReady)
-
         chatId = intent.getStringExtra("chatId") ?: ""
 
         if (chatId.isEmpty()) {
@@ -147,12 +147,51 @@ class ChatActivity : BaseActivity() {
             return
         }
 
+        inicializarViews()
         configurarRecyclerView()
         carregarDadosChat()
         ouvirMensagens()
+        configurarListeners()
+    }
 
+    private fun inicializarViews() {
+        // Header
+        btnVoltar = findViewById(R.id.btnVoltarChat)
+        btnInfo = findViewById(R.id.btnInfoChat)
+        btnVideoCall = findViewById(R.id.btnVideoCall)
+        btnVoiceCall = findViewById(R.id.btnVoiceCall)
+        imgFotoHeader = findViewById(R.id.imgFotoChatHeader)
+        txtNomeChat = findViewById(R.id.txtNomeChat)
+
+        // Lista e Input
+        rvMensagens = findViewById(R.id.rvMensagens)
+        layoutInputMensagem = findViewById(R.id.layoutInputMensagem)
+        edtMensagem = findViewById(R.id.edtMensagem)
+        btnEnviar = findViewById(R.id.btnEnviar)
+        btnAnexar = findViewById(R.id.btnAnexar)
+        btnCamera = findViewById(R.id.btnCamera)
+        btnGravarAudio = findViewById(R.id.btnGravarAudio)
+
+        // Reply
+        layoutReplyBar = findViewById(R.id.layoutReplyBar)
+        txtReplyBarNome = findViewById(R.id.txtReplyBarNome)
+        txtReplyBarTexto = findViewById(R.id.txtReplyBarTexto)
+        btnFecharReply = findViewById(R.id.btnFecharReply)
+
+        // Gravação
+        layoutGravando = findViewById(R.id.layoutGravando)
+        txtTempoGravando = findViewById(R.id.txtTempoGravando)
+        waveformGravando = findViewById(R.id.waveformGravando)
+        btnCancelarGravacao = findViewById(R.id.btnCancelarGravacao)
+        btnEnviarAudioGravado = findViewById(R.id.btnEnviarAudioGravado)
+    }
+
+    private fun configurarListeners() {
         btnVoltar.setOnClickListener { finish() }
         btnEnviar.setOnClickListener { enviar() }
+        btnFecharReply.setOnClickListener { cancelarReply() }
+        btnCancelarGravacao.setOnClickListener { cancelarGravacao() }
+        btnEnviarAudioGravado.setOnClickListener { pararEEnviarGravacao() }
 
         btnAnexar.setOnClickListener {
             if (estaBloqueado) {
@@ -162,7 +201,22 @@ class ChatActivity : BaseActivity() {
             abrirBottomSheetAnexo()
         }
 
-        btnGravarAudio.setOnClickListener { toggleGravacao() }
+        btnCamera.setOnClickListener {
+            if (estaBloqueado) return@setOnClickListener
+            pickImageLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+        }
+
+        btnGravarAudio.setOnClickListener {
+            if (estaBloqueado) {
+                Toast.makeText(this, getString(R.string.chat_erro_bloqueado_enviar), Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+                recordAudioPermLauncher.launch(Manifest.permission.RECORD_AUDIO)
+            } else {
+                iniciarGravacao()
+            }
+        }
 
         btnInfo.setOnClickListener {
             if (ehGrupoAtual) {
@@ -172,7 +226,6 @@ class ChatActivity : BaseActivity() {
             } else {
                 val uidAtual = auth.currentUser?.uid ?: return@setOnClickListener
                 val outroUid = participantesAtuais.firstOrNull { it != uidAtual }
-
                 if (outroUid != null) {
                     val intent = Intent(this, PerfilUsuarioActivity::class.java)
                     intent.putExtra("uidUsuario", outroUid)
@@ -184,88 +237,167 @@ class ChatActivity : BaseActivity() {
             }
         }
 
-        btnFecharReply.setOnClickListener { cancelarReply() }
-        btnCancelarAudioReady.setOnClickListener { cancelarAudio() }
-        btnPlayAudioReady.setOnClickListener { togglePlayPreview() }
+        btnVideoCall.setOnClickListener {
+            Toast.makeText(this, "Chamada de vídeo em desenvolvimento 📹", Toast.LENGTH_SHORT).show()
+        }
+        btnVoiceCall.setOnClickListener {
+            Toast.makeText(this, "Chamada de voz em desenvolvimento 📞", Toast.LENGTH_SHORT).show()
+        }
+
+        // ⭐ Lógica de alternar Microfone e Botão de Enviar
+        edtMensagem.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                if (s.toString().trim().isNotEmpty()) {
+                    btnEnviar.visibility = View.VISIBLE
+                    btnGravarAudio.visibility = View.GONE
+                } else {
+                    btnEnviar.visibility = View.GONE
+                    btnGravarAudio.visibility = View.VISIBLE
+                }
+            }
+        })
     }
 
-    override fun onResume() {
-        super.onResume()
-        activityAtiva = true
-        ChatAtivoManager.chatAtivo = chatId
-        resetarContadorNaoLidas()
+    // ─────────────────────────────────────────────
+    // GRAVAÇÃO DE ÁUDIO
+    // ─────────────────────────────────────────────
+    private fun iniciarGravacao() {
+        recorderHelper = AudioRecorderHelper(this)
+        arquivoAudio = recorderHelper?.iniciarGravacao()
 
-        lifecycleScope.launch {
-            estaBloqueado = repository.estouBloqueado(chatId)
-            atualizarEstadoBloqueio()
+        if (arquivoAudio != null) {
+            estaGravando = true
+            tempoGravacaoMs = 0L
+
+            layoutInputMensagem.visibility = View.GONE
+            layoutReplyBar.visibility = View.GONE
+            layoutGravando.visibility = View.VISIBLE
+
+            waveformGravando.iniciarGravacaoAoVivo()
+            txtTempoGravando.text = "0:00"
+
+            timerGravacao = Timer()
+            timerGravacao?.scheduleAtFixedRate(object : TimerTask() {
+                override fun run() {
+                    tempoGravacaoMs += 100
+                    val seg = (tempoGravacaoMs / 1000).toInt()
+                    val tempoStr = String.format("%d:%02d", seg / 60, seg % 60)
+
+                    val amp = recorderHelper?.getAmplitude() ?: 0
+                    val normalizado = (amp.toFloat() / 32767f).coerceIn(0.1f, 1f)
+
+                    runOnUiThread {
+                        txtTempoGravando.text = tempoStr
+                        waveformGravando.adicionarAmplitude(normalizado)
+                    }
+                }
+            }, 0, 100)
+        } else {
+            Toast.makeText(this, getString(R.string.chat_erro_mic), Toast.LENGTH_SHORT).show()
         }
     }
 
-    override fun onPause() {
-        super.onPause()
-        activityAtiva = false
-        ChatAtivoManager.chatAtivo = null
+    private fun cancelarGravacao() {
+        timerGravacao?.cancel()
+        estaGravando = false
+        recorderHelper?.cancelar()
+        arquivoAudio?.delete()
+        arquivoAudio = null
+
+        layoutInputMensagem.visibility = View.VISIBLE
+        layoutGravando.visibility = View.GONE
+        edtMensagem.isEnabled = true
     }
 
-    private fun atualizarEstadoBloqueio() {
-        if (!estaBloqueado) {
-            edtMensagem.isEnabled = true
-            edtMensagem.hint = getString(R.string.chat_input_hint)
-            edtMensagem.alpha = 1f
-            btnEnviar.isEnabled = true
-            btnAnexar.isEnabled = true
-            btnAnexar.alpha = 1f
-            btnGravarAudio.isEnabled = true
-            btnGravarAudio.alpha = 1f
-            return
+    private fun pararEEnviarGravacao() {
+        timerGravacao?.cancel()
+        estaGravando = false
+
+        val (arquivo, duracao) = recorderHelper?.pararGravacao() ?: Pair(null, 0L)
+
+        layoutInputMensagem.visibility = View.VISIBLE
+        layoutGravando.visibility = View.GONE
+        edtMensagem.isEnabled = true
+
+        if (arquivo != null && duracao > 1000) {
+            enviarAudio(arquivo, duracao)
+        } else {
+            Toast.makeText(this, getString(R.string.chat_audio_curto), Toast.LENGTH_SHORT).show()
+            arquivo?.delete()
         }
+    }
+
+    private fun enviarAudio(arquivo: File, duracao: Long) {
+        Toast.makeText(this, getString(R.string.chat_enviando_audio), Toast.LENGTH_SHORT).show()
+
+        try {
+            MediaManager.get().upload(Uri.fromFile(arquivo))
+                .unsigned("fotos_perfil")
+                .option("folder", "chats/$chatId/audios")
+                .option("resource_type", "video")
+                .callback(object : UploadCallback {
+                    override fun onStart(requestId: String?) { }
+                    override fun onProgress(requestId: String?, bytes: Long, totalBytes: Long) { }
+
+                    override fun onSuccess(requestId: String?, resultData: MutableMap<Any?, Any?>?) {
+                        val url = resultData?.get("secure_url") as? String ?: return
+                        val secureUrl = url.replace("http://", "https://")
+
+                        lifecycleScope.launch {
+                            val ok = repository.enviarAudio(chatId, secureUrl, duracao)
+                            if (ok) {
+                                arquivo.delete()
+                            } else {
+                                Toast.makeText(this@ChatActivity, getString(R.string.chat_erro_audio_salvar), Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+
+                    override fun onError(requestId: String?, error: ErrorInfo?) {
+                        Toast.makeText(this@ChatActivity, getString(R.string.geral_erro, error?.description ?: ""), Toast.LENGTH_LONG).show()
+                    }
+
+                    override fun onReschedule(requestId: String?, error: ErrorInfo?) { }
+                })
+                .dispatch()
+        } catch (e: Exception) {
+            Toast.makeText(this, getString(R.string.geral_erro, e.message ?: ""), Toast.LENGTH_LONG).show()
+        }
+    }
+
+    // ─────────────────────────────────────────────
+    // MENSAGENS DE TEXTO E REPLY
+    // ─────────────────────────────────────────────
+    private fun enviar() {
+        if (!podeEnviar()) return
+
+        val texto = edtMensagem.text.toString().trim()
+        if (texto.isEmpty()) return
+        HapticHelper.leve(this)
+
+        val reply = mensagemRespondendo
+        edtMensagem.setText("")
+        cancelarReply()
+        btnEnviar.isEnabled = false
+
+        // Reseta o botão para o microfone
+        btnEnviar.visibility = View.GONE
+        btnGravarAudio.visibility = View.VISIBLE
 
         lifecycleScope.launch {
-            val euBloqueei = repository.euBloqueei(chatId)
-
-            edtMensagem.isEnabled = false
-            edtMensagem.text?.clear()
-            edtMensagem.alpha = 0.5f
-            btnEnviar.isEnabled = false
-            btnAnexar.isEnabled = false
-            btnAnexar.alpha = 0.4f
-            btnGravarAudio.isEnabled = false
-            btnGravarAudio.alpha = 0.4f
-
-            edtMensagem.hint = if (euBloqueei) {
-                getString(R.string.chat_input_bloqueado)
+            val sucesso = if (reply != null) {
+                repository.enviarMensagemComReply(chatId, texto, reply)
             } else {
-                getString(R.string.chat_input_nao_pode)
+                repository.enviarMensagem(chatId, texto)
+            }
+            btnEnviar.isEnabled = true
+
+            if (!sucesso) {
+                Toast.makeText(this@ChatActivity, getString(R.string.chat_erro_enviar), Toast.LENGTH_SHORT).show()
             }
         }
-    }
-
-    private fun podeEnviar(): Boolean {
-        if (estaBloqueado) {
-            Toast.makeText(this, getString(R.string.chat_erro_bloqueado_enviar), Toast.LENGTH_SHORT).show()
-            return false
-        }
-        return true
-    }
-
-    private fun abrirBottomSheetAnexo() {
-        val dialog = BottomSheetDialog(this)
-        val view = layoutInflater.inflate(R.layout.bottom_sheet_anexo, null)
-
-        view.findViewById<View>(R.id.opcaoImagem).setOnClickListener {
-            dialog.dismiss()
-            pickImageLauncher.launch(
-                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-            )
-        }
-
-        view.findViewById<View>(R.id.opcaoArquivo).setOnClickListener {
-            dialog.dismiss()
-            pickArquivoLauncher.launch(arrayOf("*/*"))
-        }
-
-        dialog.setContentView(view)
-        dialog.show()
     }
 
     private fun mostrarReply(msg: Mensagem) {
@@ -289,6 +421,26 @@ class ChatActivity : BaseActivity() {
     private fun cancelarReply() {
         mensagemRespondendo = null
         layoutReplyBar.visibility = LinearLayout.GONE
+    }
+
+    private fun abrirMenuMensagem(msg: Mensagem) {
+        val uid = auth.currentUser?.uid ?: return
+        val ehMinha = msg.remetenteId == uid
+
+        val opcoes = mutableListOf<String>()
+        opcoes.add(getString(R.string.chat_menu_responder))
+        if (ehMinha && msg.tipo == "texto") opcoes.add(getString(R.string.chat_menu_editar))
+        if (ehMinha) opcoes.add(getString(R.string.chat_menu_deletar))
+
+        AlertDialog.Builder(this)
+            .setItems(opcoes.toTypedArray()) { _, which ->
+                when (opcoes[which]) {
+                    getString(R.string.chat_menu_responder) -> mostrarReply(msg)
+                    getString(R.string.chat_menu_editar) -> abrirDialogEditar(msg)
+                    getString(R.string.chat_menu_deletar) -> confirmarDeletar(msg)
+                }
+            }
+            .show()
     }
 
     private fun abrirDialogEditar(msg: Mensagem) {
@@ -340,186 +492,25 @@ class ChatActivity : BaseActivity() {
             .show()
     }
 
-    private fun abrirMenuMensagem(msg: Mensagem) {
-        val uid = auth.currentUser?.uid ?: return
-        val ehMinha = msg.remetenteId == uid
+    // ─────────────────────────────────────────────
+    // ARQUIVOS E IMAGENS
+    // ─────────────────────────────────────────────
+    private fun abrirBottomSheetAnexo() {
+        val dialog = BottomSheetDialog(this)
+        val view = layoutInflater.inflate(R.layout.bottom_sheet_anexo, null)
 
-        val opcoes = mutableListOf<String>()
-        opcoes.add(getString(R.string.chat_menu_responder))
-        if (ehMinha && msg.tipo == "texto") opcoes.add(getString(R.string.chat_menu_editar))
-        if (ehMinha) opcoes.add(getString(R.string.chat_menu_deletar))
-
-        AlertDialog.Builder(this)
-            .setItems(opcoes.toTypedArray()) { _, which ->
-                when (opcoes[which]) {
-                    getString(R.string.chat_menu_responder) -> mostrarReply(msg)
-                    getString(R.string.chat_menu_editar) -> abrirDialogEditar(msg)
-                    getString(R.string.chat_menu_deletar) -> confirmarDeletar(msg)
-                }
-            }
-            .show()
-    }
-
-    private fun toggleGravacao() {
-        if (estaBloqueado) {
-            Toast.makeText(this, getString(R.string.chat_erro_bloqueado_enviar), Toast.LENGTH_SHORT).show()
-            return
+        view.findViewById<View>(R.id.opcaoImagem).setOnClickListener {
+            dialog.dismiss()
+            pickImageLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
         }
 
-        if (!estaGravando && arquivoAudio == null) {
-            recorderHelper = AudioRecorderHelper(this)
-            val arquivo = recorderHelper?.iniciarGravacao()
-
-            if (arquivo != null) {
-                estaGravando = true
-                btnGravarAudio.setImageResource(R.drawable.ic_stop)
-                btnGravarAudio.setColorFilter(android.graphics.Color.RED)
-                edtMensagem.isEnabled = false
-                edtMensagem.hint = getString(R.string.chat_input_gravando)
-            } else {
-                Toast.makeText(this, getString(R.string.chat_erro_mic), Toast.LENGTH_LONG).show()
-            }
-        } else if (estaGravando) {
-            val (arquivo, duracao) = recorderHelper?.pararGravacao() ?: Pair(null, 0L)
-            estaGravando = false
-            btnGravarAudio.setImageResource(R.drawable.ic_mic)
-            btnGravarAudio.clearColorFilter()
-
-            if (arquivo != null && duracao > 500) {
-                arquivoAudio = arquivo
-                duracaoAudio = duracao
-                mostrarPreviewAudio()
-            } else {
-                Toast.makeText(this, getString(R.string.chat_audio_curto), Toast.LENGTH_SHORT).show()
-                arquivo?.delete()
-                edtMensagem.isEnabled = true
-                edtMensagem.hint = getString(R.string.chat_input_hint)
-            }
+        view.findViewById<View>(R.id.opcaoArquivo).setOnClickListener {
+            dialog.dismiss()
+            pickArquivoLauncher.launch(arrayOf("*/*"))
         }
-    }
 
-    private fun mostrarPreviewAudio() {
-        btnAnexar.visibility = LinearLayout.GONE
-        btnGravarAudio.visibility = LinearLayout.GONE
-        edtMensagem.visibility = LinearLayout.GONE
-        layoutAudioReady.visibility = LinearLayout.VISIBLE
-        txtDuracaoReady.text = formatarDuracao(duracaoAudio)
-        progressAudioReady.progress = 0
-    }
-
-    private fun cancelarAudio() {
-        mediaPlayerPreview?.release()
-        mediaPlayerPreview = null
-        tocandoPreview = false
-        handler.removeCallbacksAndMessages(null)
-
-        arquivoAudio?.delete()
-        arquivoAudio = null
-        duracaoAudio = 0L
-
-        layoutAudioReady.visibility = LinearLayout.GONE
-        btnAnexar.visibility = LinearLayout.VISIBLE
-        btnGravarAudio.visibility = LinearLayout.VISIBLE
-        edtMensagem.visibility = LinearLayout.VISIBLE
-        edtMensagem.isEnabled = true
-        edtMensagem.hint = getString(R.string.chat_input_hint)
-    }
-
-    private fun togglePlayPreview() {
-        val arquivo = arquivoAudio ?: return
-        if (!arquivo.exists()) return
-
-        if (tocandoPreview) {
-            mediaPlayerPreview?.stop()
-            mediaPlayerPreview?.release()
-            mediaPlayerPreview = null
-            tocandoPreview = false
-            progressAudioReady.progress = 0
-            btnPlayAudioReady.rotation = 0f
-        } else {
-            try {
-                mediaPlayerPreview = MediaPlayer().apply {
-                    setDataSource(arquivo.absolutePath)
-                    prepare()
-                    start()
-                }
-                tocandoPreview = true
-                btnPlayAudioReady.rotation = 90f
-
-                val mp = mediaPlayerPreview!!
-                val dur = mp.duration
-
-                handler.post(object : Runnable {
-                    override fun run() {
-                        try {
-                            if (mp.isPlaying) {
-                                progressAudioReady.progress = (mp.currentPosition * 100 / dur)
-                                handler.postDelayed(this, 200)
-                            }
-                        } catch (_: Exception) { }
-                    }
-                })
-
-                mp.setOnCompletionListener {
-                    progressAudioReady.progress = 0
-                    btnPlayAudioReady.rotation = 0f
-                    tocandoPreview = false
-                }
-            } catch (e: Exception) {
-                Toast.makeText(this, getString(R.string.chat_erro_tocar), Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-
-    private fun enviarAudio() {
-        val arquivo = arquivoAudio ?: return
-        val duracao = duracaoAudio
-
-        Toast.makeText(this, getString(R.string.chat_enviando_audio), Toast.LENGTH_SHORT).show()
-
-        try {
-            MediaManager.get().upload(Uri.fromFile(arquivo))
-                .unsigned("fotos_perfil")
-                .option("folder", "chats/$chatId/audios")
-                .option("resource_type", "video")
-                .callback(object : UploadCallback {
-                    override fun onStart(requestId: String?) { }
-                    override fun onProgress(requestId: String?, bytes: Long, totalBytes: Long) { }
-
-                    override fun onSuccess(requestId: String?, resultData: MutableMap<Any?, Any?>?) {
-                        val url = resultData?.get("secure_url") as? String
-                            ?: resultData?.get("url") as? String
-                            ?: return
-                        val secureUrl = url.replace("http://", "https://")
-
-                        lifecycleScope.launch {
-                            val ok = repository.enviarAudio(chatId, secureUrl, duracao)
-                            if (ok) {
-                                arquivoAudio?.delete()
-                                arquivoAudio = null
-                                duracaoAudio = 0L
-                                layoutAudioReady.visibility = LinearLayout.GONE
-                                btnAnexar.visibility = LinearLayout.VISIBLE
-                                btnGravarAudio.visibility = LinearLayout.VISIBLE
-                                edtMensagem.visibility = LinearLayout.VISIBLE
-                                edtMensagem.isEnabled = true
-                                edtMensagem.hint = getString(R.string.chat_input_hint)
-                            } else {
-                                Toast.makeText(this@ChatActivity, getString(R.string.chat_erro_audio_salvar), Toast.LENGTH_SHORT).show()
-                            }
-                        }
-                    }
-
-                    override fun onError(requestId: String?, error: ErrorInfo?) {
-                        Toast.makeText(this@ChatActivity, getString(R.string.geral_erro, error?.description ?: ""), Toast.LENGTH_LONG).show()
-                    }
-
-                    override fun onReschedule(requestId: String?, error: ErrorInfo?) { }
-                })
-                .dispatch()
-        } catch (e: Exception) {
-            Toast.makeText(this, getString(R.string.geral_erro, e.message ?: ""), Toast.LENGTH_LONG).show()
-        }
+        dialog.setContentView(view)
+        dialog.show()
     }
 
     private fun uploadArquivo(uri: Uri) {
@@ -545,19 +536,11 @@ class ChatActivity : BaseActivity() {
                     override fun onProgress(requestId: String?, bytes: Long, totalBytes: Long) { }
 
                     override fun onSuccess(requestId: String?, resultData: MutableMap<Any?, Any?>?) {
-                        val url = resultData?.get("secure_url") as? String
-                            ?: resultData?.get("url") as? String
-                            ?: return
+                        val url = resultData?.get("secure_url") as? String ?: return
                         val secureUrl = url.replace("http://", "https://")
 
                         lifecycleScope.launch {
-                            val ok = repository.enviarArquivo(
-                                chatId = chatId,
-                                url = secureUrl,
-                                nome = nomeComExtensao,
-                                tamanho = tamanho,
-                                mime = mime
-                            )
+                            val ok = repository.enviarArquivo(chatId, secureUrl, nomeComExtensao, tamanho, mime)
                             if (!ok) {
                                 Toast.makeText(this@ChatActivity, getString(R.string.chat_erro_arquivo_salvar), Toast.LENGTH_SHORT).show()
                             }
@@ -602,35 +585,207 @@ class ChatActivity : BaseActivity() {
         return tamanho
     }
 
-    private fun enviar() {
-        if (!podeEnviar()) return
+    private fun abrirImagemEmTelaCheia(url: String) {
+        val dialog = Dialog(this, android.R.style.Theme_Black_NoTitleBar_Fullscreen)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.setContentView(R.layout.dialog_imagem_cheia)
+        dialog.window?.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT)
 
-        if (arquivoAudio != null) {
-            enviarAudio()
+        val imgFull: ImageView = dialog.findViewById(R.id.imgFull)
+        val btnFechar: ImageView = dialog.findViewById(R.id.btnFecharImagem)
+        val btnBaixar: ImageView = dialog.findViewById(R.id.btnBaixarImagem)
+
+        Glide.with(this).load(url).into(imgFull)
+
+        btnFechar.setOnClickListener { dialog.dismiss() }
+        imgFull.setOnClickListener { dialog.dismiss() }
+        btnBaixar.setOnClickListener { baixarImagem(url) }
+
+        dialog.show()
+    }
+
+    private fun baixarImagem(url: String) {
+        Toast.makeText(this, getString(R.string.chat_baixando_imagem), Toast.LENGTH_SHORT).show()
+
+        lifecycleScope.launch {
+            try {
+                val bitmap = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                    val stream = java.net.URL(url).openStream()
+                    android.graphics.BitmapFactory.decodeStream(stream)
+                }
+
+                if (bitmap == null) {
+                    Toast.makeText(this@ChatActivity, getString(R.string.chat_erro_baixar), Toast.LENGTH_SHORT).show()
+                    return@launch
+                }
+
+                val nomeArquivo = "integra_${System.currentTimeMillis()}.jpg"
+                val valores = android.content.ContentValues().apply {
+                    put(android.provider.MediaStore.Images.Media.DISPLAY_NAME, nomeArquivo)
+                    put(android.provider.MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                        put(android.provider.MediaStore.Images.Media.RELATIVE_PATH, "Pictures/Integra")
+                    }
+                }
+
+                val uri = contentResolver.insert(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, valores)
+
+                if (uri != null) {
+                    contentResolver.openOutputStream(uri)?.use { out ->
+                        bitmap.compress(android.graphics.Bitmap.CompressFormat.JPEG, 95, out)
+                    }
+                    Toast.makeText(this@ChatActivity, getString(R.string.chat_audio_salvo), Toast.LENGTH_LONG).show()
+                } else {
+                    Toast.makeText(this@ChatActivity, getString(R.string.chat_erro_salvar), Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(this@ChatActivity, getString(R.string.geral_erro, e.message ?: ""), Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    private fun baixarEAbrirArquivo(msg: Mensagem) {
+        if (msg.urlMidia.isEmpty()) {
+            Toast.makeText(this, getString(R.string.chat_arquivo_indisponivel), Toast.LENGTH_SHORT).show()
             return
         }
 
-        val texto = edtMensagem.text.toString().trim()
-        if (texto.isEmpty()) return
-        HapticHelper.leve(this)
-
-        val reply = mensagemRespondendo
-        edtMensagem.setText("")
-        cancelarReply()
-        btnEnviar.isEnabled = false
+        Toast.makeText(this, getString(R.string.chat_abrindo_arquivo, msg.nomeArquivo), Toast.LENGTH_SHORT).show()
 
         lifecycleScope.launch {
-            val sucesso = if (reply != null) {
-                repository.enviarMensagemComReply(chatId, texto, reply)
-            } else {
-                repository.enviarMensagem(chatId, texto)
-            }
-            btnEnviar.isEnabled = true
+            try {
+                val arquivo = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                    baixarArquivoParaCache(msg.urlMidia, msg.nomeArquivo, msg.mimeType)
+                }
 
-            if (!sucesso) {
-                Toast.makeText(this@ChatActivity, getString(R.string.chat_erro_enviar), Toast.LENGTH_SHORT).show()
+                if (arquivo == null || !arquivo.exists()) {
+                    Toast.makeText(this@ChatActivity, getString(R.string.chat_arquivo_erro_baixar), Toast.LENGTH_LONG).show()
+                    return@launch
+                }
+
+                val uri = androidx.core.content.FileProvider.getUriForFile(this@ChatActivity, "$packageName.fileprovider", arquivo)
+
+                val intent = Intent(Intent.ACTION_VIEW).apply {
+                    setDataAndType(uri, msg.mimeType.ifEmpty { "*/*" })
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+
+                try {
+                    startActivity(intent)
+                } catch (e: Exception) {
+                    try {
+                        val fallback = Intent(Intent.ACTION_VIEW).apply {
+                            setDataAndType(uri, "*/*")
+                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        }
+                        startActivity(fallback)
+                    } catch (_: Exception) {
+                        Toast.makeText(this@ChatActivity, getString(R.string.chat_arquivo_sem_app, msg.nomeArquivo), Toast.LENGTH_LONG).show()
+                    }
+                }
+            } catch (e: Exception) {
+                Toast.makeText(this@ChatActivity, getString(R.string.geral_erro, e.message ?: ""), Toast.LENGTH_LONG).show()
             }
         }
+    }
+
+    private fun baixarArquivoParaCache(url: String, nome: String, mime: String): File? {
+        return try {
+            val nomeFinal = if (!nome.contains(".")) {
+                val ext = mimeParaExtensao(mime)
+                if (ext.isNotEmpty()) "$nome.$ext" else nome
+            } else nome
+
+            val arquivo = File(cacheDir, nomeFinal)
+            val client = okhttp3.OkHttpClient.Builder()
+                .connectTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
+                .readTimeout(60, java.util.concurrent.TimeUnit.SECONDS)
+                .build()
+
+            val request = okhttp3.Request.Builder().url(url).build()
+            val response = client.newCall(request).execute()
+
+            if (!response.isSuccessful) {
+                response.close()
+                return null
+            }
+
+            val body = response.body
+            if (body == null) {
+                response.close()
+                return null
+            }
+
+            body.byteStream().use { input ->
+                arquivo.outputStream().use { output ->
+                    input.copyTo(output)
+                }
+            }
+            response.close()
+            arquivo
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    // ─────────────────────────────────────────────
+    // LÓGICA DE CICLO DE VIDA E BANCO DE DADOS
+    // ─────────────────────────────────────────────
+    override fun onResume() {
+        super.onResume()
+        activityAtiva = true
+        ChatAtivoManager.chatAtivo = chatId
+        resetarContadorNaoLidas()
+
+        lifecycleScope.launch {
+            estaBloqueado = repository.estouBloqueado(chatId)
+            atualizarEstadoBloqueio()
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        activityAtiva = false
+        ChatAtivoManager.chatAtivo = null
+    }
+
+    private fun atualizarEstadoBloqueio() {
+        if (!estaBloqueado) {
+            edtMensagem.isEnabled = true
+            edtMensagem.hint = getString(R.string.chat_input_hint)
+            edtMensagem.alpha = 1f
+            btnEnviar.isEnabled = true
+            btnAnexar.isEnabled = true
+            btnAnexar.alpha = 1f
+            btnGravarAudio.isEnabled = true
+            btnGravarAudio.alpha = 1f
+            return
+        }
+
+        lifecycleScope.launch {
+            val euBloqueei = repository.euBloqueei(chatId)
+            edtMensagem.isEnabled = false
+            edtMensagem.text?.clear()
+            edtMensagem.alpha = 0.5f
+            btnEnviar.isEnabled = false
+            btnAnexar.isEnabled = false
+            btnAnexar.alpha = 0.4f
+            btnGravarAudio.isEnabled = false
+            btnGravarAudio.alpha = 0.4f
+
+            edtMensagem.hint = if (euBloqueei) getString(R.string.chat_input_bloqueado) else getString(R.string.chat_input_nao_pode)
+        }
+    }
+
+    private fun podeEnviar(): Boolean {
+        if (estaBloqueado) {
+            Toast.makeText(this, getString(R.string.chat_erro_bloqueado_enviar), Toast.LENGTH_SHORT).show()
+            return false
+        }
+        return true
     }
 
     private fun resetarContadorNaoLidas() {
@@ -639,13 +794,8 @@ class ChatActivity : BaseActivity() {
             try {
                 db.collection("chats").document(chatId)
                     .collection("status").document(uid)
-                    .set(
-                        mapOf(
-                            "unreadCount" to 0,
-                            "ultimaVez" to System.currentTimeMillis()
-                        ),
-                        SetOptions.merge()
-                    ).await()
+                    .set(mapOf("unreadCount" to 0, "ultimaVez" to System.currentTimeMillis()), SetOptions.merge())
+                    .await()
             } catch (_: Exception) { }
         }
     }
@@ -673,8 +823,7 @@ class ChatActivity : BaseActivity() {
             if (chat.ehGrupo) {
                 txtNomeChat.text = chat.nome.ifEmpty { getString(R.string.info_grupo_placeholder_grupo) }
                 if (chat.fotoUrl.isNotEmpty()) {
-                    Glide.with(this@ChatActivity).load(chat.fotoUrl)
-                        .circleCrop().into(imgFotoHeader)
+                    Glide.with(this@ChatActivity).load(chat.fotoUrl).circleCrop().into(imgFotoHeader)
                     imgFotoHeader.imageTintList = null
                     imgFotoHeader.setPadding(0, 0, 0, 0)
                 }
@@ -686,8 +835,7 @@ class ChatActivity : BaseActivity() {
                         txtNomeChat.text = doc.getString("nome") ?: getString(R.string.admin_usuario_padrao)
                         val fotoUrl = doc.getString("fotoUrl") ?: ""
                         if (fotoUrl.isNotEmpty()) {
-                            Glide.with(this@ChatActivity).load(fotoUrl)
-                                .circleCrop().into(imgFotoHeader)
+                            Glide.with(this@ChatActivity).load(fotoUrl).circleCrop().into(imgFotoHeader)
                             imgFotoHeader.imageTintList = null
                             imgFotoHeader.setPadding(0, 0, 0, 0)
                         }
@@ -742,181 +890,6 @@ class ChatActivity : BaseActivity() {
             }
     }
 
-    private fun abrirImagemEmTelaCheia(url: String) {
-        val dialog = Dialog(this, android.R.style.Theme_Black_NoTitleBar_Fullscreen)
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-        dialog.setContentView(R.layout.dialog_imagem_cheia)
-        dialog.window?.setLayout(
-            WindowManager.LayoutParams.MATCH_PARENT,
-            WindowManager.LayoutParams.MATCH_PARENT
-        )
-
-        val imgFull: ImageView = dialog.findViewById(R.id.imgFull)
-        val btnFechar: ImageView = dialog.findViewById(R.id.btnFecharImagem)
-        val btnBaixar: ImageView = dialog.findViewById(R.id.btnBaixarImagem)
-
-        Glide.with(this).load(url).into(imgFull)
-
-        btnFechar.setOnClickListener { dialog.dismiss() }
-        imgFull.setOnClickListener { dialog.dismiss() }
-        btnBaixar.setOnClickListener { baixarImagem(url) }
-
-        dialog.show()
-    }
-
-    private fun baixarImagem(url: String) {
-        Toast.makeText(this, getString(R.string.chat_baixando_imagem), Toast.LENGTH_SHORT).show()
-
-        lifecycleScope.launch {
-            try {
-                val bitmap = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                    val stream = java.net.URL(url).openStream()
-                    android.graphics.BitmapFactory.decodeStream(stream)
-                }
-
-                if (bitmap == null) {
-                    Toast.makeText(this@ChatActivity, getString(R.string.chat_erro_baixar), Toast.LENGTH_SHORT).show()
-                    return@launch
-                }
-
-                val nomeArquivo = "integra_${System.currentTimeMillis()}.jpg"
-
-                val valores = android.content.ContentValues().apply {
-                    put(android.provider.MediaStore.Images.Media.DISPLAY_NAME, nomeArquivo)
-                    put(android.provider.MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
-                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
-                        put(android.provider.MediaStore.Images.Media.RELATIVE_PATH, "Pictures/Integra")
-                    }
-                }
-
-                val uri = contentResolver.insert(
-                    android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                    valores
-                )
-
-                if (uri != null) {
-                    contentResolver.openOutputStream(uri)?.use { out ->
-                        bitmap.compress(android.graphics.Bitmap.CompressFormat.JPEG, 95, out)
-                    }
-                    Toast.makeText(this@ChatActivity, getString(R.string.chat_audio_salvo), Toast.LENGTH_LONG).show()
-                } else {
-                    Toast.makeText(this@ChatActivity, getString(R.string.chat_erro_salvar), Toast.LENGTH_SHORT).show()
-                }
-            } catch (e: Exception) {
-                Toast.makeText(this@ChatActivity, getString(R.string.geral_erro, e.message ?: ""), Toast.LENGTH_LONG).show()
-            }
-        }
-    }
-
-    private fun formatarDuracao(ms: Long): String {
-        val seg = (ms / 1000).toInt()
-        val min = seg / 60
-        val s = seg % 60
-        return String.format("%02d:%02d", min, s)
-    }
-
-    override fun onDestroy() {
-        listenerRegistration?.remove()
-        mediaPlayerPreview?.release()
-        handler.removeCallbacksAndMessages(null)
-        super.onDestroy()
-    }
-
-    private fun baixarEAbrirArquivo(msg: Mensagem) {
-        if (msg.urlMidia.isEmpty()) {
-            Toast.makeText(this, getString(R.string.chat_arquivo_indisponivel), Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        Toast.makeText(this, getString(R.string.chat_abrindo_arquivo, msg.nomeArquivo), Toast.LENGTH_SHORT).show()
-
-        lifecycleScope.launch {
-            try {
-                val arquivo = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                    baixarArquivoParaCache(msg.urlMidia, msg.nomeArquivo, msg.mimeType)
-                }
-
-                if (arquivo == null || !arquivo.exists()) {
-                    Toast.makeText(this@ChatActivity, getString(R.string.chat_arquivo_erro_baixar), Toast.LENGTH_LONG).show()
-                    return@launch
-                }
-
-                val uri = androidx.core.content.FileProvider.getUriForFile(
-                    this@ChatActivity,
-                    "$packageName.fileprovider",
-                    arquivo
-                )
-
-                val intent = Intent(Intent.ACTION_VIEW).apply {
-                    setDataAndType(uri, msg.mimeType.ifEmpty { "*/*" })
-                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                }
-
-                try {
-                    startActivity(intent)
-                } catch (e: Exception) {
-                    try {
-                        val fallback = Intent(Intent.ACTION_VIEW).apply {
-                            setDataAndType(uri, "*/*")
-                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        }
-                        startActivity(fallback)
-                    } catch (_: Exception) {
-                        Toast.makeText(this@ChatActivity, getString(R.string.chat_arquivo_sem_app, msg.nomeArquivo), Toast.LENGTH_LONG).show()
-                    }
-                }
-            } catch (e: Exception) {
-                Toast.makeText(this@ChatActivity, getString(R.string.geral_erro, e.message ?: ""), Toast.LENGTH_LONG).show()
-            }
-        }
-    }
-
-    private fun baixarArquivoParaCache(url: String, nome: String, mime: String): File? {
-        return try {
-            val nomeFinal = if (!nome.contains(".")) {
-                val ext = mimeParaExtensao(mime)
-                if (ext.isNotEmpty()) "$nome.$ext" else nome
-            } else nome
-
-            val arquivo = File(cacheDir, nomeFinal)
-
-            val client = okhttp3.OkHttpClient.Builder()
-                .connectTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
-                .readTimeout(60, java.util.concurrent.TimeUnit.SECONDS)
-                .build()
-
-            val request = okhttp3.Request.Builder()
-                .url(url)
-                .build()
-
-            val response = client.newCall(request).execute()
-
-            if (!response.isSuccessful) {
-                response.close()
-                return null
-            }
-
-            val body = response.body
-            if (body == null) {
-                response.close()
-                return null
-            }
-
-            body.byteStream().use { input ->
-                arquivo.outputStream().use { output ->
-                    input.copyTo(output)
-                }
-            }
-            response.close()
-            arquivo
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
-        }
-    }
-
     private fun mimeParaExtensao(mime: String): String {
         return when (mime.lowercase()) {
             "application/pdf" -> "pdf"
@@ -934,5 +907,11 @@ class ChatActivity : BaseActivity() {
             "image/png" -> "png"
             else -> ""
         }
+    }
+
+    override fun onDestroy() {
+        listenerRegistration?.remove()
+        timerGravacao?.cancel()
+        super.onDestroy()
     }
 }
