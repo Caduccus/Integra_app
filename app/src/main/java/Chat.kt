@@ -1,5 +1,4 @@
 package com.example.plataformaremota.data.entity
-
 import com.google.firebase.firestore.DocumentId
 
 data class Chat(
@@ -16,6 +15,6 @@ data class Chat(
     val admins: List<String> = emptyList(),
     val fotoUrl: String = "",
     val empresaId: String = "",
-    // ⭐ NOVO: UIDs que "esconderam" essa conversa
-    val deletadosPara: List<String> = emptyList()
+    val deletadosPara: List<String> = emptyList(),
+    val fixadoPor: List<String> = emptyList() // ⭐ NOVO
 )

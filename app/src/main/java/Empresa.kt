@@ -16,5 +16,6 @@ data class Empresa(
     val admins: List<String> = emptyList(),
     val membros: List<String> = emptyList(),
     val pendentes: List<String> = emptyList(),
-    val timestamp: Long = 0L
+    val timestamp: Long = 0L,
+    val bannerUrl: String = ""
 )

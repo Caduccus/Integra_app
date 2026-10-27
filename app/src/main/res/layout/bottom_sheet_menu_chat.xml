@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="#1F2C34"
+    android:paddingVertical="16dp">
+
+    <LinearLayout
+        android:id="@+id/opcaoLimpar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="16dp">
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginEnd="16dp"
+            android:src="@android:drawable/ic_menu_delete"
+            app:tint="#EF5350" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Limpar conversa"
+            android:textColor="#EF5350"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/opcaoBloquear"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="16dp">
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginEnd="16dp"
+            android:src="@android:drawable/ic_delete"
+            app:tint="#EF5350" />
+        <TextView
+            android:id="@+id/txtOpcaoBloquear"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Bloquear contato"
+            android:textColor="#EF5350"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <!-- Opcional: Fixar conversa aqui também -->
+    <LinearLayout
+        android:id="@+id/opcaoFixar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="16dp">
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginEnd="16dp"
+            android:src="@drawable/ic_add"
+            app:tint="#E9EDEF" />
+        <TextView
+            android:id="@+id/txtOpcaoFixar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Fixar conversa"
+            android:textColor="#E9EDEF"
+            android:textSize="16sp" />
+    </LinearLayout>
+</LinearLayout>

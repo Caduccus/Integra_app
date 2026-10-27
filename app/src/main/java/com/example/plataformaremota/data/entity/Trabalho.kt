@@ -1,5 +1,4 @@
 package com.example.plataformaremota.data.entity
-
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.firebase.firestore.DocumentId
@@ -18,6 +17,7 @@ data class Trabalho(
     val criadorId: String = "",
     val nomeCriador: String = "",
     val timestamp: Long = 0L,
-    val empresaId: String = "",       // vazio = trabalho pessoal
-    val empresaNome: String = ""      // pra exibir sem outra query
+    val empresaId: String = "",
+    val empresaNome: String = "",
+    val bannerUrl: String = "" // ⭐ NOVO
 )

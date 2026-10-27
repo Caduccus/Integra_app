@@ -94,7 +94,7 @@ dependencies {
     implementation("com.github.bumptech.glide:glide:4.16.0")
 
     // OneSignal
-    implementation("com.onesignal:OneSignal:5.1.6")
+    implementation("com.onesignal:OneSignal:[5.6.1, 5.99.99]")
 
     // Testes
     testImplementation(libs.junit)

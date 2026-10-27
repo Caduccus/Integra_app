@@ -1,288 +1,203 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/background_gradiente"
-    android:fillViewport="true">
+    android:background="#0B141A"
+    android:orientation="vertical">
 
-    <LinearLayout
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="24dp">
+        android:layout_height="220dp">
+        <ImageView
+            android:id="@+id/imgBannerTrabalho"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:background="#0D226B" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_gradient_banner" />
+        <ImageView
+            android:id="@+id/btnVoltar"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_margin="16dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_arrow_back"
+            app:tint="@color/white" />
+        <ImageView
+            android:id="@+id/btnCompartilhar"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="end"
+            android:layout_margin="16dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_share"
+            app:tint="@color/white" />
+    </FrameLayout>
 
-        <!-- Cabeçalho -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:layout_marginBottom="24dp">
-
-            <ImageView
-                android:id="@+id/btnVoltar"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:padding="8dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:clickable="true"
-                android:focusable="true"
-                android:contentDescription="@string/geral_voltar"
-                android:src="@drawable/ic_arrow_back"
-                app:tint="@color/white" />
-
+            android:orientation="vertical"
+            android:padding="24dp">
             <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="8dp"
-                android:text="@string/trabalho_detalhes_titulo"
-                android:textColor="@color/white"
-                android:textSize="22sp"
-                android:textStyle="bold" />
-
-            <!-- Compartilhar -->
-            <ImageView
-                android:id="@+id/btnCompartilhar"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:padding="8dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:clickable="true"
-                android:focusable="true"
-                android:contentDescription="@string/trabalho_share_titulo"
-                android:src="@drawable/ic_share"
-                app:tint="@color/white" />
-        </LinearLayout>
-
-        <!-- Card semi-transparente com os detalhes -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
-            app:cardBackgroundColor="#33FFFFFF"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="6dp"
-            app:strokeWidth="1.5dp"
-            app:strokeColor="#66FFFFFF">
-
-            <LinearLayout
+                android:id="@+id/txtCriador"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="20dp">
-
-                <TextView
-                    android:id="@+id/txtCriador"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
-                    android:text="@string/trabalho_publicado_por"
-                    android:textColor="#CCFFFFFF"
-                    android:textSize="13sp" />
-
-                <TextView
-                    android:id="@+id/txtTituloDetalhe"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    android:text="@string/publicar_hint_titulo"
-                    android:textColor="@color/white"
-                    android:textSize="24sp"
-                    android:textStyle="bold" />
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginBottom="16dp"
-                    android:background="#66FFFFFF" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/trabalho_secao_descricao"
-                    android:textColor="#CCFFFFFF"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/txtDescricaoDetalhe"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    android:text="@string/publicar_hint_descricao"
-                    android:textColor="@color/white"
-                    android:textSize="15sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/trabalho_secao_categoria"
-                    android:textColor="#CCFFFFFF"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/txtCategoriaDetalhe"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    android:text="@string/publicar_hint_categoria"
-                    android:textColor="@color/white"
-                    android:textSize="15sp" />
-
-                <TextView
-                    android:id="@+id/txtTipoContratoDetalhe"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:visibility="gone" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/trabalho_secao_nivel"
-                    android:textColor="#CCFFFFFF"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/txtNivelDetalhe"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    android:text="@string/publicar_hint_nivel"
-                    android:textColor="@color/white"
-                    android:textSize="15sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/trabalho_secao_prazo"
-                    android:textColor="#CCFFFFFF"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/txtPrazoDetalhe"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/publicar_hint_prazo"
-                    android:textColor="@color/white"
-                    android:textSize="15sp" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- BOTÕES DO CRIADOR -->
-        <LinearLayout
-            android:id="@+id/layoutBotoesCriador"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:weightSum="3"
-            android:visibility="gone">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnExcluir"
-                android:layout_width="0dp"
-                android:layout_height="52dp"
-                android:layout_weight="1"
-                android:layout_marginEnd="4dp"
-                android:backgroundTint="#D32F2F"
-                android:text="@string/trabalho_btn_excluir"
+                android:textColor="#B3FFFFFF"
+                android:textSize="13sp" />
+            <TextView
+                android:id="@+id/txtTituloDetalhe"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
                 android:textColor="#FFFFFF"
-                android:textSize="11sp"
-                android:textStyle="bold"
-                android:maxLines="1"
-                app:cornerRadius="12dp"
-                app:icon="@drawable/ic_delete"
-                app:iconGravity="textStart"
-                app:iconPadding="4dp"
-                app:iconTint="#FFFFFF"
-                app:iconSize="18dp" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnEditar"
-                android:layout_width="0dp"
-                android:layout_height="52dp"
-                android:layout_weight="1"
-                android:layout_marginHorizontal="4dp"
-                android:backgroundTint="#0D226B"
-                android:text="@string/trabalho_btn_editar"
-                android:textColor="#FFFFFF"
-                android:textSize="11sp"
-                android:textStyle="bold"
-                android:maxLines="1"
-                app:cornerRadius="12dp"
-                app:icon="@drawable/ic_edit"
-                app:iconGravity="textStart"
-                app:iconPadding="4dp"
-                app:iconTint="#FFFFFF"
-                app:iconSize="18dp" />
-
-            <!-- Botão Candidatos + Badge -->
-            <FrameLayout
-                android:layout_width="0dp"
-                android:layout_height="52dp"
-                android:layout_weight="1"
-                android:layout_marginStart="4dp">
-
+                android:textSize="28sp"
+                android:textStyle="bold" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="@string/trabalho_secao_descricao"
+                android:textColor="#8696A0"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+            <TextView
+                android:id="@+id/txtDescricaoDetalhe"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="#E9EDEF"
+                android:textSize="15sp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/trabalho_secao_categoria"
+                android:textColor="#8696A0"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+            <TextView
+                android:id="@+id/txtCategoriaDetalhe"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="#E9EDEF"
+                android:textSize="15sp" />
+            <TextView
+                android:id="@+id/txtTipoContratoDetalhe"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/trabalho_secao_nivel"
+                android:textColor="#8696A0"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+            <TextView
+                android:id="@+id/txtNivelDetalhe"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="#E9EDEF"
+                android:textSize="15sp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/trabalho_secao_prazo"
+                android:textColor="#8696A0"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+            <TextView
+                android:id="@+id/txtPrazoDetalhe"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="#E9EDEF"
+                android:textSize="15sp" />
+            <LinearLayout
+                android:id="@+id/layoutBotoesCriador"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:orientation="horizontal"
+                android:weightSum="3"
+                android:visibility="gone">
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnChat"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:backgroundTint="#43A047"
-                    android:text="@string/trabalho_btn_candidatos"
-                    android:textColor="#FFFFFF"
-                    android:textSize="11sp"
-                    android:textStyle="bold"
-                    android:maxLines="1"
-                    android:insetTop="0dp"
-                    android:insetBottom="0dp"
-                    app:cornerRadius="12dp"
-                    app:icon="@drawable/ic_person"
-                    app:iconGravity="textStart"
-                    app:iconPadding="4dp"
-                    app:iconTint="#FFFFFF"
-                    app:iconSize="18dp" />
-
-                <TextView
-                    android:id="@+id/badgeCandidatos"
-                    android:layout_width="wrap_content"
-                    android:layout_height="20dp"
-                    android:layout_gravity="top|end"
-                    android:layout_marginTop="4dp"
+                    android:id="@+id/btnExcluir"
+                    android:layout_width="0dp"
+                    android:layout_height="52dp"
+                    android:layout_weight="1"
                     android:layout_marginEnd="4dp"
-                    android:minWidth="20dp"
-                    android:paddingHorizontal="6dp"
-                    android:background="@drawable/badge_background"
-                    android:gravity="center"
+                    android:backgroundTint="#D32F2F"
+                    android:text="@string/trabalho_btn_excluir"
                     android:textColor="#FFFFFF"
                     android:textSize="11sp"
-                    android:textStyle="bold"
-                    android:visibility="gone"
-                    tools:text="3" />
-            </FrameLayout>
+                    app:cornerRadius="12dp" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnEditar"
+                    android:layout_width="0dp"
+                    android:layout_height="52dp"
+                    android:layout_weight="1"
+                    android:layout_marginHorizontal="4dp"
+                    android:backgroundTint="#0D226B"
+                    android:text="@string/trabalho_btn_editar"
+                    android:textColor="#FFFFFF"
+                    android:textSize="11sp"
+                    app:cornerRadius="12dp" />
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="52dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="4dp">
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnChat"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:backgroundTint="#1E88E5"
+                        android:text="@string/trabalho_btn_candidatos"
+                        android:textColor="#FFFFFF"
+                        android:textSize="11sp"
+                        app:cornerRadius="12dp" />
+                    <TextView
+                        android:id="@+id/badgeCandidatos"
+                        android:layout_width="wrap_content"
+                        android:layout_height="20dp"
+                        android:layout_gravity="top|end"
+                        android:layout_marginTop="4dp"
+                        android:layout_marginEnd="4dp"
+                        android:background="@drawable/badge_background"
+                        android:gravity="center"
+                        android:paddingHorizontal="6dp"
+                        android:textColor="#FFFFFF"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:visibility="gone" />
+                </FrameLayout>
+            </LinearLayout>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCandidatar"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="32dp"
+                android:backgroundTint="#0D226B"
+                android:text="@string/trabalho_btn_candidatar"
+                android:textColor="#FFFFFF"
+                android:textSize="15sp"
+                android:visibility="gone"
+                app:cornerRadius="28dp" />
         </LinearLayout>
-
-        <!-- BOTÃO DO CANDIDATO -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnCandidatar"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:backgroundTint="#43A047"
-            android:text="@string/trabalho_btn_candidatar"
-            android:textColor="#FFFFFF"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:visibility="gone"
-            app:cornerRadius="28dp"
-            app:elevation="4dp"
-            app:icon="@drawable/ic_add"
-            app:iconGravity="textStart"
-            app:iconPadding="8dp"
-            app:iconTint="#FFFFFF" />
-
-    </LinearLayout>
-</ScrollView>
+    </ScrollView>
+</LinearLayout>

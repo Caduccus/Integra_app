@@ -25,7 +25,7 @@ class IntegraApplication : Application() {
         super.onCreate()
 
         OneSignal.Debug.logLevel = LogLevel.VERBOSE
-        OneSignal.initWithContext(this, "eb63f7b4-c19e-4a5a-8a69-ecf5bc8413db")
+        OneSignal.initWithContext(this, "d2bb6774-9d05-4241-8e20-b78a7a325119")
 
         OneSignal.Notifications.addForegroundLifecycleListener(
             object : INotificationLifecycleListener {

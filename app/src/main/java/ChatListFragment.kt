@@ -240,16 +240,21 @@ class ChatListFragment : Fragment() {
         }
     }
 
+    // ⭐ ESTA É A ÚNICA VERSÃO DA FUNÇÃO. AS DUPLICADAS FORAM REMOVIDAS.
     private suspend fun executarCarregamento(uid: String) = coroutineScope {
         val snapshot = db.collection("chats")
             .whereArrayContains("participantes", uid)
             .get()
             .await()
 
+        // ⭐ ORDENAÇÃO DE FIXADOS AQUI
         val chats = snapshot.documents
             .mapNotNull { it.toObject(Chat::class.java) }
             .filter { uid !in it.deletadosPara }
-            .sortedByDescending { it.timestamp }
+            .sortedWith(
+                compareByDescending<Chat> { uid in it.fixadoPor } // Fixados primeiro
+                    .thenByDescending { it.timestamp }            // Depois por data
+            )
 
         Log.d(TAG, "✅ ${chats.size} chats encontrados")
 

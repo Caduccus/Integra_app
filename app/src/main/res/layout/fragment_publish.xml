@@ -12,6 +12,17 @@
         android:orientation="vertical"
         android:padding="24dp">
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="16dp"
+            android:background="#33FFFFFF"
+            android:gravity="center"
+            android:text="Toque para adicionar um Banner (Opcional)"
+            android:textColor="#B3FFFFFF"
+            android:textStyle="italic"
+            android:id="@+id/btnAddBanner" />
+
         <LinearLayout
             android:id="@+id/layoutHeaderPublicar"
             android:layout_width="match_parent"

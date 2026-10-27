@@ -8,6 +8,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
+import com.bumptech.glide.Glide
 import com.example.plataformaremota.data.repository.ChatRepository
 import com.example.plataformaremota.data.repository.TrabalhoRepository
 import com.google.android.material.button.MaterialButton
@@ -22,6 +23,7 @@ class MainActivity2 : BaseActivity() {
     private var souMembroDaEmpresa: Boolean = false
 
     // Variáveis de UI
+    private lateinit var imgBannerTrabalho: ImageView // ⭐ NOVO
     private lateinit var btnVoltar: ImageView
     private lateinit var btnCompartilhar: ImageView
     private lateinit var txtCriador: TextView
@@ -59,6 +61,7 @@ class MainActivity2 : BaseActivity() {
         chatRepository = ChatRepository()
 
         // Inicializando as Views
+        imgBannerTrabalho = findViewById(R.id.imgBannerTrabalho) // ⭐ NOVO
         btnVoltar = findViewById(R.id.btnVoltar)
         btnCompartilhar = findViewById(R.id.btnCompartilhar)
         txtCriador = findViewById(R.id.txtCriador)
@@ -70,7 +73,7 @@ class MainActivity2 : BaseActivity() {
         txtPrazoDetalhe = findViewById(R.id.txtPrazoDetalhe)
 
         layoutBotoesCriador = findViewById(R.id.layoutBotoesCriador)
-        btnExcluir = findViewById(R.id.btnExcluir) // ⭐ AQUI
+        btnExcluir = findViewById(R.id.btnExcluir)
         btnEditar = findViewById(R.id.btnEditar)
         btnChat = findViewById(R.id.btnChat)
         btnCandidatar = findViewById(R.id.btnCandidatar)
@@ -80,7 +83,7 @@ class MainActivity2 : BaseActivity() {
 
         btnVoltar.setOnClickListener { finish() }
         btnCompartilhar.setOnClickListener { compartilharTrabalho() }
-        btnExcluir.setOnClickListener { confirmarExclusao() } // ⭐ AQUI DA ERRO SE NÃO ACHAR ACIMA
+        btnExcluir.setOnClickListener { confirmarExclusao() }
 
         btnEditar.setOnClickListener {
             val intent = Intent(this, EditarTrabalhoActivity::class.java)
@@ -127,6 +130,13 @@ class MainActivity2 : BaseActivity() {
             nomeCriador = trabalho.nomeCriador
             tituloTrabalho = trabalho.titulo
             empresaIdDoTrabalho = trabalho.empresaId
+
+            // ⭐ Carrega o Banner
+            if (trabalho.bannerUrl.isNotEmpty()) {
+                Glide.with(this@MainActivity2).load(trabalho.bannerUrl).centerCrop().into(imgBannerTrabalho)
+            } else {
+                imgBannerTrabalho.setImageResource(R.drawable.bg_gradient_banner) // Fallback
+            }
 
             txtTituloDetalhe.text = trabalho.titulo
             txtDescricaoDetalhe.text = trabalho.descricao
@@ -350,6 +360,14 @@ class MainActivity2 : BaseActivity() {
     private fun excluirTrabalho() {
         lifecycleScope.launch {
             val candidatos = buscarCandidatos()
+
+            // Apaga as candidaturas antes de apagar o trabalho
+            try {
+                val ref = db.collection("trabalhos").document(trabalhoId)
+                val cands = ref.collection("candidaturas").get().await()
+                for (c in cands.documents) c.reference.delete().await()
+            } catch (_: Exception) {}
+
             val sucesso = repository.excluir(trabalhoId)
 
             if (sucesso) {
@@ -382,9 +400,18 @@ class MainActivity2 : BaseActivity() {
         lifecycleScope.launch {
             NotificacaoHelper.enviarParaVarios(
                 uidsDestino = uids,
-                titulo = getString(R.string.sys_trabalho_encerrado), // Usando a string traduzida
+                titulo = getString(R.string.sys_trabalho_encerrado),
                 mensagem = getString(R.string.trabalho_notif_excluido_msg, tituloTrabalho)
             )
+            for (uid in uids) {
+                NotificacaoHelper.salvarInApp(
+                    uidDestino = uid,
+                    titulo = getString(R.string.sys_trabalho_encerrado),
+                    mensagem = getString(R.string.trabalho_notif_excluido_msg, tituloTrabalho),
+                    tipo = "trabalho",
+                    refId = trabalhoId
+                )
+            }
         }
     }
 }

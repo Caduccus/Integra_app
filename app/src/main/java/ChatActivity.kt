@@ -218,24 +218,8 @@ class ChatActivity : BaseActivity() {
             }
         }
 
-        btnInfo.setOnClickListener {
-            if (ehGrupoAtual) {
-                val intent = Intent(this, InfoGrupoActivity::class.java)
-                intent.putExtra("chatId", chatId)
-                startActivity(intent)
-            } else {
-                val uidAtual = auth.currentUser?.uid ?: return@setOnClickListener
-                val outroUid = participantesAtuais.firstOrNull { it != uidAtual }
-                if (outroUid != null) {
-                    val intent = Intent(this, PerfilUsuarioActivity::class.java)
-                    intent.putExtra("uidUsuario", outroUid)
-                    intent.putExtra("chatId", "")
-                    startActivity(intent)
-                } else {
-                    Toast.makeText(this, getString(R.string.chat_erro_abrir_perfil), Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
+        // Menu de 3 pontinhos
+        btnInfo.setOnClickListener { abrirMenuChat() }
 
         btnVideoCall.setOnClickListener {
             Toast.makeText(this, "Chamada de vídeo em desenvolvimento 📹", Toast.LENGTH_SHORT).show()
@@ -244,7 +228,7 @@ class ChatActivity : BaseActivity() {
             Toast.makeText(this, "Chamada de voz em desenvolvimento 📞", Toast.LENGTH_SHORT).show()
         }
 
-        // ⭐ Lógica de alternar Microfone e Botão de Enviar
+        // Alternar microfone / botão de enviar
         edtMensagem.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
@@ -258,6 +242,45 @@ class ChatActivity : BaseActivity() {
                 }
             }
         })
+    }
+
+    private fun abrirMenuChat() {
+        val dialog = BottomSheetDialog(this)
+        val view = layoutInflater.inflate(R.layout.bottom_sheet_menu_chat, null)
+
+        val outroUid = participantesAtuais.firstOrNull { it != auth.currentUser?.uid }
+        val nomeOutro = if (ehGrupoAtual) txtNomeChat.text.toString() else "Contato"
+        view.findViewById<TextView>(R.id.txtOpcaoBloquear).text = "Bloquear $nomeOutro"
+
+        view.findViewById<View>(R.id.opcaoLimpar).setOnClickListener {
+            lifecycleScope.launch {
+                repository.excluirConversa(chatId)
+                dialog.dismiss()
+                finish()
+            }
+        }
+
+        view.findViewById<View>(R.id.opcaoBloquear).setOnClickListener {
+            if (outroUid != null) {
+                lifecycleScope.launch {
+                    repository.bloquearUsuario(outroUid)
+                    Toast.makeText(this@ChatActivity, "Usuário bloqueado", Toast.LENGTH_SHORT).show()
+                    dialog.dismiss()
+                    finish()
+                }
+            }
+        }
+
+        view.findViewById<View>(R.id.opcaoFixar).setOnClickListener {
+            lifecycleScope.launch {
+                val fixado = repository.alternarFixado(chatId)
+                dialog.dismiss()
+                Toast.makeText(this@ChatActivity, if (fixado) "Conversa fixada" else "Conversa desafixada", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        dialog.setContentView(view)
+        dialog.show()
     }
 
     // ─────────────────────────────────────────────

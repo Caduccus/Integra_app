@@ -23,6 +23,25 @@ class ChatRepository {
         return if (trabalhoId.isEmpty()) ordenados else "${ordenados}_${trabalhoId}"
     }
 
+    suspend fun alternarFixado(chatId: String): Boolean {
+        val uid = auth.currentUser?.uid ?: return false
+        return try {
+            val docRef = db.collection("chats").document(chatId)
+            val doc = docRef.get().await()
+            val chat = doc.toObject(Chat::class.java) ?: return false
+
+            val lista = chat.fixadoPor.toMutableList()
+            val isFixing = !lista.contains(uid)
+
+            if (isFixing) lista.add(uid) else lista.remove(uid)
+
+            docRef.update("fixadoPor", lista).await()
+            isFixing
+        } catch (e: Exception) {
+            false
+        }
+    }
+
     suspend fun criarOuBuscarChatUmParaUm(
         uidOutro: String,
         nomeOutro: String,

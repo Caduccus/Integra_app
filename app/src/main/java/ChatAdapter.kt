@@ -13,6 +13,7 @@ import com.example.plataformaremota.R
 import com.example.plataformaremota.ThemeManager
 import com.example.plataformaremota.data.entity.Chat
 import com.google.android.material.card.MaterialCardView
+import com.google.firebase.auth.FirebaseAuth
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -38,6 +39,7 @@ class ChatAdapter(
         val txtHora: TextView = itemView.findViewById(R.id.txtHoraChat)
         val txtContexto: TextView = itemView.findViewById(R.id.txtContextoChat)
         val txtUltima: TextView = itemView.findViewById(R.id.txtUltimaMensagem)
+        val imgPinoFixado: ImageView = itemView.findViewById(R.id.imgPinoFixado) // ⭐ NOVO
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChatViewHolder {
@@ -49,9 +51,17 @@ class ChatAdapter(
 
     override fun onBindViewHolder(holder: ChatViewHolder, position: Int) {
         val chat = chats[position]
+        val uidAtual = FirebaseAuth.getInstance().currentUser?.uid
 
         holder.txtNome.text = nomeDoChat(chat)
         holder.txtHora.text = formatarHora(chat.timestamp)
+
+        // ⭐ Lógica do Pino de Fixado
+        if (uidAtual != null && uidAtual in chat.fixadoPor) {
+            holder.imgPinoFixado.visibility = View.VISIBLE
+        } else {
+            holder.imgPinoFixado.visibility = View.GONE
+        }
 
         if (!chat.ehGrupo) {
             holder.dotStatus.visibility = View.VISIBLE
@@ -87,7 +97,7 @@ class ChatAdapter(
             holder.imgFoto.setPadding(0, 0, 0, 0)
         } else {
             holder.imgFoto.setImageResource(R.drawable.ic_person)
-            holder.imgFoto.imageTintList = ColorStateList.valueOf(0xFF0D226B.toInt())
+            holder.imgFoto.imageTintList = ColorStateList.valueOf(0xFF8696A0.toInt()) // Cinza WhatsApp
             val pad = (10 * holder.itemView.resources.displayMetrics.density).toInt()
             holder.imgFoto.setPadding(pad, pad, pad, pad)
         }
