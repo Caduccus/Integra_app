@@ -33,7 +33,39 @@
             android:textStyle="bold" />
     </LinearLayout>
 
-    <!-- Busca -->
+    <!-- ⭐ SEÇÃO DE SOLICITAÇÕES PENDENTES -->
+    <LinearLayout
+        android:id="@+id/layoutSolicitacoes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:paddingTop="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginBottom="8dp"
+            android:text="SOLICITAÇÕES PENDENTES"
+            android:textColor="#1E88E5"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvSolicitacoes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nestedScrollingEnabled="false" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="16dp"
+            android:background="#33FFFFFF" />
+    </LinearLayout>
+
+    <!-- Busca de Amigos -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -57,11 +89,12 @@
         </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
 
-    <!-- Lista -->
+    <!-- Lista Principal -->
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_margin="16dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginBottom="16dp"
         android:layout_weight="1"
         app:cardBackgroundColor="#1F2C34"
         app:cardCornerRadius="16dp"
