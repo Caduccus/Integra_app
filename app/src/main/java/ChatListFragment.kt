@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView // ⭐ O IMPORT QUE ESTAVA FALTANDO
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
@@ -37,7 +38,8 @@ class ChatListFragment : Fragment() {
     private lateinit var layoutLoading: View
     private lateinit var btnNovoGrupo: MaterialButton
     private lateinit var btnCriarGrupoVazio: MaterialButton
-    private lateinit var btnNovoChat: ImageView
+    private lateinit var btnNovoChat: ImageView // ⭐ Nova variável do botão
+
     private lateinit var adapter: ChatAdapter
     private lateinit var skeletonAdapter: SkeletonAdapter
     private lateinit var repository: ChatRepository
@@ -77,18 +79,19 @@ class ChatListFragment : Fragment() {
         layoutLoading = view.findViewById(R.id.layoutLoading)
         btnNovoGrupo = view.findViewById(R.id.btnNovoGrupo)
         btnCriarGrupoVazio = view.findViewById(R.id.btnCriarGrupoVazio)
-        btnNovoChat = view.findViewById(R.id.btnNovoChat)
+        btnNovoChat = view.findViewById(R.id.btnNovoChat) // ⭐ Pega a referência
+
         repository = ChatRepository()
 
         configurarRecyclerView()
 
+        btnNovoChat.setOnClickListener { // ⭐ Ação do botão
+            startActivity(Intent(requireContext(), NovoChatActivity::class.java))
+        }
+
         btnNovoGrupo.setOnClickListener {
             val intent = Intent(requireContext(), NovoGrupoActivity::class.java)
             novoGrupoLauncher.launch(intent)
-        }
-
-        btnNovoChat.setOnClickListener {
-            startActivity(Intent(requireContext(), NovoChatActivity::class.java))
         }
 
         btnCriarGrupoVazio.setOnClickListener {
@@ -244,14 +247,12 @@ class ChatListFragment : Fragment() {
         }
     }
 
-    // ⭐ ESTA É A ÚNICA VERSÃO DA FUNÇÃO. AS DUPLICADAS FORAM REMOVIDAS.
     private suspend fun executarCarregamento(uid: String) = coroutineScope {
         val snapshot = db.collection("chats")
             .whereArrayContains("participantes", uid)
             .get()
             .await()
 
-        // ⭐ ORDENAÇÃO DE FIXADOS AQUI
         val chats = snapshot.documents
             .mapNotNull { it.toObject(Chat::class.java) }
             .filter { uid !in it.deletadosPara }
