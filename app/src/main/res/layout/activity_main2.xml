@@ -3,9 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0B141A"
     android:orientation="vertical">
 
+    <!-- BANNER NO TOPO -->
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="220dp">
@@ -26,7 +26,7 @@
             android:layout_margin="16dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_arrow_back"
-            app:tint="@color/white" />
+            app:tint="#FFFFFF" /> <!-- Fixo branco por causa do banner -->
         <ImageView
             android:id="@+id/btnCompartilhar"
             android:layout_width="40dp"
@@ -35,7 +35,7 @@
             android:layout_margin="16dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_share"
-            app:tint="@color/white" />
+            app:tint="#FFFFFF" /> <!-- Fixo branco por causa do banner -->
     </FrameLayout>
 
     <ScrollView
@@ -43,31 +43,34 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:fillViewport="true">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="24dp">
+
             <TextView
                 android:id="@+id/txtCriador"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="#B3FFFFFF"
                 android:textSize="13sp" />
+
             <TextView
                 android:id="@+id/txtTituloDetalhe"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:textColor="#FFFFFF"
                 android:textSize="28sp"
                 android:textStyle="bold" />
+
+            <!-- RÓTULOS EM AZUL FIXO -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
                 android:text="@string/trabalho_secao_descricao"
-                android:textColor="#8696A0"
+                android:textColor="#1E88E5"
                 android:textSize="13sp"
                 android:textStyle="bold" />
             <TextView
@@ -75,14 +78,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:textColor="#E9EDEF"
                 android:textSize="15sp" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:text="@string/trabalho_secao_categoria"
-                android:textColor="#8696A0"
+                android:textColor="#1E88E5"
                 android:textSize="13sp"
                 android:textStyle="bold" />
             <TextView
@@ -90,19 +93,20 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:textColor="#E9EDEF"
                 android:textSize="15sp" />
+
             <TextView
                 android:id="@+id/txtTipoContratoDetalhe"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:visibility="gone" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:text="@string/trabalho_secao_nivel"
-                android:textColor="#8696A0"
+                android:textColor="#1E88E5"
                 android:textSize="13sp"
                 android:textStyle="bold" />
             <TextView
@@ -110,14 +114,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:textColor="#E9EDEF"
                 android:textSize="15sp" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:text="@string/trabalho_secao_prazo"
-                android:textColor="#8696A0"
+                android:textColor="#1E88E5"
                 android:textSize="13sp"
                 android:textStyle="bold" />
             <TextView
@@ -125,8 +129,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:textColor="#E9EDEF"
                 android:textSize="15sp" />
+
             <LinearLayout
                 android:id="@+id/layoutBotoesCriador"
                 android:layout_width="match_parent"
@@ -135,6 +139,7 @@
                 android:orientation="horizontal"
                 android:weightSum="3"
                 android:visibility="gone">
+                <!-- Botoes (mantenha os textColor fixos em branco para contraste com os fundos coloridos) -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnExcluir"
                     android:layout_width="0dp"
@@ -187,6 +192,7 @@
                         android:visibility="gone" />
                 </FrameLayout>
             </LinearLayout>
+
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnCandidatar"
                 android:layout_width="match_parent"

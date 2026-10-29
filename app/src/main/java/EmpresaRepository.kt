@@ -73,7 +73,9 @@ class EmpresaRepository {
                 .whereArrayContains("membros", uid)
                 .get().await()
             snap.documents
-                .mapNotNull { it.toObject(Empresa::class.java) }
+                .mapNotNull { doc ->
+                    try { doc.toObject(Empresa::class.java) } catch (e: Exception) { null }
+                }
                 .sortedByDescending { it.timestamp }
         } catch (e: Exception) {
             Log.e(TAG, "❌ listarMinhas: ${e.message}")
@@ -98,7 +100,9 @@ class EmpresaRepository {
         return try {
             val snap = db.collection("empresas").get().await()
             snap.documents
-                .mapNotNull { it.toObject(Empresa::class.java) }
+                .mapNotNull { doc ->
+                    try { doc.toObject(Empresa::class.java) } catch (e: Exception) { null }
+                }
                 .filter { uid !in it.membros && uid !in it.pendentes }
                 .sortedByDescending { it.timestamp }
         } catch (e: Exception) { emptyList() }
@@ -366,6 +370,21 @@ class EmpresaRepository {
             }
         } catch (e: Exception) {
             Log.e(TAG, "❌ entrarNoGrupoGeral: ${e.message}")
+        }
+    }
+
+    suspend fun atualizarBannerEmpresa(empresaId: String, urlBanner: String): Boolean {
+        val uid = auth.currentUser?.uid ?: return false
+        return try {
+            val empresa = buscarPorId(empresaId) ?: return false
+            if (empresa.criadorId != uid) return false // Só o dono pode alterar
+
+            db.collection("empresas").document(empresaId)
+                .update("bannerUrl", urlBanner).await()
+            true
+        } catch (e: Exception) {
+            Log.e(TAG, "❌ Erro ao atualizar banner: ${e.message}")
+            false
         }
     }
 

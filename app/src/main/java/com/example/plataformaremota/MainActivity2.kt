@@ -23,7 +23,7 @@ class MainActivity2 : BaseActivity() {
     private var souMembroDaEmpresa: Boolean = false
 
     // Variáveis de UI
-    private lateinit var imgBannerTrabalho: ImageView // ⭐ NOVO
+    private lateinit var imgBannerTrabalho: ImageView
     private lateinit var btnVoltar: ImageView
     private lateinit var btnCompartilhar: ImageView
     private lateinit var txtCriador: TextView
@@ -61,7 +61,7 @@ class MainActivity2 : BaseActivity() {
         chatRepository = ChatRepository()
 
         // Inicializando as Views
-        imgBannerTrabalho = findViewById(R.id.imgBannerTrabalho) // ⭐ NOVO
+        imgBannerTrabalho = findViewById(R.id.imgBannerTrabalho)
         btnVoltar = findViewById(R.id.btnVoltar)
         btnCompartilhar = findViewById(R.id.btnCompartilhar)
         txtCriador = findViewById(R.id.txtCriador)
@@ -102,12 +102,32 @@ class MainActivity2 : BaseActivity() {
         }
 
         carregarTrabalho()
+
+        // ⭐ Aplica a cor correta nos textos baseada no tema escolhido
+        aplicarCoresTextoPorTema()
+    }
+
+    private fun aplicarCoresTextoPorTema() {
+        val tema = ThemeManager.getTemaAtual(this)
+        val corPrimaria = ThemeManager.getTextColor(tema)
+        val corSecundaria = ThemeManager.getSecondaryTextColor(tema)
+
+        // Aplica a cor primária nos textos importantes
+        txtTituloDetalhe.setTextColor(corPrimaria)
+        txtDescricaoDetalhe.setTextColor(corPrimaria)
+        txtCategoriaDetalhe.setTextColor(corPrimaria)
+        txtNivelDetalhe.setTextColor(corPrimaria)
+        txtPrazoDetalhe.setTextColor(corPrimaria)
+
+        // O "Publicado por" usa a cor secundária
+        txtCriador.setTextColor(corSecundaria)
     }
 
     override fun onResume() {
         super.onResume()
         if (trabalhoId.isNotEmpty()) {
             carregarTrabalho()
+            aplicarCoresTextoPorTema() // Garante que aplica ao voltar de outra tela
         }
     }
 
@@ -131,13 +151,14 @@ class MainActivity2 : BaseActivity() {
             tituloTrabalho = trabalho.titulo
             empresaIdDoTrabalho = trabalho.empresaId
 
-            // ⭐ Carrega o Banner
+            // Carrega o Banner
             if (trabalho.bannerUrl.isNotEmpty()) {
                 Glide.with(this@MainActivity2).load(trabalho.bannerUrl).centerCrop().into(imgBannerTrabalho)
             } else {
-                imgBannerTrabalho.setImageResource(R.drawable.bg_gradient_banner) // Fallback
+                imgBannerTrabalho.setImageResource(R.drawable.bg_gradient_banner)
             }
 
+            // Preenche os textos
             txtTituloDetalhe.text = trabalho.titulo
             txtDescricaoDetalhe.text = trabalho.descricao
             txtCategoriaDetalhe.text = trabalho.categoria
@@ -243,6 +264,8 @@ class MainActivity2 : BaseActivity() {
                 btnCandidatar.setBackgroundColor(android.graphics.Color.parseColor("#0D226B"))
             } else {
                 jaCandidatou = false
+                btnCandidatar.text = getString(R.string.trabalho_btn_candidatar)
+                btnCandidatar.setBackgroundColor(android.graphics.Color.parseColor("#0D226B"))
             }
         } catch (_: Exception) { }
     }

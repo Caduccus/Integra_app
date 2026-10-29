@@ -112,6 +112,18 @@
                     android:textColor="#B3FFFFFF"
                     android:textSize="14sp" />
 
+                <!-- Botão de Novo Chat Direto -->
+                <ImageView
+                    android:id="@+id/btnNovoChat"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:src="@drawable/ic_add_circle"
+                    app:tint="#E9EDEF" />
+
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnCriarGrupoVazio"
                     android:layout_width="wrap_content"

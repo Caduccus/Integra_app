@@ -14,7 +14,7 @@ import com.example.plataformaremota.data.entity.Usuario
         Usuario::class,
         Trabalho::class
     ],
-    version = 6,                      // ⭐ Subiu de 4 pra 5
+    version = 7,                      // ⭐ Subiu de 4 pra 5
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

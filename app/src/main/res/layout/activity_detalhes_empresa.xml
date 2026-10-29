@@ -1,41 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <!-- Header -->
-    <LinearLayout
+    <!-- BANNER DA EMPRESA -->
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#1A000000"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:padding="12dp">
+        android:layout_height="200dp">
+
+        <ImageView
+            android:id="@+id/imgBannerEmpresa"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:background="#0D226B" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_gradient_banner" />
 
         <ImageView
             android:id="@+id/btnVoltarDetalhesEmpresa"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:padding="8dp"
+            android:layout_margin="16dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:clickable="true"
             android:focusable="true"
             android:src="@drawable/ic_arrow_back"
             app:tint="@color/white" />
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_weight="1"
-            android:text="@string/empresa_detalhes_titulo"
-            android:textColor="@color/white"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-    </LinearLayout>
+    </FrameLayout>
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -112,8 +109,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:text="Nome da Empresa"
-                    android:textColor="@color/white"
+                    android:textColor="#FFFFFF"
                     android:textSize="24sp"
                     android:textStyle="bold" />
 
@@ -133,7 +129,6 @@
                         android:layout_height="wrap_content"
                         android:paddingHorizontal="16dp"
                         android:paddingVertical="6dp"
-                        android:text="Tecnologia"
                         android:textColor="@color/white"
                         android:textSize="13sp"
                         android:textStyle="bold" />
@@ -170,7 +165,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
-                        android:text="Descrição da empresa"
                         android:textColor="@color/white"
                         android:textSize="15sp" />
 
@@ -275,7 +269,6 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
-                                android:text="0"
                                 android:textColor="@color/white"
                                 android:textSize="18sp"
                                 android:textStyle="bold" />
@@ -302,7 +295,6 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
-                                android:text="0"
                                 android:textColor="#FFB74D"
                                 android:textSize="18sp"
                                 android:textStyle="bold" />
@@ -325,8 +317,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp"
-                android:nestedScrollingEnabled="false"
-                tools:listitem="@layout/item_membro_grupo" />
+                android:nestedScrollingEnabled="false" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -342,8 +333,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                android:nestedScrollingEnabled="false"
-                tools:listitem="@layout/item_trabalho" />
+                android:nestedScrollingEnabled="false" />
 
             <TextView
                 android:id="@+id/txtSemTrabalhos"
@@ -359,7 +349,7 @@
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <!-- ⭐ Botão de estatísticas (só admin) -->
+    <!-- Botões no final -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnVerEstatisticas"
         style="@style/Widget.MaterialComponents.Button.OutlinedButton"

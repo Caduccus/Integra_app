@@ -32,6 +32,7 @@ import kotlinx.coroutines.tasks.await
 class DetalhesEmpresaActivity : BaseActivity() {
 
     private lateinit var btnVoltar: ImageView
+    private lateinit var imgBannerEmpresa: ImageView
     private lateinit var cardLogo: MaterialCardView
     private lateinit var badgeCamera: MaterialCardView
     private lateinit var imgLogo: ImageView
@@ -68,11 +69,20 @@ class DetalhesEmpresaActivity : BaseActivity() {
     private var empresaAtual: Empresa? = null
     private var souDono: Boolean = false
     private var uploadingLogo: Boolean = false
+    private var uploadingBanner: Boolean = false
 
+    // ⭐ LAUNCHER DA LOGO
     private val pickImageLauncher = registerForActivityResult(
         ActivityResultContracts.PickVisualMedia()
     ) { uri ->
         if (uri != null) uploadLogo(uri)
+    }
+
+    // ⭐ LAUNCHER DO BANNER
+    private val pickBannerLauncher = registerForActivityResult(
+        ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri != null) uploadBanner(uri)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -89,6 +99,7 @@ class DetalhesEmpresaActivity : BaseActivity() {
 
         empresaRepository = EmpresaRepository()
 
+        imgBannerEmpresa = findViewById(R.id.imgBannerEmpresa)
         btnVoltar = findViewById(R.id.btnVoltarDetalhesEmpresa)
         cardLogo = findViewById(R.id.cardLogoDetalhesEmpresa)
         badgeCamera = findViewById(R.id.badgeCameraEmpresa)
@@ -124,19 +135,25 @@ class DetalhesEmpresaActivity : BaseActivity() {
             startActivity(intent)
         }
 
+        // ⭐ Clique na Logo
         cardLogo.setOnClickListener {
             if (!souDono) {
-                Toast.makeText(
-                    this,
-                    getString(R.string.empresa_so_dono_logo),
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(this, getString(R.string.empresa_so_dono_logo), Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
             if (uploadingLogo) return@setOnClickListener
             pickImageLauncher.launch(
                 PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
             )
+        }
+
+        // ⭐ Clique no Banner
+        imgBannerEmpresa.setOnClickListener {
+            if (souDono && !uploadingBanner) {
+                pickBannerLauncher.launch(
+                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                )
+            }
         }
 
         carregarTudo()
@@ -172,11 +189,7 @@ class DetalhesEmpresaActivity : BaseActivity() {
             try {
                 val empresa = empresaRepository.buscarPorId(empresaId)
                 if (empresa == null) {
-                    Toast.makeText(
-                        this@DetalhesEmpresaActivity,
-                        getString(R.string.empresa_nao_encontrada),
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    Toast.makeText(this@DetalhesEmpresaActivity, getString(R.string.empresa_nao_encontrada), Toast.LENGTH_SHORT).show()
                     finish()
                     return@launch
                 }
@@ -187,11 +200,7 @@ class DetalhesEmpresaActivity : BaseActivity() {
                 carregarTrabalhos()
                 configurarBotaoAcao(empresa)
             } catch (e: Exception) {
-                Toast.makeText(
-                    this@DetalhesEmpresaActivity,
-                    getString(R.string.geral_erro, e.message ?: ""),
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(this@DetalhesEmpresaActivity, getString(R.string.geral_erro, e.message ?: ""), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -199,6 +208,11 @@ class DetalhesEmpresaActivity : BaseActivity() {
     private fun preencherInfo(empresa: Empresa) {
         val uid = auth.currentUser?.uid ?: ""
         souDono = empresa.criadorId == uid
+
+        // ⭐ Carrega o Banner
+        if (empresa.bannerUrl.isNotEmpty()) {
+            Glide.with(this).load(empresa.bannerUrl).centerCrop().into(imgBannerEmpresa)
+        }
 
         txtNome.text = empresa.nome
         txtArea.text = empresa.areaAtuacao
@@ -329,18 +343,10 @@ class DetalhesEmpresaActivity : BaseActivity() {
             btnAcao.isEnabled = true
 
             if (ok) {
-                Toast.makeText(
-                    this@DetalhesEmpresaActivity,
-                    getString(R.string.empresas_pedido_enviado),
-                    Toast.LENGTH_LONG
-                ).show()
+                Toast.makeText(this@DetalhesEmpresaActivity, getString(R.string.empresas_pedido_enviado), Toast.LENGTH_LONG).show()
                 carregarTudo()
             } else {
-                Toast.makeText(
-                    this@DetalhesEmpresaActivity,
-                    getString(R.string.empresas_erro_pedir),
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(this@DetalhesEmpresaActivity, getString(R.string.empresas_erro_pedir), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -352,18 +358,10 @@ class DetalhesEmpresaActivity : BaseActivity() {
             btnAcao.isEnabled = true
 
             if (ok) {
-                Toast.makeText(
-                    this@DetalhesEmpresaActivity,
-                    getString(R.string.empresas_pedido_cancelado),
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(this@DetalhesEmpresaActivity, getString(R.string.empresas_pedido_cancelado), Toast.LENGTH_SHORT).show()
                 carregarTudo()
             } else {
-                Toast.makeText(
-                    this@DetalhesEmpresaActivity,
-                    getString(R.string.geral_erro, getString(R.string.empresas_btn_cancelar)),
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(this@DetalhesEmpresaActivity, getString(R.string.geral_erro, getString(R.string.empresas_btn_cancelar)), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -381,6 +379,7 @@ class DetalhesEmpresaActivity : BaseActivity() {
         startActivity(intent)
     }
 
+    // ⭐ FUNÇÃO QUE ESTAVA FALTANDO: UPLOAD DA LOGO
     private fun uploadLogo(uri: Uri) {
         uploadingLogo = true
         Toast.makeText(this, getString(R.string.perfil_foto_enviando), Toast.LENGTH_SHORT).show()
@@ -408,28 +407,16 @@ class DetalhesEmpresaActivity : BaseActivity() {
                                     .load(secureUrl).circleCrop().into(imgLogo)
                                 imgLogo.imageTintList = null
                                 imgLogo.setPadding(0, 0, 0, 0)
-                                Toast.makeText(
-                                    this@DetalhesEmpresaActivity,
-                                    getString(R.string.empresa_foto_atualizada),
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                                Toast.makeText(this@DetalhesEmpresaActivity, getString(R.string.empresa_foto_atualizada), Toast.LENGTH_SHORT).show()
                             } else {
-                                Toast.makeText(
-                                    this@DetalhesEmpresaActivity,
-                                    getString(R.string.geral_erro, "Falha ao salvar"),
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                                Toast.makeText(this@DetalhesEmpresaActivity, getString(R.string.geral_erro, "Falha ao salvar"), Toast.LENGTH_SHORT).show()
                             }
                         }
                     }
 
                     override fun onError(requestId: String?, error: ErrorInfo?) {
                         uploadingLogo = false
-                        Toast.makeText(
-                            this@DetalhesEmpresaActivity,
-                            getString(R.string.geral_erro, error?.description ?: ""),
-                            Toast.LENGTH_LONG
-                        ).show()
+                        Toast.makeText(this@DetalhesEmpresaActivity, getString(R.string.geral_erro, error?.description ?: ""), Toast.LENGTH_LONG).show()
                     }
 
                     override fun onReschedule(requestId: String?, error: ErrorInfo?) { }
@@ -437,6 +424,53 @@ class DetalhesEmpresaActivity : BaseActivity() {
                 .dispatch()
         } catch (e: Exception) {
             uploadingLogo = false
+            Toast.makeText(this, getString(R.string.geral_erro, e.message ?: ""), Toast.LENGTH_LONG).show()
+        }
+    }
+
+    // ⭐ FUNÇÃO NOVA: UPLOAD DO BANNER
+    private fun uploadBanner(uri: Uri) {
+        uploadingBanner = true
+        Toast.makeText(this, "Enviando banner...", Toast.LENGTH_SHORT).show()
+
+        try {
+            MediaManager.get().upload(uri)
+                .unsigned("fotos_perfil")
+                .option("folder", "empresas/banners")
+                .callback(object : UploadCallback {
+                    override fun onStart(requestId: String?) { }
+                    override fun onProgress(requestId: String?, bytes: Long, totalBytes: Long) { }
+
+                    override fun onSuccess(requestId: String?, resultData: MutableMap<Any?, Any?>?) {
+                        val url = resultData?.get("secure_url") as? String
+                            ?: resultData?.get("url") as? String
+                            ?: return
+                        val secureUrl = url.replace("http://", "https://")
+
+                        lifecycleScope.launch {
+                            val ok = empresaRepository.atualizarBannerEmpresa(empresaId, secureUrl)
+                            uploadingBanner = false
+
+                            if (ok) {
+                                Glide.with(this@DetalhesEmpresaActivity)
+                                    .load(secureUrl).centerCrop().into(imgBannerEmpresa)
+                                Toast.makeText(this@DetalhesEmpresaActivity, "Banner atualizado!", Toast.LENGTH_SHORT).show()
+                            } else {
+                                Toast.makeText(this@DetalhesEmpresaActivity, getString(R.string.geral_erro, "Falha ao salvar banner"), Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+
+                    override fun onError(requestId: String?, error: ErrorInfo?) {
+                        uploadingBanner = false
+                        Toast.makeText(this@DetalhesEmpresaActivity, getString(R.string.geral_erro, error?.description ?: ""), Toast.LENGTH_LONG).show()
+                    }
+
+                    override fun onReschedule(requestId: String?, error: ErrorInfo?) { }
+                })
+                .dispatch()
+        } catch (e: Exception) {
+            uploadingBanner = false
             Toast.makeText(this, getString(R.string.geral_erro, e.message ?: ""), Toast.LENGTH_LONG).show()
         }
     }

@@ -2,14 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Permissões Básicas e de Mídia -->
+    <!-- Permissões -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.VIBRATE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        android:maxSdkVersion="28" />
-
-    <!-- Permissão para Notificações (Android 13+) -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
@@ -63,8 +60,10 @@
         <activity android:name=".AdminEmpresasActivity" android:exported="false" />
         <activity android:name=".AdminTrabalhosActivity" android:exported="false" />
         <activity android:name=".LanguageActivity" android:exported="false" />
+        <activity android:name=".EstatisticasEmpresaActivity" android:exported="false" />
+        <activity android:name=".NovoChatActivity" android:exported="false" />
 
-        <!-- ⭐ FILE PROVIDER (Para o chat abrir PDFs e ZIPs) -->
+        <!-- FILE PROVIDER -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"

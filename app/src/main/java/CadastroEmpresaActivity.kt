@@ -6,6 +6,7 @@ import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -27,6 +28,7 @@ class CadastroEmpresaActivity : BaseActivity() {
     private lateinit var btnVoltar: ImageView
     private lateinit var cardLogo: MaterialCardView
     private lateinit var imgLogo: ImageView
+    private lateinit var btnAddBannerEmpresa: TextView
 
     private lateinit var edtNome: TextInputEditText
     private lateinit var edtDescricao: TextInputEditText
@@ -39,12 +41,37 @@ class CadastroEmpresaActivity : BaseActivity() {
     private lateinit var repository: EmpresaRepository
 
     private var logoUrl: String = ""
+    private var bannerUrlUploaded: String = ""
     private var uploadingLogo: Boolean = false
 
     private val pickImageLauncher = registerForActivityResult(
         ActivityResultContracts.PickVisualMedia()
     ) { uri ->
         if (uri != null) uploadLogo(uri)
+    }
+
+    private val pickBannerLauncher = registerForActivityResult(
+        ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri != null) {
+            Toast.makeText(this, "Enviando banner...", Toast.LENGTH_SHORT).show()
+            MediaManager.get().upload(uri)
+                .unsigned("fotos_perfil")
+                .option("folder", "empresas/banners")
+                .callback(object : UploadCallback {
+                    override fun onSuccess(requestId: String?, resultData: MutableMap<Any?, Any?>?) {
+                        bannerUrlUploaded = resultData?.get("secure_url") as? String ?: ""
+                        runOnUiThread {
+                            Toast.makeText(this@CadastroEmpresaActivity, "Banner anexado!", Toast.LENGTH_SHORT).show()
+                            btnAddBannerEmpresa.text = "Banner adicionado ✅"
+                        }
+                    }
+                    override fun onError(requestId: String?, error: ErrorInfo?) {}
+                    override fun onStart(requestId: String?) {}
+                    override fun onProgress(requestId: String?, bytes: Long, totalBytes: Long) {}
+                    override fun onReschedule(requestId: String?, error: ErrorInfo?) {}
+                }).dispatch()
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,6 +83,7 @@ class CadastroEmpresaActivity : BaseActivity() {
         btnVoltar = findViewById(R.id.btnVoltarCadastroEmpresa)
         cardLogo = findViewById(R.id.cardLogoEmpresa)
         imgLogo = findViewById(R.id.imgLogoEmpresa)
+        btnAddBannerEmpresa = findViewById(R.id.btnAddBannerEmpresa)
         edtNome = findViewById(R.id.edtNomeEmpresa)
         edtDescricao = findViewById(R.id.edtDescricaoEmpresa)
         edtCnpj = findViewById(R.id.edtCnpjEmpresa)
@@ -69,10 +97,13 @@ class CadastroEmpresaActivity : BaseActivity() {
         btnVoltar.setOnClickListener { finish() }
         cardLogo.setOnClickListener {
             if (uploadingLogo) return@setOnClickListener
-            pickImageLauncher.launch(
-                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-            )
+            pickImageLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
         }
+
+        btnAddBannerEmpresa.setOnClickListener {
+            pickBannerLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+        }
+
         btnCriar.setOnClickListener { criarEmpresa() }
 
         ThemeManager.aplicarCores(this, findViewById(android.R.id.content))
@@ -85,12 +116,7 @@ class CadastroEmpresaActivity : BaseActivity() {
             "Educação", "Saúde", "Finanças", "Recursos Humanos",
             "Engenharia", "Administrativo", "Jurídico", "Outros"
         )
-        val adapter = ArrayAdapter(
-            this,
-            android.R.layout.simple_dropdown_item_1line,
-            opcoes
-        )
-        edtArea.setAdapter(adapter)
+        edtArea.setAdapter(ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, opcoes))
     }
 
     private fun uploadLogo(uri: Uri) {
@@ -117,21 +143,14 @@ class CadastroEmpresaActivity : BaseActivity() {
                                 .load(logoUrl).circleCrop().into(imgLogo)
                             imgLogo.imageTintList = null
                             imgLogo.setPadding(0, 0, 0, 0)
-                            Toast.makeText(
-                                this@CadastroEmpresaActivity,
-                                getString(R.string.nova_empresa_logo_carregada), Toast.LENGTH_SHORT
-                            ).show()
+                            Toast.makeText(this@CadastroEmpresaActivity, getString(R.string.nova_empresa_logo_carregada), Toast.LENGTH_SHORT).show()
                         }
                     }
 
                     override fun onError(requestId: String?, error: ErrorInfo?) {
                         uploadingLogo = false
-                        Toast.makeText(
-                            this@CadastroEmpresaActivity,
-                            getString(R.string.geral_erro, error?.description ?: ""), Toast.LENGTH_LONG
-                        ).show()
+                        Toast.makeText(this@CadastroEmpresaActivity, getString(R.string.geral_erro, error?.description ?: ""), Toast.LENGTH_LONG).show()
                     }
-
                     override fun onReschedule(requestId: String?, error: ErrorInfo?) { }
                 })
                 .dispatch()
@@ -182,17 +201,14 @@ class CadastroEmpresaActivity : BaseActivity() {
                 areaAtuacao = area,
                 endereco = endereco,
                 emailCorporativo = email,
-                logoUrl = logoUrl
+                logoUrl = logoUrl,
+                bannerUrl = bannerUrlUploaded // ⭐ Salva o banner
             )
 
             val id = repository.criarEmpresa(empresa)
 
             if (id != null) {
-                Toast.makeText(
-                    this@CadastroEmpresaActivity,
-                    getString(R.string.nova_empresa_sucesso),
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(this@CadastroEmpresaActivity, getString(R.string.nova_empresa_sucesso), Toast.LENGTH_SHORT).show()
                 setResult(RESULT_OK)
                 finish()
             } else {
@@ -204,10 +220,6 @@ class CadastroEmpresaActivity : BaseActivity() {
     }
 
     private fun mostrarSnackbar(mensagem: String) {
-        Snackbar.make(
-            findViewById(android.R.id.content),
-            mensagem,
-            Snackbar.LENGTH_LONG
-        ).show()
+        Snackbar.make(findViewById(android.R.id.content), mensagem, Snackbar.LENGTH_LONG).show()
     }
 }

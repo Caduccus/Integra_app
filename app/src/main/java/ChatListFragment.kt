@@ -37,7 +37,7 @@ class ChatListFragment : Fragment() {
     private lateinit var layoutLoading: View
     private lateinit var btnNovoGrupo: MaterialButton
     private lateinit var btnCriarGrupoVazio: MaterialButton
-
+    private lateinit var btnNovoChat: ImageView
     private lateinit var adapter: ChatAdapter
     private lateinit var skeletonAdapter: SkeletonAdapter
     private lateinit var repository: ChatRepository
@@ -77,7 +77,7 @@ class ChatListFragment : Fragment() {
         layoutLoading = view.findViewById(R.id.layoutLoading)
         btnNovoGrupo = view.findViewById(R.id.btnNovoGrupo)
         btnCriarGrupoVazio = view.findViewById(R.id.btnCriarGrupoVazio)
-
+        btnNovoChat = view.findViewById(R.id.btnNovoChat)
         repository = ChatRepository()
 
         configurarRecyclerView()
@@ -85,6 +85,10 @@ class ChatListFragment : Fragment() {
         btnNovoGrupo.setOnClickListener {
             val intent = Intent(requireContext(), NovoGrupoActivity::class.java)
             novoGrupoLauncher.launch(intent)
+        }
+
+        btnNovoChat.setOnClickListener {
+            startActivity(Intent(requireContext(), NovoChatActivity::class.java))
         }
 
         btnCriarGrupoVazio.setOnClickListener {

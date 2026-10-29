@@ -26,18 +26,29 @@ class TrabalhoRepository(private val context: Context) {
                 .get()
                 .await()
 
+            // ⭐ try-catch para não crashar se um documento estiver corrompido
             val trabalhos = snapshot.documents.mapNotNull { doc ->
-                doc.toObject(Trabalho::class.java)
+                try {
+                    doc.toObject(Trabalho::class.java)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Erro ao ler trabalho ${doc.id}: ${e.message}")
+                    null
+                }
             }
 
             Log.d(TAG, "✅ ${trabalhos.size} trabalhos carregados do Firestore")
 
-            roomDb.trabalhoDao().deletarTodos()
-            roomDb.trabalhoDao().inserirTodos(trabalhos)
+            // Tenta salvar no cache, mas se der erro não impede a lista de aparecer
+            try {
+                roomDb.trabalhoDao().deletarTodos()
+                roomDb.trabalhoDao().inserirTodos(trabalhos)
+            } catch (e: Exception) {
+                Log.e(TAG, "Aviso: Falha ao salvar cache do Room: ${e.message}")
+            }
 
             trabalhos
         } catch (e: Exception) {
-            Log.e(TAG, "❌ Erro ao buscar: ${e.message}")
+            Log.e(TAG, "❌ Erro ao buscar no Firestore: ${e.message}")
             roomDb.trabalhoDao().listarTodos()
         }
     }

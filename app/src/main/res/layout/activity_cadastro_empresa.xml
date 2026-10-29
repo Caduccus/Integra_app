@@ -47,7 +47,7 @@
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
             android:orientation="vertical"
-            android:layout_marginBottom="24dp">
+            android:layout_marginBottom="16dp">
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardLogoEmpresa"
@@ -79,6 +79,19 @@
                 android:textSize="12sp" />
         </LinearLayout>
 
+        <!-- BOTÃO DE BANNER (Adicionado aqui) -->
+        <TextView
+            android:id="@+id/btnAddBannerEmpresa"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginHorizontal="0dp"
+            android:layout_marginBottom="24dp"
+            android:background="#1F2C34"
+            android:gravity="center"
+            android:text="Toque para adicionar um Banner (Opcional)"
+            android:textColor="#8696A0"
+            android:textStyle="italic" />
+
         <!-- Card do formulário -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
@@ -96,7 +109,6 @@
                 android:orientation="vertical"
                 android:padding="20dp">
 
-                <!-- Nome -->
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
@@ -120,7 +132,6 @@
                         android:textColor="@color/white" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- Descrição -->
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
@@ -145,7 +156,6 @@
                         android:textColor="@color/white" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- CNPJ -->
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
@@ -169,7 +179,6 @@
                         android:textColor="@color/white" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- Área de atuação (dropdown) -->
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                     android:layout_width="match_parent"
@@ -193,7 +202,6 @@
                         android:textColor="@color/white" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- Endereço -->
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
@@ -217,7 +225,6 @@
                         android:textColor="@color/white" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- E-mail corporativo -->
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
@@ -242,7 +249,6 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Botão criar -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnCriarEmpresa"
             android:layout_width="match_parent"
