@@ -62,6 +62,7 @@
         <activity android:name=".LanguageActivity" android:exported="false" />
         <activity android:name=".EstatisticasEmpresaActivity" android:exported="false" />
         <activity android:name=".NovoChatActivity" android:exported="false" />
+        <activity android:name=".ListaAmigosActivity" android:exported="false" />
 
         <!-- FILE PROVIDER -->
         <provider

@@ -118,7 +118,9 @@ class ProfileFragment : Fragment() {
         txtProfissaoPerfil = view.findViewById(R.id.txtProfissaoPerfil)
         txtBioPerfil = view.findViewById(R.id.txtBioPerfil)
         txtStatusNotificacoes = view.findViewById(R.id.txtStatusNotificacoes)
-
+        view.findViewById<View>(R.id.btnMeusAmigos).setOnClickListener {
+            startActivity(Intent(requireContext(), ListaAmigosActivity::class.java))
+        }
         cardStatusPerfil = view.findViewById(R.id.cardStatusPerfil)
         dotStatusPerfil = view.findViewById(R.id.dotStatusPerfil)
         txtStatusPerfil = view.findViewById(R.id.txtStatusPerfil)
