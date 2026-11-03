@@ -229,10 +229,27 @@ class PerfilUsuarioActivity : BaseActivity() {
 
         lifecycleScope.launch {
             try {
-                db.collection("usuarios").document(uidUsuario)
-                    .collection("visualizacoes").document(uidAtual)
-                    .set(mapOf("timestamp" to System.currentTimeMillis()))
-                    .await()
+                val doc = db.collection("usuarios").document(uidUsuario)
+                    .collection("visualizacoes").document(uidAtual).get().await()
+
+                // Só notifica se for a primeira vez que ele vê (para não spammar)
+                if (!doc.exists()) {
+                    val meuDoc = db.collection("usuarios").document(uidAtual).get().await()
+                    val meuNome = meuDoc.getString("nome") ?: "Alguém"
+
+                    db.collection("usuarios").document(uidUsuario)
+                        .collection("visualizacoes").document(uidAtual)
+                        .set(mapOf("timestamp" to System.currentTimeMillis())).await()
+
+                    // ⭐ Notifica a pessoa
+                    NotificacaoHelper.notificar(
+                        uidDestino = uidUsuario,
+                        titulo = "Visita ao seu perfil 👀",
+                        mensagem = "$meuNome visualizou o seu perfil.",
+                        tipo = "visualizacao",
+                        refId = uidAtual
+                    )
+                }
             } catch (_: Exception) { }
         }
     }

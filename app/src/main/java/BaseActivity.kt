@@ -1,11 +1,17 @@
 package com.example.plataformaremota
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -20,7 +26,7 @@ open class BaseActivity : AppCompatActivity() {
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
-    // ⭐ Variável para desativar o tema em telas específicas (como Detalhes do Trabalho)
+    // Mantém a opção de desativar o tema automático em telas específicas
     protected open val aplicarTemaAutomatico: Boolean = true
 
     override fun attachBaseContext(newBase: Context) {
@@ -53,11 +59,21 @@ open class BaseActivity : AppCompatActivity() {
             CloudinaryManager.iniciado = true
         }
 
-        // ⭐ AQUI ESTÁ A MÁGICA DO ONESIGNAL ⭐
-        // Se o usuário estiver logado no Firebase, avisa o OneSignal
+        // ⭐ ONESIGNAL: Vincula o usuário do Firebase ao Push
         val uidAtual = auth.currentUser?.uid
         if (uidAtual != null) {
             OneSignal.login(uidAtual)
+            Log.d("ONESIGNAL_DEBUG", "OneSignal.login() chamado para o UID: $uidAtual")
+        } else {
+            Log.w("ONESIGNAL_DEBUG", "Nenhum usuário logado no Firebase para vincular ao OneSignal.")
+        }
+
+        // ⭐ PERMISSÃO DE NOTIFICAÇÃO (Android 13+)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.POST_NOTIFICATIONS), 101)
+                Log.d("ONESIGNAL_DEBUG", "Solicitando permissão de notificação nativa.")
+            }
         }
     }
 
@@ -101,7 +117,6 @@ open class BaseActivity : AppCompatActivity() {
     }
 
     private fun aplicarTema() {
-        // Se a tela desativou o tema automático (como a MainActivity2), não faz nada
         if (!aplicarTemaAutomatico) return
 
         val root = findViewById<ViewGroup>(android.R.id.content) ?: return

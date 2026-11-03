@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -42,14 +41,20 @@ class NotificacoesActivity : BaseActivity() {
 
     private fun carregar() {
         val uid = auth.currentUser?.uid ?: return
+        layoutLoading.visibility = View.VISIBLE
 
-        lifecycleScope.launch {
-            try {
-                val snap = db.collection("usuarios").document(uid)
-                    .collection("notificacoes")
-                    .get().await()
+        // ⭐ Listener em Tempo Real (Atualiza sozinho quando chega nova)
+        db.collection("usuarios").document(uid)
+            .collection("notificacoes")
+            .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    layoutLoading.visibility = View.GONE
+                    return@addSnapshotListener
+                }
+                if (snapshot == null) return@addSnapshotListener
 
-                val lista = snap.documents.mapNotNull { doc ->
+                val lista = snapshot.documents.mapNotNull { doc ->
                     Notif(
                         id = doc.id,
                         titulo = doc.getString("titulo") ?: "",
@@ -57,7 +62,7 @@ class NotificacoesActivity : BaseActivity() {
                         lida = doc.getBoolean("lida") ?: false,
                         timestamp = doc.getLong("timestamp") ?: 0L
                     )
-                }.sortedByDescending { it.timestamp }
+                }
 
                 if (lista.isEmpty()) {
                     rv.visibility = View.GONE
@@ -68,19 +73,16 @@ class NotificacoesActivity : BaseActivity() {
                     layoutVazio.visibility = View.GONE
                 }
 
+                // Marcar como lidas
                 for (n in lista) {
                     if (!n.lida) {
                         db.collection("usuarios").document(uid)
                             .collection("notificacoes").document(n.id)
-                            .update("lida", true).await()
+                            .update("lida", true)
                     }
                 }
-            } catch (e: Exception) {
-                layoutVazio.visibility = View.VISIBLE
-            } finally {
                 layoutLoading.visibility = View.GONE
             }
-        }
     }
 
     data class Notif(
@@ -114,7 +116,6 @@ class NotificacoesActivity : BaseActivity() {
             val dateFormat = SimpleDateFormat("dd/MM", Locale.getDefault())
             val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
 
-            // Usa a string traduzida: "dd/MM às HH:mm" (PT), "dd/MM at HH:mm" (EN), "dd/MM a las HH:mm" (ES)
             h.data.text = getString(
                 R.string.notif_data_formato,
                 dateFormat.format(Date(n.timestamp)),

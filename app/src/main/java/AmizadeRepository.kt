@@ -10,7 +10,6 @@ class AmizadeRepository {
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
-    // Retorna: "amigo", "pendente_enviada", "pendente_recebida" ou "nenhum"
     suspend fun verificarStatus(uidAlvo: String): String {
         val meuUid = auth.currentUser?.uid ?: return "nenhum"
         return try {
@@ -21,9 +20,8 @@ class AmizadeRepository {
             if (uidAlvo in meusAmigos) {
                 "amigo"
             } else if (uidAlvo in minhasSolicitacoes) {
-                "pendente_recebida" // Ele me enviou solicitação
+                "pendente_recebida"
             } else {
-                // Preciso ver se EU enviei para ele
                 val docAlvo = db.collection("usuarios").document(uidAlvo).get().await()
                 val solicitacoesDele = (docAlvo.get("solicitacoes") as? List<*>)?.filterIsInstance<String>() ?: emptyList()
                 if (meuUid in solicitacoesDele) "pendente_enviada" else "nenhum"
@@ -36,14 +34,13 @@ class AmizadeRepository {
     suspend fun enviarSolicitacao(uidAlvo: String, meuNome: String): Boolean {
         val meuUid = auth.currentUser?.uid ?: return false
         return try {
-            // Adiciona o meu UID na lista de solicitações dele
             db.collection("usuarios").document(uidAlvo)
                 .update("solicitacoes", FieldValue.arrayUnion(meuUid)).await()
 
-            // Notifica ele
-            NotificacaoHelper.salvarInApp(
+            // ⭐ Notifica via Push e In-App
+            NotificacaoHelper.notificar(
                 uidDestino = uidAlvo,
-                titulo = "Nova solicitação de amizade",
+                titulo = "Nova solicitação de amizade 🤝",
                 mensagem = "$meuNome quer adicionar você como amigo.",
                 tipo = "amizade",
                 refId = meuUid
@@ -55,7 +52,6 @@ class AmizadeRepository {
     suspend fun aceitarSolicitacao(uidRemetente: String): Boolean {
         val meuUid = auth.currentUser?.uid ?: return false
         return try {
-            // ⭐ CORREÇÃO AQUI: Usando mapOf para múltiplos campos
             db.collection("usuarios").document(meuUid).update(
                 mapOf(
                     "amigos" to FieldValue.arrayUnion(uidRemetente),
@@ -63,9 +59,17 @@ class AmizadeRepository {
                 )
             ).await()
 
-            // Adiciona eu nos amigos dele (amizade mútua)
             db.collection("usuarios").document(uidRemetente)
                 .update("amigos", FieldValue.arrayUnion(meuUid)).await()
+
+            val meuNome = db.collection("usuarios").document(meuUid).get().await().getString("nome") ?: "Alguém"
+            NotificacaoHelper.notificar(
+                uidDestino = uidRemetente,
+                titulo = "Amizade aceita! 🎉",
+                mensagem = "$meuNome aceitou sua solicitação de amizade.",
+                tipo = "amizade",
+                refId = meuUid
+            )
 
             true
         } catch (e: Exception) { false }

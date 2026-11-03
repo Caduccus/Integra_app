@@ -9,11 +9,9 @@ import java.net.URL
 
 object NotificacaoHelper {
 
-    // ⚠️ Lembre-se de colocar a chave no local.properties
     private val REST_API_KEY = BuildConfig.ONESIGNAL_REST_API_KEY
-    private const val APP_ID = "d2bb6774-9d05-4241-8e20-b78a7a325119" // Substitua pelo seu novo App ID
+    private const val APP_ID = "d2bb6774-9d05-4241-8e20-b78a7a325119" // ⚠️ SEU APP ID AQUI
 
-    // Salva no banco para aparecer na aba "Notificações" da Home
     suspend fun salvarInApp(
         uidDestino: String,
         titulo: String,
@@ -38,7 +36,6 @@ object NotificacaoHelper {
         }
     }
 
-    // Envia o Push pelo OneSignal (Funciona com o app aberto ou fechado)
     suspend fun enviarPush(
         uidDestino: String,
         titulo: String,
@@ -92,7 +89,6 @@ object NotificacaoHelper {
         }
     }
 
-    // Função unificada: Salva no banco E envia o push
     suspend fun notificar(
         uidDestino: String,
         titulo: String,
@@ -103,6 +99,16 @@ object NotificacaoHelper {
     ) {
         salvarInApp(uidDestino, titulo, mensagem, tipo, refId)
         enviarPush(uidDestino, titulo, mensagem, chatId)
+    }
+
+    // Compatibilidade com código antigo
+    suspend fun enviar(
+        uidDestino: String,
+        titulo: String,
+        mensagem: String,
+        chatId: String = ""
+    ) {
+        notificar(uidDestino, titulo, mensagem, "geral", "", chatId)
     }
 
     suspend fun enviarParaVarios(
