@@ -68,7 +68,7 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.google.android.gms:play-services-auth:21.2.0")
-
+    implementation("com.onesignal:OneSignal:[5.11.0, 5.99.99]")
     // Room
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
@@ -94,7 +94,7 @@ dependencies {
     implementation("com.github.bumptech.glide:glide:4.16.0")
 
     // OneSignal
-    implementation("com.onesignal:OneSignal:[5.6.1, 5.99.99]")
+
 
     // Testes
     testImplementation(libs.junit)

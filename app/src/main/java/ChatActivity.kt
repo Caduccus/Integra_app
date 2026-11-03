@@ -254,9 +254,15 @@ class ChatActivity : BaseActivity() {
 
         view.findViewById<View>(R.id.opcaoLimpar).setOnClickListener {
             lifecycleScope.launch {
-                repository.excluirConversa(chatId)
-                dialog.dismiss()
-                finish()
+                // ⭐ Trocado para sairDoGrupo (remove o usuário da lista de participantes)
+                val ok = repository.sairDoGrupo(chatId)
+                if (ok) {
+                    Toast.makeText(this@ChatActivity, "Você saiu da conversa", Toast.LENGTH_SHORT).show()
+                    dialog.dismiss()
+                    finish() // Fecha a tela do chat
+                } else {
+                    Toast.makeText(this@ChatActivity, "Erro ao sair da conversa", Toast.LENGTH_SHORT).show()
+                }
             }
         }
 
@@ -762,6 +768,10 @@ class ChatActivity : BaseActivity() {
         activityAtiva = true
         ChatAtivoManager.chatAtivo = chatId
         resetarContadorNaoLidas()
+
+        // ⭐ REINICIA O OUVINTE DE MENSAGENS PARA PEGAR A IMAGEM QUE CHEGOU ENQUANTO ESTAVA NO PREVIEW
+        listenerRegistration?.remove()
+        ouvirMensagens()
 
         lifecycleScope.launch {
             estaBloqueado = repository.estouBloqueado(chatId)

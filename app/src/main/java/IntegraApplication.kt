@@ -24,20 +24,7 @@ class IntegraApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        OneSignal.Debug.logLevel = LogLevel.VERBOSE
         OneSignal.initWithContext(this, "d2bb6774-9d05-4241-8e20-b78a7a325119")
-
-        OneSignal.Notifications.addForegroundLifecycleListener(
-            object : INotificationLifecycleListener {
-                override fun onWillDisplay(event: INotificationWillDisplayEvent) {
-                    val chatId = event.notification.additionalData?.optString("chat_id")
-                    if (!chatId.isNullOrEmpty() && chatId == ChatAtivoManager.chatAtivo) {
-                        event.preventDefault()
-                    }
-                }
-            }
-        )
-
         CoroutineScope(Dispatchers.IO).launch {
             OneSignal.Notifications.requestPermission(true)
         }

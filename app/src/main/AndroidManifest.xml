@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Permissões -->
+    <!-- ⭐ PERMISSÕES (Ficam AQUI, fora do application) -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.VIBRATE" />
@@ -31,7 +31,7 @@
             </intent-filter>
         </activity>
 
-        <!-- TODAS AS OUTRAS TELAS -->
+        <!-- DEMAIS TELAS -->
         <activity android:name=".OnboardingActivity" android:exported="false" />
         <activity android:name=".CadastroActivity" android:exported="false" />
         <activity android:name=".LoginActivity" android:exported="false" />
@@ -60,11 +60,10 @@
         <activity android:name=".AdminEmpresasActivity" android:exported="false" />
         <activity android:name=".AdminTrabalhosActivity" android:exported="false" />
         <activity android:name=".LanguageActivity" android:exported="false" />
-        <activity android:name=".EstatisticasEmpresaActivity" android:exported="false" />
-        <activity android:name=".NovoChatActivity" android:exported="false" />
         <activity android:name=".ListaAmigosActivity" android:exported="false" />
+        <activity android:name=".NovaConversaActivity" android:exported="false" />
 
-        <!-- FILE PROVIDER -->
+        <!-- ⭐ FILE PROVIDER (Fica DENTRO do application) -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
@@ -76,4 +75,5 @@
         </provider>
 
     </application>
+
 </manifest>

@@ -12,6 +12,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.example.plataformaremota.data.entity.Chat
+import com.example.plataformaremota.data.repository.AmizadeRepository
 import com.example.plataformaremota.data.repository.ChatRepository
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
@@ -20,6 +21,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlin.math.roundToInt
+
 class PerfilUsuarioActivity : BaseActivity() {
 
     private lateinit var btnVoltar: ImageView
@@ -30,6 +32,11 @@ class PerfilUsuarioActivity : BaseActivity() {
     private lateinit var txtEmail: TextView
     private lateinit var txtBioUsuarioPerfil: TextView
     private lateinit var dotStatusUsuario: View
+
+    // ⭐ Botões de Amizade e Mensagem
+    private lateinit var btnMensagemPerfil: MaterialButton
+    private lateinit var btnAddAmigo: MaterialButton
+    private lateinit var layoutBotoesAmizade: LinearLayout
 
     private lateinit var txtTituloGrupo: TextView
     private lateinit var layoutAcoesGrupo: View
@@ -49,7 +56,7 @@ class PerfilUsuarioActivity : BaseActivity() {
     private lateinit var txtNomeCurriculoUsuario: TextView
     private var curriculoUrlUsuario: String = ""
 
-    // ⭐ Avaliações
+    // Avaliações
     private lateinit var txtTituloAvaliacoes: TextView
     private lateinit var cardAvaliacoesUsuario: MaterialCardView
     private lateinit var txtMediaAvaliacoes: TextView
@@ -58,6 +65,7 @@ class PerfilUsuarioActivity : BaseActivity() {
     private lateinit var containerAvaliacoesUsuario: LinearLayout
 
     private lateinit var repository: ChatRepository
+    private lateinit var amizadeRepository: AmizadeRepository
 
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
@@ -69,12 +77,15 @@ class PerfilUsuarioActivity : BaseActivity() {
     private var souCriador: Boolean = false
     private var usuarioEstaBloqueado: Boolean = false
     private var usuarioEhAdmin: Boolean = false
+    private var statusAmizadeAtual = "nenhum"
+    private var nomeUsuarioAtual = "Usuário" // Para usar na notificação
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_perfil_usuario)
 
         repository = ChatRepository()
+        amizadeRepository = AmizadeRepository()
 
         btnVoltar = findViewById(R.id.btnVoltarPerfilUsuario)
         imgFoto = findViewById(R.id.imgFotoUsuario)
@@ -84,6 +95,11 @@ class PerfilUsuarioActivity : BaseActivity() {
         txtEmail = findViewById(R.id.txtEmailUsuarioPerfil)
         txtBioUsuarioPerfil = findViewById(R.id.txtBioUsuarioPerfil)
         dotStatusUsuario = findViewById(R.id.dotStatusUsuario)
+
+        // ⭐ Inicializando botões de amizade
+        layoutBotoesAmizade = findViewById(R.id.layoutBotoesAmizade)
+        btnMensagemPerfil = findViewById(R.id.btnMensagemPerfil)
+        btnAddAmigo = findViewById(R.id.btnAddAmigo)
 
         txtTituloGrupo = findViewById(R.id.txtTituloAcoes)
         layoutAcoesGrupo = findViewById(R.id.layoutAcoesGrupo)
@@ -118,8 +134,93 @@ class PerfilUsuarioActivity : BaseActivity() {
 
         btnVoltar.setOnClickListener { finish() }
 
+        // ⭐ Lógica de verificar se é o próprio perfil para esconder os botões
+        val uidAtual = auth.currentUser?.uid
+        if (uidAtual == uidUsuario) {
+            layoutBotoesAmizade.visibility = View.GONE
+        } else {
+            layoutBotoesAmizade.visibility = View.VISIBLE
+            configurarBotoesAmizade()
+        }
+
         registrarVisualizacao()
         carregarDados()
+    }
+
+    // ⭐ NOVA FUNÇÃO: Configura os cliques dos botões de amizade e mensagem
+    private fun configurarBotoesAmizade() {
+        verificarStatusAmizade()
+
+        btnMensagemPerfil.setOnClickListener {
+            lifecycleScope.launch {
+                val chatId = repository.criarOuBuscarChatUmParaUm(uidUsuario, nomeUsuarioAtual)
+                if (chatId != null) {
+                    val intent = Intent(this@PerfilUsuarioActivity, ChatActivity::class.java)
+                    intent.putExtra("chatId", chatId)
+                    startActivity(intent)
+                }
+            }
+        }
+
+        btnAddAmigo.setOnClickListener {
+            btnAddAmigo.isEnabled = false // Evita cliques duplos
+            lifecycleScope.launch {
+                when (statusAmizadeAtual) {
+                    "nenhum" -> {
+                        val sucesso = amizadeRepository.enviarSolicitacao(uidUsuario, nomeUsuarioAtual)
+                        if (sucesso) {
+                            Toast.makeText(this@PerfilUsuarioActivity, "Solicitação enviada!", Toast.LENGTH_SHORT).show()
+                            verificarStatusAmizade()
+                        } else {
+                            Toast.makeText(this@PerfilUsuarioActivity, "Erro ao enviar. Verifique as regras do Firestore.", Toast.LENGTH_LONG).show()
+                        }
+                    }
+                    "pendente_recebida" -> {
+                        if (amizadeRepository.aceitarSolicitacao(uidUsuario)) {
+                            Toast.makeText(this@PerfilUsuarioActivity, "Agora vocês são amigos!", Toast.LENGTH_SHORT).show()
+                            verificarStatusAmizade()
+                        }
+                    }
+                    "amigo" -> {
+                        if (amizadeRepository.removerAmigo(uidUsuario)) {
+                            Toast.makeText(this@PerfilUsuarioActivity, "Amizade desfeita", Toast.LENGTH_SHORT).show()
+                            verificarStatusAmizade()
+                        }
+                    }
+                }
+                btnAddAmigo.isEnabled = true
+            }
+        }
+    }
+
+    // ⭐ NOVA FUNÇÃO: Atualiza o visual do botão de acordo com o status
+    private fun verificarStatusAmizade() {
+        lifecycleScope.launch {
+            statusAmizadeAtual = amizadeRepository.verificarStatus(uidUsuario)
+
+            when (statusAmizadeAtual) {
+                "amigo" -> {
+                    btnAddAmigo.text = "REMOVER"
+                    btnAddAmigo.isEnabled = true
+                    btnAddAmigo.setBackgroundColor(android.graphics.Color.parseColor("#D32F2F")) // Vermelho
+                }
+                "pendente_recebida" -> {
+                    btnAddAmigo.text = "ACEITAR"
+                    btnAddAmigo.isEnabled = true
+                    btnAddAmigo.setBackgroundColor(android.graphics.Color.parseColor("#43A047")) // Verde
+                }
+                "pendente_enviada" -> {
+                    btnAddAmigo.text = "PENDENTE"
+                    btnAddAmigo.isEnabled = false
+                    btnAddAmigo.setBackgroundColor(android.graphics.Color.parseColor("#757575")) // Cinza
+                }
+                else -> {
+                    btnAddAmigo.text = "ADICIONAR"
+                    btnAddAmigo.isEnabled = true
+                    btnAddAmigo.setBackgroundColor(android.graphics.Color.parseColor("#0D226B")) // Azul Escuro
+                }
+            }
+        }
     }
 
     private fun registrarVisualizacao() {
@@ -143,6 +244,8 @@ class PerfilUsuarioActivity : BaseActivity() {
             try {
                 val docUser = db.collection("usuarios").document(uidUsuario).get().await()
                 val nome = docUser.getString("nome") ?: "Usuário"
+                nomeUsuarioAtual = nome // ⭐ Salva para usar na solicitação de amizade
+
                 val username = docUser.getString("username") ?: ""
                 val profissao = docUser.getString("profissao") ?: ""
                 val email = docUser.getString("email") ?: ""

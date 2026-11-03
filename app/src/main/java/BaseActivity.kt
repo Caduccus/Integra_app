@@ -20,11 +20,14 @@ open class BaseActivity : AppCompatActivity() {
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
+    // ⭐ Variável para desativar o tema em telas específicas (como Detalhes do Trabalho)
+    protected open val aplicarTemaAutomatico: Boolean = true
+
     override fun attachBaseContext(newBase: Context) {
-        // ⭐ 1. Aplica idioma escolhido
+        // 1. Aplica idioma escolhido
         val ctxComIdioma = LanguageManager.aplicarIdioma(newBase)
 
-        // ⭐ 2. Aplica escala de fonte
+        // 2. Aplica escala de fonte
         val escala = AcessibilidadePrefs.getFontScaleValue(ctxComIdioma)
         val config = Configuration(ctxComIdioma.resources.configuration)
         config.fontScale = escala
@@ -50,7 +53,12 @@ open class BaseActivity : AppCompatActivity() {
             CloudinaryManager.iniciado = true
         }
 
-        auth.currentUser?.uid?.let { uid -> OneSignal.login(uid) }
+        // ⭐ AQUI ESTÁ A MÁGICA DO ONESIGNAL ⭐
+        // Se o usuário estiver logado no Firebase, avisa o OneSignal
+        val uidAtual = auth.currentUser?.uid
+        if (uidAtual != null) {
+            OneSignal.login(uidAtual)
+        }
     }
 
     override fun onContentChanged() {
@@ -93,6 +101,9 @@ open class BaseActivity : AppCompatActivity() {
     }
 
     private fun aplicarTema() {
+        // Se a tela desativou o tema automático (como a MainActivity2), não faz nada
+        if (!aplicarTemaAutomatico) return
+
         val root = findViewById<ViewGroup>(android.R.id.content) ?: return
         val altoContraste = AcessibilidadePrefs.isAltoContraste(this)
 

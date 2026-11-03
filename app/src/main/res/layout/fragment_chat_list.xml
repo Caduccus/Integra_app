@@ -7,6 +7,7 @@
     android:orientation="vertical"
     android:padding="16dp">
 
+    <!-- Cabeçalho -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -19,17 +20,34 @@
             android:layout_height="28dp"
             android:layout_marginEnd="12dp"
             android:src="@drawable/ic_message"
-            app:tint="@color/white" />
+            app:tint="#FFFFFF" />
 
+        <!-- Título com maxLines para não quebrar -->
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:maxLines="1"
+            android:ellipsize="end"
             android:text="@string/chat_titulo"
-            android:textColor="@color/white"
+            android:textColor="#FFFFFF"
             android:textSize="24sp"
             android:textStyle="bold" />
 
+        <!-- ⭐ Botão de Nova Conversa (Lápis) -->
+        <ImageView
+            android:id="@+id/btnNovaConversa"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="8dp"
+            android:src="@drawable/ic_novochat"
+            app:tint="#E9EDEF" />
+
+        <!-- ⭐ Botão de Novo Grupo (Apenas UM) -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnNovoGrupo"
             android:layout_width="wrap_content"
@@ -37,22 +55,21 @@
             android:insetTop="0dp"
             android:insetBottom="0dp"
             android:text="@string/chat_btn_novo_grupo"
-            android:textColor="@color/white"
+            android:textColor="#FFFFFF"
             android:textSize="11sp"
             android:textStyle="bold"
             app:backgroundTint="#0D226B"
             app:cornerRadius="20dp" />
     </LinearLayout>
 
+    <!-- Container da Lista de Chats -->
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        app:cardBackgroundColor="#33FFFFFF"
+        app:cardBackgroundColor="#1F2C34"
         app:cardCornerRadius="20dp"
-        app:cardElevation="6dp"
-        app:strokeWidth="1.5dp"
-        app:strokeColor="#66FFFFFF">
+        app:cardElevation="0dp">
 
         <FrameLayout
             android:layout_width="match_parent"
@@ -98,7 +115,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/chat_vazio_titulo"
                     android:textAlignment="center"
-                    android:textColor="@color/white"
+                    android:textColor="#E9EDEF"
                     android:textSize="20sp"
                     android:textStyle="bold" />
 
@@ -109,20 +126,8 @@
                     android:layout_marginBottom="24dp"
                     android:text="@string/chat_vazio_sub"
                     android:textAlignment="center"
-                    android:textColor="#B3FFFFFF"
+                    android:textColor="#8696A0"
                     android:textSize="14sp" />
-
-                <!-- Botão de Novo Chat Direto -->
-                <ImageView
-                    android:id="@+id/btnNovoChat"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_marginEnd="8dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:src="@drawable/ic_add_circle"
-                    app:tint="#E9EDEF" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnCriarGrupoVazio"
@@ -132,16 +137,16 @@
                     android:insetBottom="0dp"
                     android:paddingHorizontal="24dp"
                     android:text="@string/chat_btn_criar_grupo"
-                    android:textColor="@color/white"
+                    android:textColor="#FFFFFF"
                     android:textSize="13sp"
                     android:textStyle="bold"
-                    app:backgroundTint="#43A047"
+                    app:backgroundTint="#0D226B"
                     app:cornerRadius="24dp"
                     app:icon="@drawable/ic_add"
                     app:iconGravity="textStart"
                     app:iconPadding="6dp"
                     app:iconSize="18dp"
-                    app:iconTint="@color/white" />
+                    app:iconTint="#FFFFFF" />
             </LinearLayout>
 
             <LinearLayout
@@ -155,7 +160,7 @@
                 <ProgressBar
                     android:layout_width="48dp"
                     android:layout_height="48dp"
-                    android:indeterminateTint="@color/white" />
+                    android:indeterminateTint="#1E88E5" />
             </LinearLayout>
         </FrameLayout>
     </com.google.android.material.card.MaterialCardView>

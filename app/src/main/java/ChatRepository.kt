@@ -484,11 +484,24 @@ class ChatRepository {
         try {
             val chat = buscarChat(chatId)
             if (chat != null && chat.empresaId.isNotEmpty()) {
-                return false
+                return false // Não pode sair de grupo de empresa
             }
-        } catch (_: Exception) { }
 
-        return removerMembro(chatId, uid)
+            // Remove o usuário
+            val sucesso = removerMembro(chatId, uid)
+
+            // ⭐ Se for conversa 1 a 1 e a pessoa saiu, podemos até deletar o chat inteiro se quiser.
+            // Se a lista de participantes ficar vazia, deleta a conversa.
+            if (sucesso) {
+                val chatAtualizado = buscarChat(chatId)
+                if (chatAtualizado != null && chatAtualizado.participantes.isEmpty()) {
+                    db.collection("chats").document(chatId).delete().await()
+                }
+            }
+            return sucesso
+        } catch (e: Exception) {
+            return false
+        }
     }
 
     suspend fun promoverAdmin(chatId: String, uidPromover: String): Boolean {
@@ -632,10 +645,7 @@ class ChatRepository {
         }
     }
 
-    suspend fun notificarParticipantes(
-        chatId: String,
-        textoPreview: String
-    ) {
+    suspend fun notificarParticipantes(chatId: String, textoPreview: String) {
         val uidAtual = auth.currentUser?.uid ?: return
         try {
             val chat = buscarChat(chatId) ?: return
@@ -647,26 +657,33 @@ class ChatRepository {
             val mensagem = "$meuNome: $textoPreview"
 
             for (dest in destinatarios) {
+                // Atualiza contador de não lidas
                 val statusRef = db.collection("chats").document(chatId)
                     .collection("status").document(dest)
                 val statusDoc = statusRef.get().await()
                 val unreadCount = statusDoc.getLong("unreadCount") ?: 0L
 
                 statusRef.set(
-                    mapOf(
-                        "unreadCount" to (unreadCount + 1),
-                        "ultimaVez" to System.currentTimeMillis()
-                    ),
+                    mapOf("unreadCount" to (unreadCount + 1), "ultimaVez" to System.currentTimeMillis()),
                     SetOptions.merge()
                 ).await()
 
-                if (unreadCount < 3L) {
-                    NotificacaoHelper.enviar(dest, titulo, mensagem, chatId)
+                // ⭐ Chama o helper unificado (Salva no app e manda Push)
+                if (unreadCount < 5L) {
+                    NotificacaoHelper.notificar(
+                        uidDestino = dest,
+                        titulo = titulo,
+                        mensagem = mensagem,
+                        tipo = "mensagem",
+                        refId = chatId,
+                        chatId = chatId
+                    )
                 }
             }
-        } catch (_: Exception) { }
+        } catch (e: Exception) {
+            Log.e("CHAT_NOTIF", "Erro: ${e.message}")
+        }
     }
-
     private suspend fun buscarNomeUsuario(uid: String): String? {
         return try {
             val doc = db.collection("usuarios").document(uid).get().await()

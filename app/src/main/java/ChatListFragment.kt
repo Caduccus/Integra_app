@@ -8,7 +8,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView // ⭐ O IMPORT QUE ESTAVA FALTANDO
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
@@ -38,7 +38,7 @@ class ChatListFragment : Fragment() {
     private lateinit var layoutLoading: View
     private lateinit var btnNovoGrupo: MaterialButton
     private lateinit var btnCriarGrupoVazio: MaterialButton
-    private lateinit var btnNovoChat: ImageView // ⭐ Nova variável do botão
+    private lateinit var btnNovaConversa: ImageView // ⭐ Variável adicionada aqui
 
     private lateinit var adapter: ChatAdapter
     private lateinit var skeletonAdapter: SkeletonAdapter
@@ -79,16 +79,13 @@ class ChatListFragment : Fragment() {
         layoutLoading = view.findViewById(R.id.layoutLoading)
         btnNovoGrupo = view.findViewById(R.id.btnNovoGrupo)
         btnCriarGrupoVazio = view.findViewById(R.id.btnCriarGrupoVazio)
-        btnNovoChat = view.findViewById(R.id.btnNovoChat) // ⭐ Pega a referência
+        btnNovaConversa = view.findViewById(R.id.btnNovaConversa) // ⭐ Inicializando a variável
 
         repository = ChatRepository()
 
         configurarRecyclerView()
 
-        btnNovoChat.setOnClickListener { // ⭐ Ação do botão
-            startActivity(Intent(requireContext(), NovoChatActivity::class.java))
-        }
-
+        // Clique para criar um novo grupo
         btnNovoGrupo.setOnClickListener {
             val intent = Intent(requireContext(), NovoGrupoActivity::class.java)
             novoGrupoLauncher.launch(intent)
@@ -97,6 +94,11 @@ class ChatListFragment : Fragment() {
         btnCriarGrupoVazio.setOnClickListener {
             val intent = Intent(requireContext(), NovoGrupoActivity::class.java)
             novoGrupoLauncher.launch(intent)
+        }
+
+        // ⭐ Clique para nova conversa direta
+        btnNovaConversa.setOnClickListener {
+            startActivity(Intent(requireContext(), NovaConversaActivity::class.java))
         }
 
         carregarChats()
@@ -257,8 +259,8 @@ class ChatListFragment : Fragment() {
             .mapNotNull { it.toObject(Chat::class.java) }
             .filter { uid !in it.deletadosPara }
             .sortedWith(
-                compareByDescending<Chat> { uid in it.fixadoPor } // Fixados primeiro
-                    .thenByDescending { it.timestamp }            // Depois por data
+                compareByDescending<Chat> { uid in it.fixadoPor }
+                    .thenByDescending { it.timestamp }
             )
 
         Log.d(TAG, "✅ ${chats.size} chats encontrados")
