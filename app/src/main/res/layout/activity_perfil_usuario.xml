@@ -1,32 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true">
+    android:fillViewport="true"
+    android:overScrollMode="never"
+    android:scrollbars="none"
+    tools:ignore="HardcodedText">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingBottom="16dp">
 
-        <!-- Header -->
+        <!-- ===== Cabeçalho ===== -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="#1A000000"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:padding="12dp">
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="8dp">
 
             <ImageView
                 android:id="@+id/btnVoltarPerfilUsuario"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:padding="8dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:clickable="true"
+                android:contentDescription="Voltar"
                 android:focusable="true"
+                android:padding="12dp"
                 android:src="@drawable/ic_arrow_back"
                 app:tint="@color/white" />
 
@@ -35,45 +42,51 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_weight="1"
+                android:ellipsize="end"
+                android:maxLines="1"
                 android:text="@string/perfil_titulo"
                 android:textColor="@color/white"
                 android:textSize="18sp"
                 android:textStyle="bold" />
         </LinearLayout>
 
-        <!-- Card do usuário -->
+        <!-- ===== Card do usuário ===== -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="16dp"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="16dp"
             app:cardBackgroundColor="#33FFFFFF"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="6dp"
-            app:strokeWidth="1.5dp"
-            app:strokeColor="#66FFFFFF">
+            app:cardCornerRadius="24dp"
+            app:cardElevation="0dp"
+            app:strokeColor="#40FFFFFF"
+            app:strokeWidth="1dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
                 android:orientation="vertical"
-                android:padding="24dp">
+                android:paddingHorizontal="24dp"
+                android:paddingVertical="28dp">
 
                 <com.google.android.material.card.MaterialCardView
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
+                    android:layout_width="104dp"
+                    android:layout_height="104dp"
                     android:layout_marginBottom="16dp"
                     app:cardBackgroundColor="#33FFFFFF"
-                    app:cardCornerRadius="50dp"
+                    app:cardCornerRadius="52dp"
                     app:cardElevation="0dp"
-                    app:strokeWidth="2dp"
-                    app:strokeColor="#66FFFFFF">
+                    app:strokeColor="#66FFFFFF"
+                    app:strokeWidth="2dp">
 
                     <ImageView
                         android:id="@+id/imgFotoUsuario"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:padding="20dp"
+                        android:contentDescription="Foto do usuário"
+                        android:padding="22dp"
                         android:src="@drawable/ic_person"
                         app:tint="@color/white" />
                 </com.google.android.material.card.MaterialCardView>
@@ -88,10 +101,13 @@
                         android:id="@+id/txtNomeUsuarioPerfil"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Nome do Usuário"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:maxWidth="240dp"
                         android:textColor="@color/white"
                         android:textSize="22sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        tools:text="Nome do Usuário" />
 
                     <View
                         android:id="@+id/dotStatusUsuario"
@@ -106,26 +122,31 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:text="@username"
+                    android:ellipsize="end"
+                    android:maxLines="1"
                     android:textColor="#B3FFFFFF"
-                    android:textSize="14sp" />
+                    android:textSize="14sp"
+                    tools:text="\@usuario" />
 
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
+                    android:layout_marginTop="14dp"
                     app:cardBackgroundColor="#4D0D226B"
                     app:cardCornerRadius="20dp"
                     app:cardElevation="0dp"
-                    app:strokeWidth="1dp"
-                    app:strokeColor="#66FFFFFF">
+                    app:strokeColor="#66FFFFFF"
+                    app:strokeWidth="1dp">
 
                     <TextView
                         android:id="@+id/txtProfissaoUsuarioPerfil"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:maxWidth="260dp"
                         android:paddingHorizontal="16dp"
-                        android:paddingVertical="6dp"
+                        android:paddingVertical="7dp"
                         android:text="@string/cadastro_hint_profissao"
                         android:textColor="@color/white"
                         android:textSize="13sp"
@@ -136,74 +157,90 @@
                     android:id="@+id/txtBioUsuarioPerfil"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:layout_marginHorizontal="16dp"
+                    android:layout_marginHorizontal="8dp"
+                    android:layout_marginTop="16dp"
+                    android:lineSpacingExtra="3dp"
                     android:text="@string/perfil_bio_vazia"
                     android:textAlignment="center"
                     android:textColor="#B3FFFFFF"
-                    android:textSize="13sp"
+                    android:textSize="14sp"
                     android:textStyle="italic" />
 
                 <TextView
                     android:id="@+id/txtEmailUsuarioPerfil"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:text="email@exemplo.com"
+                    android:layout_marginTop="14dp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
                     android:textColor="#B3FFFFFF"
-                    android:textSize="13sp" />
+                    android:textSize="13sp"
+                    tools:text="email@exemplo.com" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- ⭐ BOTÕES DE AMIZADE E MENSAGEM -->
+        <!-- ===== Botões de mensagem e amizade ===== -->
         <LinearLayout
             android:id="@+id/layoutBotoesAmizade"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginBottom="16dp"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginBottom="24dp"
             android:orientation="horizontal"
             android:weightSum="2">
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnMensagemPerfil"
+                style="@style/Widget.Material3.Button"
                 android:layout_width="0dp"
-                android:layout_height="50dp"
+                android:layout_height="52dp"
                 android:layout_marginEnd="6dp"
                 android:layout_weight="1"
-                android:backgroundTint="#1E88E5"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:maxLines="1"
                 android:text="MENSAGEM"
                 android:textColor="#FFFFFF"
                 android:textSize="13sp"
                 android:textStyle="bold"
-                app:cornerRadius="12dp"
+                app:backgroundTint="#1E88E5"
+                app:cornerRadius="14dp"
                 app:icon="@drawable/ic_message"
                 app:iconGravity="textStart"
+                app:iconPadding="8dp"
+                app:iconSize="18dp"
                 app:iconTint="#FFFFFF" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnAddAmigo"
+                style="@style/Widget.Material3.Button"
                 android:layout_width="0dp"
-                android:layout_height="50dp"
+                android:layout_height="52dp"
                 android:layout_marginStart="6dp"
                 android:layout_weight="1"
-                android:backgroundTint="#0D226B"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:maxLines="1"
                 android:text="ADICIONAR"
                 android:textColor="#FFFFFF"
                 android:textSize="13sp"
                 android:textStyle="bold"
-                app:cornerRadius="12dp"
+                app:backgroundTint="#0D226B"
+                app:cornerRadius="14dp"
                 app:icon="@drawable/ic_add"
                 app:iconGravity="textStart"
+                app:iconPadding="8dp"
+                app:iconSize="18dp"
                 app:iconTint="#FFFFFF" />
         </LinearLayout>
 
-        <!-- ⭐ Links do usuário -->
+        <!-- ===== Links ===== -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
+            android:layout_marginHorizontal="24dp"
             android:layout_marginBottom="8dp"
+            android:letterSpacing="0.08"
             android:text="LINKS"
             android:textColor="#B3FFFFFF"
             android:textSize="12sp"
@@ -212,13 +249,13 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginBottom="16dp"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginBottom="24dp"
             app:cardBackgroundColor="#33FFFFFF"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="4dp"
-            app:strokeWidth="1dp"
-            app:strokeColor="#66FFFFFF">
+            app:cardCornerRadius="18dp"
+            app:cardElevation="0dp"
+            app:strokeColor="#40FFFFFF"
+            app:strokeWidth="1dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -245,12 +282,14 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
+        <!-- ===== Currículo ===== -->
         <TextView
             android:id="@+id/txtTituloCurriculo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
+            android:layout_marginHorizontal="24dp"
             android:layout_marginBottom="8dp"
+            android:letterSpacing="0.08"
             android:text="@string/perfil_secao_curriculo"
             android:textColor="#B3FFFFFF"
             android:textSize="12sp"
@@ -261,21 +300,23 @@
             android:id="@+id/cardCurriculoUsuario"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginBottom="16dp"
-            android:visibility="gone"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginBottom="24dp"
             android:clickable="true"
             android:focusable="true"
+            android:visibility="gone"
             app:cardBackgroundColor="#33FFFFFF"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="4dp"
-            app:strokeWidth="1dp"
-            app:strokeColor="#66FFFFFF">
+            app:cardCornerRadius="18dp"
+            app:cardElevation="0dp"
+            app:rippleColor="#1AFFFFFF"
+            app:strokeColor="#40FFFFFF"
+            app:strokeWidth="1dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
+                android:minHeight="64dp"
                 android:orientation="horizontal"
                 android:padding="16dp">
 
@@ -283,6 +324,7 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:layout_marginEnd="16dp"
+                    android:importantForAccessibility="no"
                     android:src="@drawable/ic_menu_description"
                     app:tint="#43A047" />
 
@@ -296,36 +338,40 @@
                         android:id="@+id/txtNomeCurriculoUsuario"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:ellipsize="end"
+                        android:ellipsize="middle"
                         android:maxLines="1"
-                        android:text="curriculo.pdf"
                         android:textColor="@color/white"
                         android:textSize="14sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        tools:text="curriculo.pdf" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
                         android:text="@string/perfil_curriculo_toque_abrir"
                         android:textColor="#B3FFFFFF"
-                        android:textSize="11sp" />
+                        android:textSize="12sp" />
                 </LinearLayout>
 
                 <ImageView
                     android:layout_width="20dp"
                     android:layout_height="20dp"
-                    android:src="@drawable/ic_arrow_back"
+                    android:importantForAccessibility="no"
                     android:rotation="180"
+                    android:src="@drawable/ic_arrow_back"
                     app:tint="#80FFFFFF" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
+        <!-- ===== Avaliações ===== -->
         <TextView
             android:id="@+id/txtTituloAvaliacoes"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
+            android:layout_marginHorizontal="24dp"
             android:layout_marginBottom="8dp"
+            android:letterSpacing="0.08"
             android:text="AVALIAÇÕES"
             android:textColor="#B3FFFFFF"
             android:textSize="12sp"
@@ -336,14 +382,14 @@
             android:id="@+id/cardAvaliacoesUsuario"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginBottom="16dp"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginBottom="24dp"
             android:visibility="gone"
             app:cardBackgroundColor="#33FFFFFF"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="4dp"
-            app:strokeWidth="1dp"
-            app:strokeColor="#66FFFFFF">
+            app:cardCornerRadius="18dp"
+            app:cardElevation="0dp"
+            app:strokeColor="#40FFFFFF"
+            app:strokeWidth="1dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -354,18 +400,18 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
                     android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:layout_marginBottom="12dp">
+                    android:orientation="horizontal">
 
                     <TextView
                         android:id="@+id/txtMediaAvaliacoes"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="5.0"
                         android:textColor="#FFC107"
                         android:textSize="26sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        tools:text="5.0" />
 
                     <LinearLayout
                         android:id="@+id/linhaEstrelasMedia"
@@ -380,9 +426,11 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="10dp"
                         android:layout_weight="1"
-                        android:text="(0 avaliações)"
+                        android:ellipsize="end"
+                        android:maxLines="1"
                         android:textColor="#B3FFFFFF"
-                        android:textSize="12sp" />
+                        android:textSize="12sp"
+                        tools:text="(0 avaliações)" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -393,13 +441,14 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Ações do GRUPO -->
+        <!-- ===== Ações do grupo ===== -->
         <TextView
             android:id="@+id/txtTituloAcoes"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
+            android:layout_marginHorizontal="24dp"
             android:layout_marginBottom="8dp"
+            android:letterSpacing="0.08"
             android:text="AÇÕES DO GRUPO"
             android:textColor="#B3FFFFFF"
             android:textSize="12sp"
@@ -410,16 +459,17 @@
             android:id="@+id/layoutAcoesGrupo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginBottom="16dp"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginBottom="24dp"
             android:orientation="vertical"
             android:visibility="gone">
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnPromoverAdmin"
+                style="@style/Widget.Material3.Button"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
-                android:layout_marginBottom="8dp"
+                android:layout_marginBottom="10dp"
                 android:insetTop="0dp"
                 android:insetBottom="0dp"
                 android:text="PROMOVER A ADMIN"
@@ -431,10 +481,12 @@
                 app:icon="@drawable/ic_person"
                 app:iconGravity="textStart"
                 app:iconPadding="8dp"
+                app:iconSize="18dp"
                 app:iconTint="@color/white" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnRemoverDoGrupo"
+                style="@style/Widget.Material3.Button"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
                 android:insetTop="0dp"
@@ -448,16 +500,18 @@
                 app:icon="@drawable/ic_delete"
                 app:iconGravity="textStart"
                 app:iconPadding="8dp"
+                app:iconSize="18dp"
                 app:iconTint="@color/white" />
         </LinearLayout>
 
-        <!-- Bloquear -->
+        <!-- ===== Bloquear ===== -->
         <TextView
             android:id="@+id/txtTituloBloquear"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
+            android:layout_marginHorizontal="24dp"
             android:layout_marginBottom="8dp"
+            android:letterSpacing="0.08"
             android:text="AÇÕES"
             android:textColor="#B3FFFFFF"
             android:textSize="12sp"
@@ -466,23 +520,24 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnBloquearUsuario"
+            style="@style/Widget.Material3.Button"
             android:layout_width="match_parent"
             android:layout_height="52dp"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginBottom="24dp"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginBottom="8dp"
             android:insetTop="0dp"
             android:insetBottom="0dp"
             android:text="BLOQUEAR USUÁRIO"
             android:textColor="@color/white"
             android:textSize="14sp"
             android:textStyle="bold"
+            android:visibility="gone"
             app:backgroundTint="#757575"
             app:cornerRadius="26dp"
             app:icon="@drawable/ic_delete"
             app:iconGravity="textStart"
             app:iconPadding="8dp"
-            app:iconTint="@color/white"
-            android:visibility="gone" />
-
+            app:iconSize="18dp"
+            app:iconTint="@color/white" />
     </LinearLayout>
 </ScrollView>

@@ -5,84 +5,94 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:paddingHorizontal="20dp"
+    android:paddingTop="20dp"
+    android:paddingBottom="12dp">
 
-    <!-- Cabeçalho -->
+    <!-- ===== Cabeçalho ===== -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
         android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:layout_marginBottom="16dp">
+        android:orientation="horizontal">
 
         <ImageView
             android:layout_width="28dp"
             android:layout_height="28dp"
             android:layout_marginEnd="12dp"
+            android:importantForAccessibility="no"
             android:src="@drawable/ic_message"
             app:tint="#FFFFFF" />
 
-        <!-- Título com maxLines para não quebrar -->
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:maxLines="1"
             android:ellipsize="end"
+            android:maxLines="1"
             android:text="@string/chat_titulo"
             android:textColor="#FFFFFF"
             android:textSize="24sp"
             android:textStyle="bold" />
 
-        <!-- ⭐ Botão de Nova Conversa (Lápis) -->
         <ImageView
             android:id="@+id/btnNovaConversa"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginEnd="8dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="4dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:clickable="true"
+            android:contentDescription="Nova conversa"
             android:focusable="true"
-            android:padding="8dp"
+            android:padding="12dp"
             android:src="@drawable/ic_novochat"
-            app:tint="#E9EDEF" />
+            app:tint="#E9EDEF"
+            tools:ignore="HardcodedText" />
 
-        <!-- ⭐ Botão de Novo Grupo (Apenas UM) -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnNovoGrupo"
+            style="@style/Widget.Material3.Button"
             android:layout_width="wrap_content"
             android:layout_height="40dp"
             android:insetTop="0dp"
             android:insetBottom="0dp"
+            android:maxLines="1"
+            android:paddingHorizontal="16dp"
             android:text="@string/chat_btn_novo_grupo"
             android:textColor="#FFFFFF"
-            android:textSize="11sp"
+            android:textSize="12sp"
             android:textStyle="bold"
             app:backgroundTint="#0D226B"
             app:cornerRadius="20dp" />
     </LinearLayout>
 
-    <!-- Container da Lista de Chats -->
+    <!-- ===== Lista de chats ===== -->
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         app:cardBackgroundColor="#1F2C34"
-        app:cardCornerRadius="20dp"
-        app:cardElevation="0dp">
+        app:cardCornerRadius="24dp"
+        app:cardElevation="0dp"
+        app:strokeColor="#2A3942"
+        app:strokeWidth="1dp">
 
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:padding="4dp">
+            android:layout_height="match_parent">
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvChats"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:overScrollMode="never"
+                android:paddingVertical="6dp"
                 android:visibility="gone"
                 tools:listitem="@layout/item_chat" />
 
+            <!-- Estado vazio -->
             <LinearLayout
                 android:id="@+id/layoutEstadoVazio"
                 android:layout_width="match_parent"
@@ -93,25 +103,26 @@
                 android:visibility="gone">
 
                 <com.google.android.material.card.MaterialCardView
-                    android:layout_width="120dp"
-                    android:layout_height="120dp"
+                    android:layout_width="112dp"
+                    android:layout_height="112dp"
                     android:layout_marginBottom="20dp"
                     app:cardBackgroundColor="#1AFFFFFF"
-                    app:cardCornerRadius="60dp"
+                    app:cardCornerRadius="56dp"
                     app:cardElevation="0dp"
-                    app:strokeWidth="2dp"
-                    app:strokeColor="#33FFFFFF">
+                    app:strokeColor="#33FFFFFF"
+                    app:strokeWidth="1dp">
 
                     <ImageView
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:padding="35dp"
+                        android:importantForAccessibility="no"
+                        android:padding="32dp"
                         android:src="@drawable/ic_message"
                         app:tint="#B3FFFFFF" />
                 </com.google.android.material.card.MaterialCardView>
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/chat_vazio_titulo"
                     android:textAlignment="center"
@@ -120,10 +131,11 @@
                     android:textStyle="bold" />
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="24dp"
+                    android:lineSpacingExtra="2dp"
                     android:text="@string/chat_vazio_sub"
                     android:textAlignment="center"
                     android:textColor="#8696A0"
@@ -131,6 +143,7 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnCriarGrupoVazio"
+                    style="@style/Widget.Material3.Button"
                     android:layout_width="wrap_content"
                     android:layout_height="48dp"
                     android:insetTop="0dp"
@@ -138,17 +151,18 @@
                     android:paddingHorizontal="24dp"
                     android:text="@string/chat_btn_criar_grupo"
                     android:textColor="#FFFFFF"
-                    android:textSize="13sp"
+                    android:textSize="14sp"
                     android:textStyle="bold"
                     app:backgroundTint="#0D226B"
                     app:cornerRadius="24dp"
                     app:icon="@drawable/ic_add"
                     app:iconGravity="textStart"
-                    app:iconPadding="6dp"
+                    app:iconPadding="8dp"
                     app:iconSize="18dp"
                     app:iconTint="#FFFFFF" />
             </LinearLayout>
 
+            <!-- Carregando -->
             <LinearLayout
                 android:id="@+id/layoutLoading"
                 android:layout_width="match_parent"
@@ -157,10 +171,13 @@
                 android:orientation="vertical"
                 android:visibility="visible">
 
-                <ProgressBar
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:indeterminateTint="#1E88E5" />
+                <com.google.android.material.progressindicator.CircularProgressIndicator
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:indeterminate="true"
+                    app:indicatorColor="#1E88E5"
+                    app:indicatorSize="44dp"
+                    app:trackThickness="4dp" />
             </LinearLayout>
         </FrameLayout>
     </com.google.android.material.card.MaterialCardView>

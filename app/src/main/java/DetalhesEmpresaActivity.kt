@@ -9,6 +9,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -31,8 +32,12 @@ import kotlinx.coroutines.tasks.await
 
 class DetalhesEmpresaActivity : BaseActivity() {
 
-    private lateinit var btnVoltar: ImageView
+    // ⭐ DESATIVA O TEMA AUTOMÁTICO PARA MANTER O VISUAL ESCURO E LEGÍVEL
+    override val aplicarTemaAutomatico: Boolean = false
+
+    private lateinit var toolbar: Toolbar
     private lateinit var imgBannerEmpresa: ImageView
+    private lateinit var btnVoltar: ImageView
     private lateinit var cardLogo: MaterialCardView
     private lateinit var badgeCamera: MaterialCardView
     private lateinit var imgLogo: ImageView
@@ -69,25 +74,21 @@ class DetalhesEmpresaActivity : BaseActivity() {
     private var empresaAtual: Empresa? = null
     private var souDono: Boolean = false
     private var uploadingLogo: Boolean = false
-    private var uploadingBanner: Boolean = false
 
-    // ⭐ LAUNCHER DA LOGO
     private val pickImageLauncher = registerForActivityResult(
         ActivityResultContracts.PickVisualMedia()
     ) { uri ->
         if (uri != null) uploadLogo(uri)
     }
 
-    // ⭐ LAUNCHER DO BANNER
-    private val pickBannerLauncher = registerForActivityResult(
-        ActivityResultContracts.PickVisualMedia()
-    ) { uri ->
-        if (uri != null) uploadBanner(uri)
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_detalhes_empresa)
+
+        // ⭐ CONFIGURA A BARRA DE FERRAMENTAS (TOOLBAR)
+        toolbar = findViewById(R.id.toolbar)
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayShowTitleEnabled(false) // Tira o título padrão para ficar limpo
 
         empresaId = intent.getStringExtra("empresaId") ?: ""
 
@@ -135,7 +136,6 @@ class DetalhesEmpresaActivity : BaseActivity() {
             startActivity(intent)
         }
 
-        // ⭐ Clique na Logo
         cardLogo.setOnClickListener {
             if (!souDono) {
                 Toast.makeText(this, getString(R.string.empresa_so_dono_logo), Toast.LENGTH_SHORT).show()
@@ -147,19 +147,7 @@ class DetalhesEmpresaActivity : BaseActivity() {
             )
         }
 
-        // ⭐ Clique no Banner
-        imgBannerEmpresa.setOnClickListener {
-            if (souDono && !uploadingBanner) {
-                pickBannerLauncher.launch(
-                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                )
-            }
-        }
-
         carregarTudo()
-
-        ThemeManager.aplicarCores(this, findViewById(android.R.id.content))
-        ThemeManager.aplicarCoresTexto(this, findViewById(android.R.id.content))
     }
 
     private fun configurarRecyclers() {
@@ -209,9 +197,11 @@ class DetalhesEmpresaActivity : BaseActivity() {
         val uid = auth.currentUser?.uid ?: ""
         souDono = empresa.criadorId == uid
 
-        // ⭐ Carrega o Banner
+        // ⭐ CARREGA O BANNER DA EMPRESA
         if (empresa.bannerUrl.isNotEmpty()) {
             Glide.with(this).load(empresa.bannerUrl).centerCrop().into(imgBannerEmpresa)
+        } else {
+            imgBannerEmpresa.setImageResource(R.drawable.bg_gradient_banner) // fallback
         }
 
         txtNome.text = empresa.nome
@@ -379,7 +369,6 @@ class DetalhesEmpresaActivity : BaseActivity() {
         startActivity(intent)
     }
 
-    // ⭐ FUNÇÃO QUE ESTAVA FALTANDO: UPLOAD DA LOGO
     private fun uploadLogo(uri: Uri) {
         uploadingLogo = true
         Toast.makeText(this, getString(R.string.perfil_foto_enviando), Toast.LENGTH_SHORT).show()
@@ -403,8 +392,7 @@ class DetalhesEmpresaActivity : BaseActivity() {
                             uploadingLogo = false
 
                             if (ok) {
-                                Glide.with(this@DetalhesEmpresaActivity)
-                                    .load(secureUrl).circleCrop().into(imgLogo)
+                                Glide.with(this@DetalhesEmpresaActivity).load(secureUrl).circleCrop().into(imgLogo)
                                 imgLogo.imageTintList = null
                                 imgLogo.setPadding(0, 0, 0, 0)
                                 Toast.makeText(this@DetalhesEmpresaActivity, getString(R.string.empresa_foto_atualizada), Toast.LENGTH_SHORT).show()
@@ -424,53 +412,6 @@ class DetalhesEmpresaActivity : BaseActivity() {
                 .dispatch()
         } catch (e: Exception) {
             uploadingLogo = false
-            Toast.makeText(this, getString(R.string.geral_erro, e.message ?: ""), Toast.LENGTH_LONG).show()
-        }
-    }
-
-    // ⭐ FUNÇÃO NOVA: UPLOAD DO BANNER
-    private fun uploadBanner(uri: Uri) {
-        uploadingBanner = true
-        Toast.makeText(this, "Enviando banner...", Toast.LENGTH_SHORT).show()
-
-        try {
-            MediaManager.get().upload(uri)
-                .unsigned("fotos_perfil")
-                .option("folder", "empresas/banners")
-                .callback(object : UploadCallback {
-                    override fun onStart(requestId: String?) { }
-                    override fun onProgress(requestId: String?, bytes: Long, totalBytes: Long) { }
-
-                    override fun onSuccess(requestId: String?, resultData: MutableMap<Any?, Any?>?) {
-                        val url = resultData?.get("secure_url") as? String
-                            ?: resultData?.get("url") as? String
-                            ?: return
-                        val secureUrl = url.replace("http://", "https://")
-
-                        lifecycleScope.launch {
-                            val ok = empresaRepository.atualizarBannerEmpresa(empresaId, secureUrl)
-                            uploadingBanner = false
-
-                            if (ok) {
-                                Glide.with(this@DetalhesEmpresaActivity)
-                                    .load(secureUrl).centerCrop().into(imgBannerEmpresa)
-                                Toast.makeText(this@DetalhesEmpresaActivity, "Banner atualizado!", Toast.LENGTH_SHORT).show()
-                            } else {
-                                Toast.makeText(this@DetalhesEmpresaActivity, getString(R.string.geral_erro, "Falha ao salvar banner"), Toast.LENGTH_SHORT).show()
-                            }
-                        }
-                    }
-
-                    override fun onError(requestId: String?, error: ErrorInfo?) {
-                        uploadingBanner = false
-                        Toast.makeText(this@DetalhesEmpresaActivity, getString(R.string.geral_erro, error?.description ?: ""), Toast.LENGTH_LONG).show()
-                    }
-
-                    override fun onReschedule(requestId: String?, error: ErrorInfo?) { }
-                })
-                .dispatch()
-        } catch (e: Exception) {
-            uploadingBanner = false
             Toast.makeText(this, getString(R.string.geral_erro, e.message ?: ""), Toast.LENGTH_LONG).show()
         }
     }

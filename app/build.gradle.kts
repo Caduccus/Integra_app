@@ -27,12 +27,6 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        // ⭐ Cria a variável BuildConfig
-        buildConfigField(
-            "String",
-            "ONESIGNAL_REST_API_KEY",
-            "\"${localProperties.getProperty("ONESIGNAL_REST_API_KEY") ?: ""}\""
-        )
     }
 
     buildTypes {

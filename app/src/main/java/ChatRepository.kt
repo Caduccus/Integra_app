@@ -101,38 +101,25 @@ class ChatRepository {
         }
     }
 
-    // ─────────────────────────────────────────────
-    // ENVIAR TEXTO
-    // ─────────────────────────────────────────────
+    // ⭐ Envio de Texto
     suspend fun enviarMensagem(chatId: String, texto: String): Boolean {
         val uid = auth.currentUser?.uid ?: return false
         if (texto.isBlank()) return false
 
         return try {
             val nome = buscarNomeUsuario(uid) ?: "Usuário"
-
             val msg = Mensagem(
-                remetenteId = uid,
-                nomeRemetente = nome,
-                texto = texto.trim(),
-                tipo = "texto",
-                urlMidia = "",
-                timestamp = System.currentTimeMillis()
+                remetenteId = uid, nomeRemetente = nome, texto = texto.trim(),
+                tipo = "texto", urlMidia = "", timestamp = System.currentTimeMillis()
             )
 
-            db.collection("chats").document(chatId)
-                .collection("mensagens").add(msg).await()
-
+            db.collection("chats").document(chatId).collection("mensagens").add(msg).await()
             db.collection("chats").document(chatId).update(
-                mapOf(
-                    "ultimaMensagem" to texto.trim(),
-                    "ultimaMensagemRemetente" to nome,
-                    "timestamp" to System.currentTimeMillis()
-                )
+                mapOf("ultimaMensagem" to texto.trim(), "ultimaMensagemRemetente" to nome, "timestamp" to System.currentTimeMillis())
             ).await()
 
             restaurarParaTodos(chatId)
-            notificarParticipantes(chatId, texto.trim())
+            notificarParticipantes(chatId, texto.trim()) // ⭐ Chama a notificação
             true
         } catch (e: Exception) {
             Log.e(TAG, "❌ Erro ao enviar: ${e.message}")
@@ -140,137 +127,72 @@ class ChatRepository {
         }
     }
 
-    // ─────────────────────────────────────────────
-    // ENVIAR ÁUDIO
-    // ─────────────────────────────────────────────
+    // ⭐ Envio de Áudio
     suspend fun enviarAudio(chatId: String, urlAudio: String, duracaoMs: Long): Boolean {
         val uid = auth.currentUser?.uid ?: return false
-
         return try {
             val nome = buscarNomeUsuario(uid) ?: "Usuário"
-
             val msg = Mensagem(
-                remetenteId = uid,
-                nomeRemetente = nome,
-                texto = "",
-                tipo = "audio",
-                urlMidia = urlAudio,
-                duracaoMs = duracaoMs,
-                timestamp = System.currentTimeMillis()
+                remetenteId = uid, nomeRemetente = nome, texto = "",
+                tipo = "audio", urlMidia = urlAudio, duracaoMs = duracaoMs, timestamp = System.currentTimeMillis()
             )
 
-            db.collection("chats").document(chatId)
-                .collection("mensagens").add(msg).await()
-
+            db.collection("chats").document(chatId).collection("mensagens").add(msg).await()
             db.collection("chats").document(chatId).update(
-                mapOf(
-                    "ultimaMensagem" to "🎤 Áudio",
-                    "ultimaMensagemRemetente" to nome,
-                    "timestamp" to System.currentTimeMillis()
-                )
+                mapOf("ultimaMensagem" to "🎤 Áudio", "ultimaMensagemRemetente" to nome, "timestamp" to System.currentTimeMillis())
             ).await()
 
             restaurarParaTodos(chatId)
-            notificarParticipantes(chatId, "🎤 Áudio")
+            notificarParticipantes(chatId, "🎤 Áudio") // ⭐ Chama a notificação
             true
-        } catch (e: Exception) {
-            Log.e(TAG, "❌ Erro ao enviar áudio: ${e.message}")
-            false
-        }
+        } catch (e: Exception) { false }
     }
 
-    // ─────────────────────────────────────────────
-    // ENVIAR IMAGEM
-    // ─────────────────────────────────────────────
+    // ⭐ Envio de Imagem
     suspend fun enviarImagem(chatId: String, urlImagem: String, legenda: String = ""): Boolean {
         val uid = auth.currentUser?.uid ?: return false
-
         return try {
             val nome = buscarNomeUsuario(uid) ?: "Usuário"
-
             val msg = Mensagem(
-                remetenteId = uid,
-                nomeRemetente = nome,
-                texto = legenda.trim(),
-                tipo = "imagem",
-                urlMidia = urlImagem,
-                timestamp = System.currentTimeMillis()
+                remetenteId = uid, nomeRemetente = nome, texto = legenda.trim(),
+                tipo = "imagem", urlMidia = urlImagem, timestamp = System.currentTimeMillis()
             )
 
-            db.collection("chats").document(chatId)
-                .collection("mensagens").add(msg).await()
-
+            db.collection("chats").document(chatId).collection("mensagens").add(msg).await()
             val preview = if (legenda.isBlank()) "📷 Imagem" else "📷 $legenda"
 
             db.collection("chats").document(chatId).update(
-                mapOf(
-                    "ultimaMensagem" to preview,
-                    "ultimaMensagemRemetente" to nome,
-                    "timestamp" to System.currentTimeMillis()
-                )
+                mapOf("ultimaMensagem" to preview, "ultimaMensagemRemetente" to nome, "timestamp" to System.currentTimeMillis())
             ).await()
 
             restaurarParaTodos(chatId)
-            notificarParticipantes(chatId, if (legenda.isBlank()) "📷 Imagem" else "📷 $legenda")
+            notificarParticipantes(chatId, preview) // ⭐ Chama a notificação
             true
-        } catch (e: Exception) {
-            Log.e(TAG, "❌ Erro ao enviar imagem: ${e.message}")
-            false
-        }
+        } catch (e: Exception) { false }
     }
 
-    // ─────────────────────────────────────────────
-    // ⭐ ENVIAR ARQUIVO
-    // ─────────────────────────────────────────────
-    suspend fun enviarArquivo(
-        chatId: String,
-        url: String,
-        nome: String,
-        tamanho: Long,
-        mime: String
-    ): Boolean {
+    // ⭐ Envio de Arquivo
+    suspend fun enviarArquivo(chatId: String, url: String, nome: String, tamanho: Long, mime: String): Boolean {
         val uid = auth.currentUser?.uid ?: return false
         if (nome.isBlank()) return false
 
-        // ⭐ Garante extensão no nome
-        val nomeComExtensao = if (!nome.contains(".")) {
-            val ext = mimeParaExtensao(mime)
-            if (ext.isNotEmpty()) "$nome.$ext" else nome
-        } else nome
-
         return try {
             val nomeUser = buscarNomeUsuario(uid) ?: "Usuário"
-
             val msg = Mensagem(
-                remetenteId = uid,
-                nomeRemetente = nomeUser,
-                texto = "",
-                tipo = "arquivo",
-                urlMidia = url,
-                timestamp = System.currentTimeMillis(),
-                nomeArquivo = nomeComExtensao,
-                tamanhoArquivo = tamanho,
-                mimeType = mime
+                remetenteId = uid, nomeRemetente = nomeUser, texto = "",
+                tipo = "arquivo", urlMidia = url, timestamp = System.currentTimeMillis(),
+                nomeArquivo = nome, tamanhoArquivo = tamanho, mimeType = mime
             )
 
-            db.collection("chats").document(chatId)
-                .collection("mensagens").add(msg).await()
-
+            db.collection("chats").document(chatId).collection("mensagens").add(msg).await()
             db.collection("chats").document(chatId).update(
-                mapOf(
-                    "ultimaMensagem" to "📎 $nomeComExtensao",
-                    "ultimaMensagemRemetente" to nomeUser,
-                    "timestamp" to System.currentTimeMillis()
-                )
+                mapOf("ultimaMensagem" to "📎 $nome", "ultimaMensagemRemetente" to nomeUser, "timestamp" to System.currentTimeMillis())
             ).await()
 
             restaurarParaTodos(chatId)
-            notificarParticipantes(chatId, "📎 $nomeComExtensao")
+            notificarParticipantes(chatId, "📎 $nome") // ⭐ Chama a notificação
             true
-        } catch (e: Exception) {
-            Log.e(TAG, "❌ Erro ao enviar arquivo: ${e.message}")
-            false
-        }
+        } catch (e: Exception) { false }
     }
 
     private fun mimeParaExtensao(mime: String): String {
@@ -645,11 +567,16 @@ class ChatRepository {
         }
     }
 
+    // ⭐ Função que efetivamente dispara o Push
     suspend fun notificarParticipantes(chatId: String, textoPreview: String) {
         val uidAtual = auth.currentUser?.uid ?: return
         try {
+            Log.d("TESTE_NOTIF", "1. Entrou na função notificarParticipantes. ChatId: $chatId")
+
             val chat = buscarChat(chatId) ?: return
             val destinatarios = chat.participantes.filter { it != uidAtual }
+
+            Log.d("TESTE_NOTIF", "2. Destinatários encontrados: $destinatarios")
             if (destinatarios.isEmpty()) return
 
             val meuNome = buscarNomeUsuario(uidAtual) ?: "Usuário"
@@ -657,31 +584,20 @@ class ChatRepository {
             val mensagem = "$meuNome: $textoPreview"
 
             for (dest in destinatarios) {
-                // Atualiza contador de não lidas
-                val statusRef = db.collection("chats").document(chatId)
-                    .collection("status").document(dest)
-                val statusDoc = statusRef.get().await()
-                val unreadCount = statusDoc.getLong("unreadCount") ?: 0L
+                // ⭐ PULANDO A ATUALIZAÇÃO DO UNREADCOUNT (BLOQUEADO PELO FIRESTORE)
+                Log.d("TESTE_NOTIF", "3. Chamando NotificacaoHelper para o UID: $dest")
 
-                statusRef.set(
-                    mapOf("unreadCount" to (unreadCount + 1), "ultimaVez" to System.currentTimeMillis()),
-                    SetOptions.merge()
-                ).await()
-
-                // ⭐ Chama o helper unificado (Salva no app e manda Push)
-                if (unreadCount < 5L) {
-                    NotificacaoHelper.notificar(
-                        uidDestino = dest,
-                        titulo = titulo,
-                        mensagem = mensagem,
-                        tipo = "mensagem",
-                        refId = chatId,
-                        chatId = chatId
-                    )
-                }
+                NotificacaoHelper.notificar(
+                    uidDestino = dest,
+                    titulo = titulo,
+                    mensagem = mensagem,
+                    tipo = "mensagem",
+                    refId = chatId,
+                    chatId = chatId // Envia o chatId para o OneSignal
+                )
             }
         } catch (e: Exception) {
-            Log.e("CHAT_NOTIF", "Erro: ${e.message}")
+            Log.e(TAG, "Erro ao notificar: ${e.message}")
         }
     }
     private suspend fun buscarNomeUsuario(uid: String): String? {

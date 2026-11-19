@@ -3,14 +3,15 @@ package com.example.plataformaremota
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.json.JSONObject
 import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.URL
 
 object NotificacaoHelper {
 
-    private val REST_API_KEY = BuildConfig.ONESIGNAL_REST_API_KEY
-    private const val APP_ID = "d2bb6774-9d05-4241-8e20-b78a7a325119" // ⚠️ SEU APP ID AQUI
+    // ⚠️ COLOQUE A URL DO SEU CLOUDFLARE WORKER AQUI
+    private const val CLOUDFLARE_WORKER_URL = "https://integra-notificacoes.jefobolo.workers.dev"
 
     suspend fun salvarInApp(
         uidDestino: String,
@@ -42,33 +43,26 @@ object NotificacaoHelper {
         mensagem: String,
         chatId: String = ""
     ) {
-        if (REST_API_KEY.isEmpty()) {
-            Log.e("ONESIGNAL", "ERRO: REST_API_KEY está vazia no local.properties!")
-            return
-        }
-
         withContext(Dispatchers.IO) {
             try {
-                val url = URL("https://api.onesignal.com/notifications")
+                Log.d("TESTE_NOTIF", "5. Entrou no enviarPush. URL: $CLOUDFLARE_WORKER_URL")
+
+                val url = URL(CLOUDFLARE_WORKER_URL)
                 val conn = url.openConnection() as HttpURLConnection
 
                 conn.requestMethod = "POST"
                 conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8")
-                conn.setRequestProperty("Authorization", "Key $REST_API_KEY")
                 conn.doOutput = true
 
-                val dataJson = if (chatId.isNotEmpty()) ""","data":{"chat_id":"$chatId"}""" else ""
+                // Criando o JSON de forma segura
+                val jsonBody = JSONObject().apply {
+                    put("uidDestino", uidDestino)
+                    put("titulo", titulo)
+                    put("mensagem", mensagem)
+                    put("chatId", chatId)
+                }.toString()
 
-                val jsonBody = """
-                    {
-                        "app_id": "$APP_ID",
-                        "include_aliases": {"external_id": ["$uidDestino"]},
-                        "target_channel": "push",
-                        "headings": {"en": "$titulo", "pt": "$titulo"},
-                        "contents": {"en": "$mensagem", "pt": "$mensagem"},
-                        "android_group": "chat_$chatId"$dataJson
-                    }
-                """.trimIndent()
+                Log.d("TESTE_NOTIF", "6. JSON montado, enviando requisição HTTP...")
 
                 val os = conn.outputStream
                 val writer = OutputStreamWriter(os, "UTF-8")
@@ -77,14 +71,16 @@ object NotificacaoHelper {
                 writer.close()
 
                 val responseCode = conn.responseCode
+                Log.d("TESTE_NOTIF", "7. Resposta do Cloudflare: HTTP $responseCode")
+
                 if (responseCode !in 200..299) {
-                    Log.e("ONESIGNAL", "Falha no envio: $responseCode - ${conn.errorStream?.bufferedReader()?.readText()}")
+                    Log.e("CLOUDFLARE_PUSH", "Falha no envio: $responseCode - ${conn.errorStream?.bufferedReader()?.readText()}")
                 } else {
-                    Log.d("ONESIGNAL", "Push enviado com sucesso para $uidDestino")
+                    Log.d("CLOUDFLARE_PUSH", "Push enviado com sucesso via Cloudflare para $uidDestino")
                 }
                 conn.disconnect()
             } catch (e: Exception) {
-                Log.e("ONESIGNAL", "Exceção ao enviar push: ${e.message}")
+                Log.e("TESTE_NOTIF", "❌ ERRO FATAL NO ENVIO: ${e.message}", e)
             }
         }
     }

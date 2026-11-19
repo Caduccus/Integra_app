@@ -5,19 +5,23 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="24dp">
+    android:paddingHorizontal="20dp"
+    android:paddingTop="20dp"
+    android:paddingBottom="12dp">
 
+    <!-- ===== Cabeçalho ===== -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
         android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:layout_marginBottom="16dp">
+        android:orientation="horizontal">
 
         <ImageView
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_marginEnd="12dp"
+            android:importantForAccessibility="no"
             android:src="@drawable/ic_person"
             app:tint="@color/white" />
 
@@ -26,77 +30,88 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="1"
             android:text="@string/home_ola"
             android:textColor="@color/white"
-            android:textSize="26sp"
+            android:textSize="24sp"
             android:textStyle="bold" />
 
         <ImageView
             android:id="@+id/btnBuscaGlobal"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginEnd="4dp"
-            android:padding="8dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:clickable="true"
+            android:contentDescription="Buscar"
             android:focusable="true"
+            android:padding="12dp"
             android:src="@android:drawable/ic_menu_search"
             app:tint="@color/white" />
 
         <FrameLayout
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginEnd="4dp">
+            android:layout_width="48dp"
+            android:layout_height="48dp">
 
             <ImageView
                 android:id="@+id/btnSinoNotif"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:padding="8dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:clickable="true"
+                android:contentDescription="Notificações"
                 android:focusable="true"
+                android:padding="12dp"
                 android:src="@drawable/ic_notificacao"
                 app:tint="@color/white" />
 
             <TextView
                 android:id="@+id/badgeSino"
-                android:layout_width="18dp"
+                android:layout_width="wrap_content"
                 android:layout_height="18dp"
                 android:layout_gravity="top|end"
+                android:layout_marginTop="6dp"
+                android:layout_marginEnd="4dp"
                 android:background="#F44336"
                 android:gravity="center"
+                android:importantForAccessibility="no"
+                android:minWidth="18dp"
+                android:paddingHorizontal="4dp"
                 android:text="0"
-                android:textColor="#FFFFFF"
+                android:textColor="@color/white"
                 android:textSize="10sp"
                 android:textStyle="bold"
-                android:visibility="gone" />
+                android:visibility="gone"
+                tools:ignore="HardcodedText"
+                tools:visibility="visible" />
         </FrameLayout>
 
         <ImageView
             android:id="@+id/btnLogout"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:padding="8dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:clickable="true"
-            android:focusable="true"
             android:contentDescription="@string/perfil_sair"
+            android:focusable="true"
+            android:padding="12dp"
             android:src="@drawable/ic_logout"
             app:tint="@color/white" />
     </LinearLayout>
 
+    <!-- ===== Título da seção ===== -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
         android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:layout_marginBottom="12dp">
+        android:orientation="horizontal">
 
         <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
             android:layout_marginEnd="8dp"
+            android:importantForAccessibility="no"
             android:src="@drawable/ic_work_outline"
             app:tint="#B3FFFFFF" />
 
@@ -109,6 +124,7 @@
             android:textStyle="bold" />
     </LinearLayout>
 
+    <!-- ===== Busca ===== -->
     <com.google.android.material.textfield.TextInputLayout
         style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
@@ -116,104 +132,130 @@
         android:layout_marginBottom="12dp"
         android:hint="@string/home_busca_hint"
         android:textColorHint="#B3FFFFFF"
+        app:boxBackgroundColor="#1AFFFFFF"
+        app:boxCornerRadiusBottomEnd="14dp"
+        app:boxCornerRadiusBottomStart="14dp"
+        app:boxCornerRadiusTopEnd="14dp"
+        app:boxCornerRadiusTopStart="14dp"
         app:boxStrokeColor="@color/white"
-        app:boxStrokeWidth="1.5dp"
-        app:boxBackgroundColor="@android:color/transparent"
+        app:boxStrokeWidth="1dp"
+        app:endIconMode="clear_text"
+        app:endIconTint="#B3FFFFFF"
         app:hintTextColor="@color/white"
         app:startIconDrawable="@android:drawable/ic_menu_search"
-        app:startIconTint="@color/white">
+        app:startIconTint="#B3FFFFFF">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/edtBuscaHome"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:imeOptions="actionSearch"
             android:inputType="text"
+            android:maxLines="1"
             android:textColor="@color/white" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <com.google.android.material.button.MaterialButtonToggleGroup
-        android:id="@+id/toggleGroupFiltro"
+    <!-- ===== Filtros (rolagem horizontal, texto legível) ===== -->
+    <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        app:singleSelection="true"
-        app:selectionRequired="true">
+        android:layout_marginBottom="12dp"
+        android:overScrollMode="never"
+        android:scrollbars="none">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnTodos"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="0dp"
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/toggleGroupFiltro"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:paddingHorizontal="2dp"
-            android:text="@string/home_filtro_todos"
-            android:textColor="@color/white"
-            android:textSize="9sp"
-            android:checked="true"
-            app:cornerRadius="20dp"
-            app:strokeColor="#66FFFFFF"
-            app:strokeWidth="1dp" />
+            app:selectionRequired="true"
+            app:singleSelection="true">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnMeus"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:paddingHorizontal="2dp"
-            android:text="@string/home_filtro_meus"
-            android:textColor="@color/white"
-            android:textSize="9sp"
-            app:cornerRadius="20dp"
-            app:strokeColor="#66FFFFFF"
-            app:strokeWidth="1dp" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnTodos"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:checked="true"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:maxLines="1"
+                android:paddingHorizontal="16dp"
+                android:text="@string/home_filtro_todos"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                app:cornerRadius="20dp"
+                app:strokeColor="#66FFFFFF"
+                app:strokeWidth="1dp" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnInscritos"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:paddingHorizontal="2dp"
-            android:text="@string/home_filtro_inscritos"
-            android:textColor="@color/white"
-            android:textSize="9sp"
-            app:cornerRadius="20dp"
-            app:strokeColor="#66FFFFFF"
-            app:strokeWidth="1dp" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnMeus"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:maxLines="1"
+                android:paddingHorizontal="16dp"
+                android:text="@string/home_filtro_meus"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                app:cornerRadius="20dp"
+                app:strokeColor="#66FFFFFF"
+                app:strokeWidth="1dp" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnEmpresaFiltro"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:paddingHorizontal="2dp"
-            android:text="@string/home_filtro_empresas"
-            android:textColor="@color/white"
-            android:textSize="9sp"
-            app:cornerRadius="20dp"
-            app:strokeColor="#66FFFFFF"
-            app:strokeWidth="1dp" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnInscritos"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:maxLines="1"
+                android:paddingHorizontal="16dp"
+                android:text="@string/home_filtro_inscritos"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                app:cornerRadius="20dp"
+                app:strokeColor="#66FFFFFF"
+                app:strokeWidth="1dp" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnFavoritos"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:paddingHorizontal="2dp"
-            android:text="@string/home_filtro_favoritos"
-            android:textColor="@color/white"
-            android:textSize="9sp"
-            app:cornerRadius="20dp"
-            app:strokeColor="#66FFFFFF"
-            app:strokeWidth="1dp" />
-    </com.google.android.material.button.MaterialButtonToggleGroup>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnEmpresaFiltro"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:maxLines="1"
+                android:paddingHorizontal="16dp"
+                android:text="@string/home_filtro_empresas"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                app:cornerRadius="20dp"
+                app:strokeColor="#66FFFFFF"
+                app:strokeWidth="1dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnFavoritos"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:maxLines="1"
+                android:paddingHorizontal="16dp"
+                android:text="@string/home_filtro_favoritos"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                app:cornerRadius="20dp"
+                app:strokeColor="#66FFFFFF"
+                app:strokeWidth="1dp" />
+        </com.google.android.material.button.MaterialButtonToggleGroup>
+    </HorizontalScrollView>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnVerHistoricoCandidaturas"
-        style="@style/Widget.MaterialComponents.Button.TextButton"
+        style="@style/Widget.Material3.Button.TextButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
@@ -222,28 +264,32 @@
         android:textSize="13sp"
         android:visibility="gone" />
 
+    <!-- ===== Conteúdo ===== -->
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         app:cardBackgroundColor="#33FFFFFF"
-        app:cardCornerRadius="20dp"
-        app:cardElevation="6dp"
-        app:strokeWidth="1.5dp"
-        app:strokeColor="#66FFFFFF">
+        app:cardCornerRadius="24dp"
+        app:cardElevation="0dp"
+        app:strokeColor="#66FFFFFF"
+        app:strokeWidth="1dp">
 
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:padding="8dp">
+            android:layout_height="match_parent">
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerTrabalhos"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:overScrollMode="never"
+                android:padding="8dp"
                 android:visibility="gone"
                 tools:listitem="@layout/item_trabalho" />
 
+            <!-- Estado vazio -->
             <LinearLayout
                 android:id="@+id/layoutEstadoVazio"
                 android:layout_width="match_parent"
@@ -254,26 +300,27 @@
                 android:visibility="gone">
 
                 <com.google.android.material.card.MaterialCardView
-                    android:layout_width="120dp"
-                    android:layout_height="120dp"
+                    android:layout_width="112dp"
+                    android:layout_height="112dp"
                     android:layout_marginBottom="20dp"
                     app:cardBackgroundColor="#1AFFFFFF"
-                    app:cardCornerRadius="60dp"
+                    app:cardCornerRadius="56dp"
                     app:cardElevation="0dp"
-                    app:strokeWidth="2dp"
-                    app:strokeColor="#33FFFFFF">
+                    app:strokeColor="#33FFFFFF"
+                    app:strokeWidth="1dp">
 
                     <ImageView
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:padding="35dp"
+                        android:importantForAccessibility="no"
+                        android:padding="32dp"
                         android:src="@drawable/ic_inbox"
                         app:tint="#B3FFFFFF" />
                 </com.google.android.material.card.MaterialCardView>
 
                 <TextView
                     android:id="@+id/txtEstadoVazioTitulo"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/home_vazio_titulo"
                     android:textAlignment="center"
@@ -283,10 +330,11 @@
 
                 <TextView
                     android:id="@+id/txtEstadoVazio"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="24dp"
+                    android:lineSpacingExtra="2dp"
                     android:text="@string/home_vazio_sub"
                     android:textAlignment="center"
                     android:textColor="#B3FFFFFF"
@@ -301,17 +349,18 @@
                     android:paddingHorizontal="24dp"
                     android:text="@string/home_btn_publicar_primeiro"
                     android:textColor="@color/white"
-                    android:textSize="13sp"
+                    android:textSize="14sp"
                     android:textStyle="bold"
                     app:backgroundTint="#0D226B"
                     app:cornerRadius="24dp"
                     app:icon="@drawable/ic_add"
                     app:iconGravity="textStart"
-                    app:iconPadding="6dp"
+                    app:iconPadding="8dp"
                     app:iconSize="18dp"
                     app:iconTint="@color/white" />
             </LinearLayout>
 
+            <!-- Carregando -->
             <LinearLayout
                 android:id="@+id/layoutLoading"
                 android:layout_width="match_parent"
@@ -320,15 +369,18 @@
                 android:orientation="vertical"
                 android:visibility="visible">
 
-                <ProgressBar
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:indeterminateTint="@color/white" />
+                <com.google.android.material.progressindicator.CircularProgressIndicator
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:indeterminate="true"
+                    app:indicatorColor="@color/white"
+                    app:indicatorSize="44dp"
+                    app:trackThickness="4dp" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
+                    android:layout_marginTop="16dp"
                     android:text="@string/home_carregando"
                     android:textColor="#B3FFFFFF"
                     android:textSize="14sp" />

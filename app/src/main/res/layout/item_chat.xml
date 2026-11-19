@@ -1,66 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/cardChat"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="8dp"
-    android:layout_marginVertical="6dp"
+    android:layout_marginVertical="4dp"
+    android:clickable="true"
+    android:focusable="true"
     app:cardBackgroundColor="#1F2C34"
     app:cardCornerRadius="16dp"
     app:cardElevation="0dp"
+    app:rippleColor="#1AFFFFFF"
     app:strokeWidth="0dp">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
+        android:minHeight="76dp"
         android:orientation="horizontal"
-        android:padding="16dp">
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="14dp">
+
+        <!-- Avatar -->
         <FrameLayout
             android:id="@+id/containerAvatarChat"
             android:layout_width="52dp"
             android:layout_height="52dp"
-            android:layout_marginEnd="12dp"
+            android:layout_marginEnd="14dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:clickable="true"
-            android:focusable="true">
+            android:contentDescription="Foto do chat"
+            android:focusable="true"
+            tools:ignore="HardcodedText">
+
             <ImageView
                 android:id="@+id/imgFotoChat"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:layout_gravity="center"
+                android:importantForAccessibility="no"
                 android:src="@drawable/ic_person"
                 app:tint="#8696A0" />
         </FrameLayout>
+
+        <!-- Texto -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="vertical">
+
+            <!-- Linha 1: nome + status | pino + hora -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:gravity="center_vertical"
                 android:orientation="horizontal">
+
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="center_vertical"
                     android:orientation="horizontal">
+
                     <TextView
                         android:id="@+id/txtNomeChat"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:background="?attr/selectableItemBackground"
                         android:clickable="true"
-                        android:focusable="true"
                         android:ellipsize="end"
+                        android:focusable="true"
                         android:maxLines="1"
                         android:padding="2dp"
-                        android:text="@string/chat_header_titulo"
                         android:textColor="#E9EDEF"
                         android:textSize="16sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        tools:text="@string/chat_header_titulo" />
+
                     <View
                         android:id="@+id/dotStatusChat"
                         android:layout_width="10dp"
@@ -68,23 +89,29 @@
                         android:layout_marginStart="6dp"
                         android:background="@drawable/bg_status_dot" />
                 </LinearLayout>
-                <!-- ⭐ Pino de Fixado -->
+
                 <ImageView
                     android:id="@+id/imgPinoFixado"
                     android:layout_width="16dp"
                     android:layout_height="16dp"
                     android:layout_marginEnd="8dp"
+                    android:importantForAccessibility="no"
                     android:src="@drawable/ic_add"
+                    android:visibility="gone"
                     app:tint="#8696A0"
-                    android:visibility="gone" />
+                    tools:visibility="visible" />
+
                 <TextView
                     android:id="@+id/txtHoraChat"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="12:00"
+                    android:maxLines="1"
                     android:textColor="#8696A0"
-                    android:textSize="11sp" />
+                    android:textSize="12sp"
+                    tools:text="12:00" />
             </LinearLayout>
+
+            <!-- Linha 2: contexto (opcional) -->
             <TextView
                 android:id="@+id/txtContextoChat"
                 android:layout_width="match_parent"
@@ -92,21 +119,24 @@
                 android:layout_marginTop="2dp"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:text="Trabalho"
                 android:textColor="#00A884"
-                android:textSize="11sp"
+                android:textSize="12sp"
                 android:textStyle="italic"
-                android:visibility="gone" />
+                android:visibility="gone"
+                tools:text="Trabalho"
+                tools:visibility="visible" />
+
+            <!-- Linha 3: última mensagem -->
             <TextView
                 android:id="@+id/txtUltimaMensagem"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
+                android:layout_marginTop="3dp"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:text="Última mensagem..."
                 android:textColor="#8696A0"
-                android:textSize="13sp" />
+                android:textSize="14sp"
+                tools:text="Última mensagem..." />
         </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
